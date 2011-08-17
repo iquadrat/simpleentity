@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SimpleEntity Object Serializer
+Bundle-SymbolicName: com.simpleentity.serialize
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Micha Riser
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
