@@ -13,6 +13,7 @@ public abstract class AbstractDisposable implements IDisposable {
 
   private boolean fDisposed = false;
 
+  @Override
   public final void dispose() {
     Assert.isFalse(fDisposed, "Double dispose detected on " + this);
     fDisposed = true;

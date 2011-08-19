@@ -23,6 +23,7 @@ public class CompoundIterator<T, I extends Iterator<T>> implements Iterator<T> {
     fIndex = 0;
   }
 
+  @Override
   public boolean hasNext() {
     int index = fIndex;
     for (;;) {
@@ -32,6 +33,7 @@ public class CompoundIterator<T, I extends Iterator<T>> implements Iterator<T> {
     }
   }
 
+  @Override
   public T next() {
     while (!fIterators.get(fIndex).hasNext()) {
       fIndex++;
@@ -39,6 +41,7 @@ public class CompoundIterator<T, I extends Iterator<T>> implements Iterator<T> {
     return fIterators.get(fIndex).next();
   }
 
+  @Override
   public void remove() {
     fIterators.get(fIndex).remove();
   }

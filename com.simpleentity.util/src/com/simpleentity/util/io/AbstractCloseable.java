@@ -24,6 +24,7 @@ public abstract class AbstractCloseable implements Closeable {
     fOpen = initalOpen;
   }
 
+  @Override
   public final void close() throws IOException {
     if (!fOpen) return;
     fOpen = false;

@@ -60,6 +60,7 @@ public class ObjectUtil {
 
       Field[] fields = c.getDeclaredFields();
       Arrays.sort(fields, new Comparator<Field>() {
+        @Override
         public int compare(Field o1, Field o2) {
           return o1.getName().compareTo(o2.getName());
         }

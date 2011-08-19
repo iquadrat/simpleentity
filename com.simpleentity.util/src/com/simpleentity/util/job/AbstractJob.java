@@ -18,6 +18,7 @@ public abstract class AbstractJob implements IJob<Void> {
     return null;
   }
 
+  @Override
   public final IJobGroup getGroup() {
     return fGroup;
   }

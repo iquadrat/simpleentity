@@ -63,16 +63,17 @@ public class IOUtil {
    */
   public static void writeIntCompact(ByteBufferWriter writer, int value) {
     if (value < 0) {
-      throw new AssertionError("Cannot write negative values: " + value);
+      throw new IllegalArgumentException("Cannot write negative values: " + value);
     }
-
-    int next = (value >>> 7);
+    
+    int remaining = value;
+    int next = (remaining >>> 7);
     while (next != 0) {
-      writer.putByte((byte) (((byte) value) | 0x80));
-      value = next;
+      writer.putByte((byte) (((byte) remaining) | 0x80));
+      remaining = next;
       next >>>= 7;
     }
-    writer.putByte((byte) value);
+    writer.putByte((byte) remaining);
   }
 
   /**
@@ -97,16 +98,17 @@ public class IOUtil {
    */
   public static void writeLongCompact(ByteBufferWriter writer, long value) {
     if (value < 0) {
-      throw new AssertionError("Cannot write negative values: " + value);
+      throw new IllegalArgumentException("Cannot write negative values: " + value);
     }
-
-    long next = (value >>> 7);
+    
+    long remaining = value;
+    long next = (remaining >>> 7);
     while (next != 0) {
-      writer.putByte((byte) (((byte) value) | 0x80));
-      value = next;
+      writer.putByte((byte) (((byte) remaining) | 0x80));
+      remaining = next;
       next >>>= 7;
     }
-    writer.putByte((byte) value);
+    writer.putByte((byte) remaining);
   }
 
   /**

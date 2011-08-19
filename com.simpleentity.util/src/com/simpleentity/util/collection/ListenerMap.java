@@ -29,6 +29,7 @@ public class ListenerMap<K, T> {
   public synchronized IDisposable add(final K key, final T listener) {
     fListeners.put(key, listener);
     return new IDisposable() {
+      @Override
       public synchronized void dispose() {
         boolean result = fListeners.remove(key, listener);
         Assert.isTrue(result, "double remove of handler");

@@ -109,6 +109,7 @@ public final class OrderedSet<T> implements Iterable<T> {
     Assert.isTrue(fList.size() == fSet.size(), "Map inconsistent: ",fList.size(),"!=",fSet.size());
   }
 
+  @Override
   public Iterator<T> iterator() {
     return asUnmodifiableList().iterator();
   }
