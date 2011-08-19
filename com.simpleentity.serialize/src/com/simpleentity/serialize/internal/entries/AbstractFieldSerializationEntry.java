@@ -25,6 +25,7 @@ public abstract class AbstractFieldSerializationEntry implements ISerializationE
   private void enableFieldAccess() {
     if (fField.isAccessible()) return;
     AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      @Override
       public Void run() {
         fField.setAccessible(true);
         return null;

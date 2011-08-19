@@ -14,10 +14,12 @@ public class ReferenceSerializationEntry extends AbstractFieldSerializationEntry
     super(field);
   }
 
+  @Override
   public void write(IObjectSerializationContext context, Object object) throws IllegalArgumentException, IllegalAccessException {
     context.writeObject(fField.get(object));
   }
 
+  @Override
   public void read(IObjectDeserializationContext context, final Object result) throws IllegalArgumentException, IllegalAccessException {
     context.readFieldReference(fField, result);
   }

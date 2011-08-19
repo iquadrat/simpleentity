@@ -16,11 +16,13 @@ import com.simpleentity.util.io.IOUtil;
  */
 public final class ClassSerializer implements IObjectSerializer<Class<?>> {
 
+  @Override
   public void serialize(IObjectSerializationContext context, Class<?> clazz) {
     int id = context.getIdForClass(clazz);
     IOUtil.writeIntCompact(context.getWriter(), id);
   }
 
+  @Override
   public Class<?> deserialize(IObjectDeserializationContext context) {
     int id = IOUtil.readIntCompact(context.getReader());
     return context.getClassForId(id);

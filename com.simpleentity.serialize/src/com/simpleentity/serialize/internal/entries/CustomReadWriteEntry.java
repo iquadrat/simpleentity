@@ -43,6 +43,7 @@ public class CustomReadWriteEntry implements ISerializationEntry {
     fWriteMethod = write;
     
     AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      @Override
       public Void run() {
         if (fReadMethod != null) fReadMethod.setAccessible(true);
         if (fWriteMethod != null) fWriteMethod.setAccessible(true);
@@ -52,12 +53,14 @@ public class CustomReadWriteEntry implements ISerializationEntry {
     
   }
 
+  @Override
   public void read(final IObjectDeserializationContext context, final Object result) {
     final byte[] data = readStoredData(context.getReader());
     if (fReadMethod == null) return;
 
     context.addPostDeserializationJob(new IPostDeserializationJob() {
 
+      @Override
       public void execute(final IObjectReader objectReader) {
         try {
           
@@ -89,6 +92,7 @@ public class CustomReadWriteEntry implements ISerializationEntry {
     return result;
   }
 
+  @Override
   public void write(final IObjectSerializationContext context, Object object) {
     if (fWriteMethod == null) return;
     

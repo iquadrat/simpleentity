@@ -11,7 +11,7 @@ import com.simpleentity.util.io.IOUtil;
 
 /**
  * Serializes constants of {@link Enum} by writing their ordinal.
- *  
+ * 
  * @author micha
  */
 public final class EnumSerializer implements IObjectSerializer<Enum<?>> {
@@ -22,10 +22,12 @@ public final class EnumSerializer implements IObjectSerializer<Enum<?>> {
     fEnumConstants = (Enum<?>[]) enumType.getEnumConstants();
   }
 
+  @Override
   public void serialize(IObjectSerializationContext context, Enum<?> value) {
     IOUtil.writeIntCompact(context.getWriter(), value.ordinal());
   }
 
+  @Override
   public Enum<?> deserialize(IObjectDeserializationContext context) {
     int index = IOUtil.readIntCompact(context.getReader());
     return fEnumConstants[index];

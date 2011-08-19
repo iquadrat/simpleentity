@@ -14,10 +14,12 @@ public class ByteSerializationEntry extends AbstractFieldSerializationEntry {
     super(field);
   }
 
+  @Override
   public void write(IObjectSerializationContext context, Object object) throws IllegalAccessException, IllegalArgumentException {
     context.getWriter().putByte(fField.getByte(object));
   }
 
+  @Override
   public void read(IObjectDeserializationContext context, Object result) throws IllegalArgumentException, IllegalAccessException {
     fField.setByte(result, context.getReader().readByte());
   }

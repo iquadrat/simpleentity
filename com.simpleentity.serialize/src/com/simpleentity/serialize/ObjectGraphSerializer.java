@@ -30,6 +30,7 @@ public class ObjectGraphSerializer implements IObjectGraphSerializer {
     registerBuiltinAWTSerializers(this);
   }
   
+  @Override
   public <T> void registerSerializer(Class<T> clazz, IObjectSerializer<T> serializer) {
     fSerializerFactory.registerSerializer(clazz, serializer);
   }
@@ -48,11 +49,13 @@ public class ObjectGraphSerializer implements IObjectGraphSerializer {
     serializer.registerSerializer(TransformAttribute.class, new TransformAttributeSerializer());
   }
 
+  @Override
   public ByteBuffer[] serializeObjectGraph(Object rootObject) {
     SerializationContext context = new SerializationContext(fSerializerFactory, rootObject);
     return context.serializeObjectGraph();
   }
 
+  @Override
   public Object deserializeObjectGraph(ByteBuffer bytes) {
     DeserializationContext context = new DeserializationContext(fSerializerFactory, bytes);
     return context.deserializeObjectGraph();

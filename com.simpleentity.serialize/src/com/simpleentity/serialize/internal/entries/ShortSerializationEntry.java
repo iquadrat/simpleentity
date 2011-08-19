@@ -14,10 +14,12 @@ public class ShortSerializationEntry extends AbstractFieldSerializationEntry {
     super(field);
   }
 
+  @Override
   public void write(IObjectSerializationContext context, Object object) throws IllegalAccessException, IllegalArgumentException {
     context.getWriter().putShort(fField.getShort(object));
   }
   
+  @Override
   public void read(IObjectDeserializationContext context, Object result) throws IllegalArgumentException, IllegalAccessException {
     fField.setShort(result, context.getReader().readShort());
   }

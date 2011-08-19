@@ -24,6 +24,7 @@ public class GenericObjectSerializer<T> implements IObjectSerializer<T> {
     fSerializationEntries.add(entry);
   }
 
+  @Override
   public void serialize(IObjectSerializationContext context, T object) {
     try {
       doSerialize(context, object);
@@ -40,6 +41,7 @@ public class GenericObjectSerializer<T> implements IObjectSerializer<T> {
     }
   }
 
+  @Override
   public T deserialize(IObjectDeserializationContext context) {
     try {
       return doDeserialize(context);

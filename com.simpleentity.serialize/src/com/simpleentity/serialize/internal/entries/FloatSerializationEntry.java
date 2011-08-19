@@ -14,10 +14,12 @@ public class FloatSerializationEntry extends AbstractFieldSerializationEntry {
     super(field);
   }
 
+  @Override
   public void write(IObjectSerializationContext context, Object object) throws IllegalAccessException, IllegalArgumentException {
     context.getWriter().putFloat(fField.getFloat(object));
   }
   
+  @Override
   public void read(IObjectDeserializationContext context, Object result) throws IllegalArgumentException, IllegalAccessException {
     fField.setFloat(result, context.getReader().readFloat());
   }

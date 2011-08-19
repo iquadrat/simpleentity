@@ -14,10 +14,12 @@ public class DoubleSerializationEntry extends AbstractFieldSerializationEntry {
     super(field);
   }
 
+  @Override
   public void write(IObjectSerializationContext context, Object object) throws IllegalAccessException, IllegalArgumentException {
     context.getWriter().putDouble(fField.getDouble(object));
   }
   
+  @Override
   public void read(IObjectDeserializationContext context, Object result) throws IllegalArgumentException, IllegalAccessException {
     fField.setDouble(result, context.getReader().readDouble());
   }

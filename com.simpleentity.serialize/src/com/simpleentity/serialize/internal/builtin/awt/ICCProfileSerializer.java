@@ -14,6 +14,7 @@ import com.simpleentity.util.io.IOUtil;
 
 public class ICCProfileSerializer<T extends ICC_Profile> implements IObjectSerializer<T> {
 
+  @Override
   @SuppressWarnings("unchecked")
   public T deserialize(IObjectDeserializationContext context) {
 
@@ -45,6 +46,7 @@ public class ICCProfileSerializer<T extends ICC_Profile> implements IObjectSeria
 
   }
 
+  @Override
   public void serialize(IObjectSerializationContext context, T object) {
 
     // adapted from ICC_Profile#writeObject()

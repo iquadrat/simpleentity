@@ -14,10 +14,12 @@ public class LongSerializationEntry extends AbstractFieldSerializationEntry {
     super(field);
   }
 
+  @Override
   public void write(IObjectSerializationContext context, Object object) throws IllegalAccessException, IllegalArgumentException {
     context.getWriter().putLong(fField.getLong(object));
   }
   
+  @Override
   public void read(IObjectDeserializationContext context, Object result) throws IllegalArgumentException, IllegalAccessException {
     fField.setLong(result, context.getReader().readLong());
   }

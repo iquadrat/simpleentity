@@ -31,6 +31,7 @@ public class TextAttributeSerializer implements IObjectSerializer<TextAttribute>
       Assert.equals(instanceMapField.getType(), Map.class);
 
       AccessController.doPrivileged(new PrivilegedAction<Void>() {
+        @Override
         public Void run() {
           fNameField.setAccessible(true);
           instanceMapField.setAccessible(true);
@@ -51,11 +52,13 @@ public class TextAttributeSerializer implements IObjectSerializer<TextAttribute>
     }
   }
 
+  @Override
   public TextAttribute deserialize(IObjectDeserializationContext context) {
     String name = IOUtil.readStringUTF8(context.getReader());
     return (TextAttribute) fInstanceMap.get(name);
   }
 
+  @Override
   public void serialize(IObjectSerializationContext context, TextAttribute object) {
     try {
       IOUtil.writeStringUTF8(context.getWriter(), (String) fNameField.get(object));

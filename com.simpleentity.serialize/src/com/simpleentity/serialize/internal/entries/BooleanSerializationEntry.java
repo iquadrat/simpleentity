@@ -14,10 +14,12 @@ public class BooleanSerializationEntry extends AbstractFieldSerializationEntry {
     super(field);
   }
 
+  @Override
   public void write(IObjectSerializationContext context, Object object) throws IllegalAccessException, IllegalArgumentException {
     context.getWriter().putBoolean(fField.getBoolean(object));
   }
 
+  @Override
   public void read(IObjectDeserializationContext context, Object result) throws IllegalArgumentException, IllegalAccessException {
     fField.setBoolean(result, context.getReader().readBoolean());
   }

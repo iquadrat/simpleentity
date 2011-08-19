@@ -19,6 +19,7 @@ public class EnumSerializationEntry extends AbstractFieldSerializationEntry {
     fEnumConstants = enumType.getEnumConstants();
   }
 
+  @Override
   public void write(IObjectSerializationContext context, Object object) throws IllegalAccessException, IllegalArgumentException {
     Enum<?> enumValue = (Enum<?>) fField.get(object);
 
@@ -33,6 +34,7 @@ public class EnumSerializationEntry extends AbstractFieldSerializationEntry {
     IOUtil.writeIntCompact(context.getWriter(), i);
   }
 
+  @Override
   public void read(IObjectDeserializationContext context, Object result) throws IllegalArgumentException, IllegalAccessException {
     fField.set(result, readEnum(context));
   }

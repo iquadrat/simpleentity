@@ -18,6 +18,7 @@ public class GenericObjectSerializerFactory implements IObjectSerializerFactory 
 
   public static final IObjectSerializerFactory INSTANCE = new GenericObjectSerializerFactory();
 
+  @Override
   public IObjectSerializer<?> getSerializer(Class<?> clazz) {
 
     if (clazz.isEnum()) {
@@ -113,7 +114,7 @@ public class GenericObjectSerializerFactory implements IObjectSerializerFactory 
     Assert.isNotNull(type);
 
     if (elementType.isPrimitive()) {
-      return getPrimitiveArraySerializer(type, elementType);
+      return getPrimitiveArraySerializer(elementType);
     }
     if (elementType.isEnum()) {
       return new EnumArraySerializer(elementType);
@@ -124,7 +125,7 @@ public class GenericObjectSerializerFactory implements IObjectSerializerFactory 
     return new ReferenceArraySerializer(elementType);
   }
 
-  private IObjectSerializer<?> getPrimitiveArraySerializer(Class<?> type, Class<?> elementType) {
+  private IObjectSerializer<?> getPrimitiveArraySerializer(Class<?> elementType) {
 
     if (elementType.equals(boolean.class)) {
       return new BooleanArraySerializer();

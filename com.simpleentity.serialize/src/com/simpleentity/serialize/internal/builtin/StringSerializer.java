@@ -16,10 +16,12 @@ import com.simpleentity.util.io.IOUtil;
  */
 public final class StringSerializer implements IObjectSerializer<String> {
   
+  @Override
   public void serialize(IObjectSerializationContext context, String string) {
     IOUtil.writeStringUTF8(context.getWriter(), string);
   }
 
+  @Override
   public String deserialize(IObjectDeserializationContext context) {
     return IOUtil.readStringUTF8(context.getReader());
   }

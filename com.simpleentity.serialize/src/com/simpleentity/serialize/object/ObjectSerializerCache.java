@@ -27,10 +27,12 @@ public class ObjectSerializerCache implements IObjectSerializerFactory, IObjectS
   /**
    * Registers a special serializer for the given class.
    */
+  @Override
   public <T> void registerSerializer(Class<T> clazz, IObjectSerializer<T> serializer) {
     fObjectSerializerMap.put(clazz, serializer);
   }
 
+  @Override
   public IObjectSerializer<?> getSerializer(Class<?> clazz) {
     IObjectSerializer<?> serializer = fObjectSerializerMap.get(clazz);
     if (serializer == null) {

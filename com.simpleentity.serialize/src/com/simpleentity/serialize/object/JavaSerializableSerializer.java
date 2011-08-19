@@ -23,6 +23,7 @@ public class JavaSerializableSerializer<T> extends GenericObjectSerializer<T> {
     fWriteReplaceMethod = writeReplace;
     
     AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      @Override
       public Void run() {
         if (fReadResolveMethod != null) fReadResolveMethod.setAccessible(true);
         if (fWriteReplaceMethod != null) fWriteReplaceMethod.setAccessible(true);

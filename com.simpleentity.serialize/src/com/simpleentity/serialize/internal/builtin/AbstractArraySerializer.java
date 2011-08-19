@@ -24,6 +24,7 @@ public abstract class AbstractArraySerializer implements IObjectSerializer<Objec
     fElementType = elementType;
   }
 
+  @Override
   public Object deserialize(IObjectDeserializationContext context) {
     int length = IOUtil.readIntCompact(context.getReader());
     Object result = Array.newInstance(fElementType, length);
@@ -33,6 +34,7 @@ public abstract class AbstractArraySerializer implements IObjectSerializer<Objec
     return result;
   }
 
+  @Override
   public void serialize(IObjectSerializationContext context, Object array) {
     int length = Array.getLength(array);
     IOUtil.writeIntCompact(context.getWriter(), length);
