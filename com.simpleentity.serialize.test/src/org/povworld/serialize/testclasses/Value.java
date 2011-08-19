@@ -38,6 +38,7 @@ public class Value implements Comparable<Value> {
     return fName;
   }
 
+  @Override
   public int compareTo(Value o) {
     return Double.compare(fNumber, o.fNumber);
   }
