@@ -6,3 +6,22 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Micha Riser
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.simpleentity.util;bundle-version="0.9.0"
+Export-Package: com.simpleentity.serialize,
+ com.simpleentity.serialize.context,
+ com.simpleentity.serialize.internal;x-friends:="com.simpleentity.serialize.test",
+ com.simpleentity.serialize.internal.builtin;x-friends:="com.simpleentity.serialize.test",
+ com.simpleentity.serialize.internal.builtin.awt;x-friends:="com.simpleentity.serialize.test",
+ com.simpleentity.serialize.internal.entries;x-friends:="com.simpleentity.serialize.test",
+ com.simpleentity.serialize.name,
+ com.simpleentity.serialize.object,
+ edu.umd.cs.findbugs.annotations,
+ javax.annotation,
+ javax.annotation.meta,
+ net.jcip.annotations,
+ org.objenesis,
+ org.objenesis.instantiator,
+ org.objenesis.instantiator.basic,
+ org.objenesis.instantiator.gcj,
+ org.objenesis.instantiator.jrockit,
+ org.objenesis.instantiator.sun,
+ org.objenesis.strategy
