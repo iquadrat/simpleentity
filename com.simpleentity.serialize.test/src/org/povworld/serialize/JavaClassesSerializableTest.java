@@ -9,6 +9,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -118,7 +119,7 @@ public class JavaClassesSerializableTest extends AbstractSerializationTest {
   public void test_serialize_string() {
     assertEquals("", serializeAndDeserialize(""));
     assertEquals("Hello kitty!", serializeAndDeserialize("Hello kitty!"));
-    assertEquals("+()=/*()=ç*]@|¼12", serializeAndDeserialize("+()=/*()=ç*]@|¼12"));
+    assertEquals("+()=/*()=Ã¤*]@|â‚¬12", serializeAndDeserialize("+()=/*()=Ã¤*]@|â‚¬12"));
   }
 
   public void test_serialize_bitset() {
@@ -240,5 +241,58 @@ public class JavaClassesSerializableTest extends AbstractSerializationTest {
       assertEquals(sub, actual);
       assertTrue(actual.isSelfContained());
   }
-
+  
+  private ByteBuffer serializeAndDeserializeByteBuffer(ByteBuffer buffer) {
+	  buffer.putLong(123456789012345L);
+	  for(int i=0; buffer.remaining() > 0; ++i) {
+		  buffer.put((byte)i);
+	  }
+	  buffer.position(4);
+	  buffer.limit(100);
+	  buffer.mark();
+	  buffer.position(44);
+	  ByteBuffer readonly = buffer.asReadOnlyBuffer();
+	  
+	  ByteBuffer buffer2 = serializeAndDeserialize(buffer);
+	  ByteBuffer readonly2 = serializeAndDeserialize(readonly);
+	  
+	  assertTrue(buffer2.equals(buffer));
+	  assertTrue(readonly2.equals(readonly));
+	  assertEquals(44, buffer2.position());
+	  assertEquals(100, buffer2.limit());
+	  assertFalse(buffer2.isReadOnly());
+	  assertEquals(132, buffer2.capacity());
+	  assertFalse(buffer2.isReadOnly());
+	  buffer2.reset();
+	  assertEquals(4, buffer2.position());
+	  assertEquals(buffer.clear(), buffer2.clear());
+	  return buffer2;
+  }
+  
+  public void testSerializeHeapByteBufferBigEndian() {
+	  ByteBuffer buffer = ByteBuffer.allocate(132);
+	  buffer.order(ByteOrder.BIG_ENDIAN);
+	  
+	  ByteBuffer buffer2 = serializeAndDeserializeByteBuffer(buffer);
+	  assertEquals(ByteOrder.BIG_ENDIAN, buffer2.order());
+	  assertFalse(buffer2.isDirect());
+  }
+  
+  public void testSerializeHeapByteBufferLittleEndian() {
+	  ByteBuffer buffer = ByteBuffer.allocate(132);
+	  buffer.order(ByteOrder.LITTLE_ENDIAN);
+	  
+	  ByteBuffer buffer2 = serializeAndDeserializeByteBuffer(buffer);
+	  assertEquals(ByteOrder.LITTLE_ENDIAN, buffer2.order());
+	  assertFalse(buffer2.isDirect());
+  }
+  
+  public void testSerializeDirectByteBuffer() {
+	  ByteBuffer buffer = ByteBuffer.allocateDirect(132);
+	  buffer.order(ByteOrder.BIG_ENDIAN);
+	  
+	  ByteBuffer buffer2 = serializeAndDeserializeByteBuffer(buffer);
+	  assertEquals(ByteOrder.BIG_ENDIAN, buffer2.order());
+	  assertTrue(buffer2.isDirect());
+  }
 }

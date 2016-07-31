@@ -9,37 +9,40 @@ import java.util.*;
 import com.simpleentity.serialize.IObjectSerializerRegistry;
 
 /**
- * Cache which remembers and reuses object serializer created by a base serializer.
+ * Cache which remembers and reuses object serializer created by a base
+ * serializer.
  *
  * @author micha
  *
  */
 public class ObjectSerializerCache implements IObjectSerializerFactory, IObjectSerializerRegistry {
 
-  private final Map<Class<?>, IObjectSerializer<?>> fObjectSerializerMap = new HashMap<Class<?>, IObjectSerializer<?>>();
+	private final Map<String, IObjectSerializer<?>> fObjectSerializerMap = new HashMap<String, IObjectSerializer<?>>();
 
-  private final IObjectSerializerFactory            fFactory;
+	private final IObjectSerializerFactory fFactory;
 
-  public ObjectSerializerCache(IObjectSerializerFactory factory) {
-    fFactory = factory;
-  }
+	public ObjectSerializerCache(IObjectSerializerFactory factory) {
+		fFactory = factory;
+	}
 
-  /**
-   * Registers a special serializer for the given class.
-   */
-  @Override
-  public <T> void registerSerializer(Class<T> clazz, IObjectSerializer<T> serializer) {
-    fObjectSerializerMap.put(clazz, serializer);
-  }
+	@Override
+	public <T> void registerSerializer(Class<T> clazz, IObjectSerializer<? super T> serializer) {
+		registerSerializer(clazz.getCanonicalName(), serializer);
+	}
 
-  @Override
-  public IObjectSerializer<?> getSerializer(Class<?> clazz) {
-    IObjectSerializer<?> serializer = fObjectSerializerMap.get(clazz);
-    if (serializer == null) {
-      serializer = fFactory.getSerializer(clazz);
-      fObjectSerializerMap.put(clazz, serializer);
-    }
-    return serializer;
-  }
+	@Override
+	public <T> void registerSerializer(String className, IObjectSerializer<? super T> serializer) {
+		fObjectSerializerMap.put(className, serializer);
+	}
+
+	@Override
+	public IObjectSerializer<?> getSerializer(Class<?> clazz) {
+		IObjectSerializer<?> serializer = fObjectSerializerMap.get(clazz.getCanonicalName());
+		if (serializer == null) {
+			serializer = fFactory.getSerializer(clazz);
+			fObjectSerializerMap.put(clazz.getCanonicalName(), serializer);
+		}
+		return serializer;
+	}
 
 }

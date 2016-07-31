@@ -58,38 +58,18 @@ public class IOUtil {
 //  }
 
   /**
-   * Encodes the given positive integer to bytes and writes it to the given
-   * writer. Writes 1 to 5 bytes depending on the value.
+   * @see ByteBufferWriter#putCompactIntUnsigned(int)
    */
   public static void writeIntCompact(ByteBufferWriter writer, int value) {
-    if (value < 0) {
-      throw new IllegalArgumentException("Cannot write negative values: " + value);
-    }
-    
-    int remaining = value;
-    int next = (remaining >>> 7);
-    while (next != 0) {
-      writer.putByte((byte) (((byte) remaining) | 0x80));
-      remaining = next;
-      next >>>= 7;
-    }
-    writer.putByte((byte) remaining);
+	  writer.putCompactIntUnsigned(value);
   }
 
+
   /**
-   * Reads an integer from the given reader which has been written using
-   * {@link #writeIntCompact(ByteBufferWriter, int)}.
+   * @see ByteBufferReader#readCompactIntUnsigned()
    */
   public static int readIntCompact(ByteBufferReader reader) {
-    int result = 0;
-    int value = reader.readUnsignedByte();
-    int factor = 1;
-    while (value > 127) {
-      result += (value ^ 0x80) * factor;
-      value = reader.readUnsignedByte();
-      factor <<= 7;
-    }
-    return result + value * factor;
+	  return reader.readCompactIntUnsigned();
   }
 
   /**
