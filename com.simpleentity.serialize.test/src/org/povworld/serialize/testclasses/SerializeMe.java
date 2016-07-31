@@ -7,7 +7,7 @@ package org.povworld.serialize.testclasses;
 import java.io.*;
 import java.util.Arrays;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class SerializeMe implements Serializable {
   
