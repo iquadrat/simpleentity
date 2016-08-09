@@ -6,9 +6,7 @@ import com.simpleentity.util.AssertionFailedError;
  * Implementation that writes messages to standard output and
  * standard error.
  */
-public class StdOutLogHandler implements ILogHandler {
-  
-  public StdOutLogHandler() {}
+public class StdOutLogHandler implements LogHandler {
   
   @Override
   public void fail(AssertionFailedError failure) {

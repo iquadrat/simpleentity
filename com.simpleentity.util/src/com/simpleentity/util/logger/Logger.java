@@ -22,60 +22,60 @@ import com.simpleentity.util.*;
  * @author micha
  */
 public class Logger {
-  
-  private static Logger sLogger     = new Logger();
-  
-  private ILogHandler   fHandler = new StdOutLogHandler();
-  
-  public static Logger instance() {
-    return sLogger;
-  }
-  
-  /**
-   * Logs the given <code>failure</code>.
-   */
-  public void fail(AssertionFailedError failure) {
-    fHandler.fail(failure);
-  }
-  
-  /**
-   * Logs the given <code>message</code>.
-   */
-  public void logError(String message) {
-    fHandler.logError(message);
-  }
-  
-  /**
-   * Logs the given <code>throwable</code>.
-   */
-  public void logError(Throwable throwable) {
-    fHandler.logError(throwable);
-  }
-  
-  public void logInfo(Throwable t) {
-    fHandler.logInfo(t);
-  }
-  
-  public void logInfo(String message) {
-    fHandler.logInfo(message);
-  }
-  
-  public void logVerbose(Throwable t) {
-    fHandler.logInfo(t);
-  }
-  
-  public void logVerbose(String message) {
-    fHandler.logInfo(message);
-  }
-  
-  /**
-   * Replaces the log handler by the given <code>handler</code>.
-   * @return the old handler
-   */
-  public ILogHandler setLogHandler(ILogHandler handler) {
-    ILogHandler oldHandler = fHandler;
-    fHandler = handler;
-    return oldHandler;
-  }
-  
+
+	private static Logger instance = new Logger();
+
+	private LogHandler handler = new StdOutLogHandler();
+
+	public static Logger instance() {
+		return instance;
+	}
+
+	/**
+	 * Logs the given <code>failure</code>.
+	 */
+	public void fail(AssertionFailedError failure) {
+		handler.fail(failure);
+	}
+
+	/**
+	 * Logs the given <code>message</code>.
+	 */
+	public void logError(String message) {
+		handler.logError(message);
+	}
+
+	/**
+	 * Logs the given <code>throwable</code>.
+	 */
+	public void logError(Throwable throwable) {
+		handler.logError(throwable);
+	}
+
+	public void logInfo(Throwable t) {
+		handler.logInfo(t);
+	}
+
+	public void logInfo(String message) {
+		handler.logInfo(message);
+	}
+
+	public void logVerbose(Throwable t) {
+		handler.logInfo(t);
+	}
+
+	public void logVerbose(String message) {
+		handler.logInfo(message);
+	}
+
+	/**
+	 * Replaces the log handler by the given <code>handler</code>.
+	 * 
+	 * @return the old handler
+	 */
+	public LogHandler setLogHandler(LogHandler handler) {
+		LogHandler oldHandler = handler;
+		this.handler = handler;
+		return oldHandler;
+	}
 }

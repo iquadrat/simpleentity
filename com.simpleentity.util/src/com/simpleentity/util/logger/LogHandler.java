@@ -17,7 +17,7 @@ package com.simpleentity.util.logger;
 import com.simpleentity.util.AssertionFailedError;
 
 
-public interface ILogHandler {
+public interface LogHandler {
   
   /**
    * Is called when a failure occurred.
