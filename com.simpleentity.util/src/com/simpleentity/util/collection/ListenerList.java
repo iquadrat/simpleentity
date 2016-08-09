@@ -17,7 +17,7 @@ import com.simpleentity.util.Assert;
 @ThreadSafe
 public class ListenerList<T> implements Iterable<T> {
 
-  private static class Handle<T> implements IListenerHandle {
+  private static class Handle<T> implements ListenerHandle {
 
     private final List<T> fListeners;
 
@@ -46,7 +46,7 @@ public class ListenerList<T> implements Iterable<T> {
    *
    * @return a handle which allows to unregister the given listener
    */
-  public IListenerHandle add(T listener) {
+  public ListenerHandle add(T listener) {
     fListeners.add(listener);
     return new Handle<T>(listener, fListeners);
   }

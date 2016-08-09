@@ -8,7 +8,8 @@ import java.io.IOException;
 
 import net.jcip.annotations.NotThreadSafe;
 
-import com.simpleentity.util.collection.*;
+import com.simpleentity.util.collection.ListenerHandle;
+import com.simpleentity.util.collection.ListenerList;
 
 import edu.umd.cs.findbugs.annotations.OverrideMustInvoke;
 
@@ -17,7 +18,7 @@ public abstract class AbstractObservableCloseable extends AbstractCloseable {
 
   private final ListenerList<ICloseListener> fCloseListeners = new ListenerList<ICloseListener>();
 
-  public IListenerHandle addCloseListener(ICloseListener listener) {
+  public ListenerHandle addCloseListener(ICloseListener listener) {
     return fCloseListeners.add(listener);
   }
 

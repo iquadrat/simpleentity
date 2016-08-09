@@ -42,7 +42,6 @@ public abstract class AbstractCloseable implements Closeable {
   /**
    * This method is called when the object is closed. It is guaranteed to be called only once. Default is to do nothing.
    */
-  @SuppressWarnings("unused")
   @OverrideMustInvoke
   protected void internalClose() throws IOException {}
 

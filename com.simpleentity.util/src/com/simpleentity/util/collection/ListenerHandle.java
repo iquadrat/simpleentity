@@ -1,6 +1,6 @@
 package com.simpleentity.util.collection;
 
-public interface IListenerHandle {
+public interface ListenerHandle {
 
   public void remove();
 

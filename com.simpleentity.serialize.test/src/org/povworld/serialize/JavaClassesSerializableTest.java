@@ -37,10 +37,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Pattern;
 
+import org.povworld.collection.CollectionUtil;
 import org.povworld.serialize.testclasses.Key;
 import org.povworld.serialize.testclasses.Value;
-
-import com.simpleentity.util.collection.CollectionUtil;
 
 public class JavaClassesSerializableTest extends AbstractSerializationTest {
 
@@ -154,7 +153,7 @@ public class JavaClassesSerializableTest extends AbstractSerializationTest {
   }
 
   private void assertQueueEquals(Queue<Value> queue, Queue<Value> actual) {
-    assertTrue(CollectionUtil.iteratesEqualSequence(queue.iterator(), actual.iterator()));
+    assertTrue(CollectionUtil.iteratesEqualSequence(queue, actual));
   }
 
   public void test_serialize_pattern() {

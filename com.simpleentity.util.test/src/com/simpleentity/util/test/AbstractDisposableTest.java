@@ -4,51 +4,60 @@
  */
 package com.simpleentity.util.test;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import com.simpleentity.util.AssertionFailedError;
 import com.simpleentity.util.disposable.AbstractDisposable;
+import com.simpleentity.util.logger.LogHandler;
 
-public class AbstractDisposableTest extends TestCase {
+public final class AbstractDisposableTest {
 
-  private AbstractDisposable fDisposable;
-  protected boolean          fCleanup;
+	private AbstractDisposable disposable;
+	private boolean cleanup = false;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    fCleanup = false;
-    fDisposable = new AbstractDisposable() {
-      @Override
-      protected void cleanup() {
-        super.cleanup();
-        fCleanup = true;
-      }
-    };
-  }
+	@Before
+	public void setUp() throws Exception {
+		disposable = new AbstractDisposable() {
+			@Override
+			protected void cleanup() {
+				super.cleanup();
+				cleanup = true;
+			}
+		};
+	}
 
-  public void test_dispose() {
-    assertFalse(fDisposable.isDisposed());
-    assertFalse(fCleanup);
-    fDisposable.dispose();
-    assertTrue(fCleanup);
-    assertTrue(fDisposable.isDisposed());
-  }
+	@Test
+	public void dispose() {
+		assertFalse(disposable.isDisposed());
+		assertFalse(cleanup);
+		disposable.dispose();
+		assertTrue(cleanup);
+		assertTrue(disposable.isDisposed());
+	}
 
-  public void test_double_dispose() {
-    fDisposable.dispose();
-    assertTrue(fCleanup);
-    fCleanup = false;
+	@Test
+	public void doubleDispose() {
+		com.simpleentity.util.logger.Logger.getRootLogger().setLogHandler(new LogHandler() {
+			@Override
+			public void handle(LogLevel level, String message, Throwable throwable) {}
+		});
 
-    try {
-      fDisposable.dispose();
-      fail("exception expected");
-    } catch (AssertionFailedError e) {
-      // pass
-    }
-    assertTrue(fDisposable.isDisposed());
-    assertFalse(fCleanup);
+		disposable.dispose();
+		assertTrue(cleanup);
+		cleanup = false;
 
-  }
-
+		try {
+			disposable.dispose();
+			fail("exception expected");
+		} catch (AssertionFailedError e) {
+			// pass
+		}
+		assertTrue(disposable.isDisposed());
+		assertFalse(cleanup);
+	}
 }

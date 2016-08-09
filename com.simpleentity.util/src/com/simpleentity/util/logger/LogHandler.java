@@ -14,41 +14,17 @@
  */
 package com.simpleentity.util.logger;
 
-import com.simpleentity.util.AssertionFailedError;
-
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 public interface LogHandler {
-  
-  /**
-   * Is called when a failure occurred.
-   * Must throw an {@link AssertionFailedError}!
-   * 
-   * @param failure failure that occurred
-   */
-  public void fail(AssertionFailedError failure);
-  
-  /**
-   * Logs the given message as error without throwing an exception.
-   * 
-   * @param message message to be logged
-   */
-  public void logError(String message);
-  
-  /**
-   * Logs the given {@link Throwable} as error without throwing an exception.
-   */
-  public void logError(Throwable throwable);
 
-  /**
-   * Logs the given message as info without throwing an exception.
-   * 
-   * @param message message to be logged
-   */
-  public void logInfo(String message);
-  
-  /**
-   * Logs the given {@link Throwable} as info without throwing an exception.
-   */
-  public void logInfo(Throwable t);
-  
+	public enum LogLevel {
+		FATAL, 
+		ERROR,
+		WARNING,
+		INFO,
+		VERBOSE,
+	}
+	
+	public void handle(LogLevel level, @CheckForNull String message, @CheckForNull Throwable throwable);
 }

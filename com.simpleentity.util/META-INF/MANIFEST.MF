@@ -4,7 +4,7 @@ Bundle-Name: SimpleEntity Utilities
 Bundle-SymbolicName: com.simpleentity.util
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Micha Riser
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.osgi.framework;version="1.3.0"
 Bundle-ClassPath: lib/annotations.jar,
  lib/jsr305.jar,
@@ -14,8 +14,9 @@ Export-Package: com.simpleentity.util,
  com.simpleentity.util.collection,
  com.simpleentity.util.disposable,
  com.simpleentity.util.io,
- com.simpleentity.util.job,
+ com.simpleentity.util.logger,
  com.simpleentity.util.thread,
+ com.simpleentity.util.time,
  edu.umd.cs.findbugs.annotations,
  javax.annotation,
  javax.annotation.meta,

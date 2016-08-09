@@ -1,36 +1,32 @@
 package com.simpleentity.util.logger;
 
-import com.simpleentity.util.AssertionFailedError;
+import java.io.PrintStream;
 
 /**
- * Implementation that writes messages to standard output and
- * standard error.
+ * Implementation that writes messages to standard output and standard error.
  */
 public class StdOutLogHandler implements LogHandler {
-  
-  @Override
-  public void fail(AssertionFailedError failure) {
-    throw failure;
-  }
-  
-  @Override
-  public void logError(String message) {
-    System.err.println(message);
-  }
-  
-  @Override
-  public void logError(Throwable t) {
-    t.printStackTrace(System.err);
-  }
-  
-  @Override
-  public void logInfo(Throwable t) {
-    t.printStackTrace(System.out);
-  }
-  
-  @Override
-  public void logInfo(String message) {
-    System.out.println(message);
-  }
-  
+	@Override
+	public void handle(LogLevel level, String message, Throwable throwable) {
+		PrintStream out = getOutputStream(level);
+		if (message != null) {
+			out.println(message);
+		} else {
+			out.println("An exception occured");
+		}
+		if (throwable != null) {
+			out.println(throwable.getMessage());
+			throwable.printStackTrace(out);
+		}
+	}
+
+	private PrintStream getOutputStream(LogLevel level) {
+		switch (level) {
+		case ERROR:
+		case FATAL:
+			return System.err;
+		default:
+			return System.out;
+		}
+	}
 }

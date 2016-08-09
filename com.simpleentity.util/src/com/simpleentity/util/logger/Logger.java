@@ -14,7 +14,7 @@
  */
 package com.simpleentity.util.logger;
 
-import com.simpleentity.util.*;
+import com.simpleentity.util.logger.LogHandler.LogLevel;
 
 /**
  * Default logging implementation.
@@ -27,45 +27,60 @@ public class Logger {
 
 	private LogHandler handler = new StdOutLogHandler();
 
-	public static Logger instance() {
+	
+	public static Logger getRootLogger() {
 		return instance;
+	}
+	
+	// TODO create a forCallingClass() method.
+
+	public static Logger forClass(Class<?> class_) {
+		// TODO create sub-loggers that remember the logging source.
+		return getRootLogger();
 	}
 
 	/**
-	 * Logs the given <code>failure</code>.
+	 * Logs the given <code>message</code>.
 	 */
-	public void fail(AssertionFailedError failure) {
-		handler.fail(failure);
+	public void logFatal(String message) {
+		handler.handle(LogLevel.FATAL, message, null);
+	}
+
+	/**
+	 * Logs the given <code>throwable</code>.
+	 */
+	public void logFatal(Throwable throwable) {
+		handler.handle(LogLevel.FATAL, null, throwable);
 	}
 
 	/**
 	 * Logs the given <code>message</code>.
 	 */
 	public void logError(String message) {
-		handler.logError(message);
+		handler.handle(LogLevel.ERROR, message, null);
 	}
 
 	/**
 	 * Logs the given <code>throwable</code>.
 	 */
 	public void logError(Throwable throwable) {
-		handler.logError(throwable);
+		handler.handle(LogLevel.ERROR, null, throwable);
 	}
 
-	public void logInfo(Throwable t) {
-		handler.logInfo(t);
+	public void logInfo(Throwable throwable) {
+		handler.handle(LogLevel.INFO, null, throwable);
 	}
 
 	public void logInfo(String message) {
-		handler.logInfo(message);
+		handler.handle(LogLevel.INFO, message, null);
 	}
 
-	public void logVerbose(Throwable t) {
-		handler.logInfo(t);
+	public void logVerbose(Throwable throwable) {
+		handler.handle(LogLevel.VERBOSE, null, throwable);
 	}
 
 	public void logVerbose(String message) {
-		handler.logInfo(message);
+		handler.handle(LogLevel.VERBOSE, message, null);
 	}
 
 	/**
