@@ -4,97 +4,94 @@
  */
 package com.simpleentity.util;
 
-import java.lang.reflect.*;
-import java.util.*;
-
-import org.objenesis.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 public class ObjectUtil {
 
-  public static final Objenesis INSTANCE = new ObjenesisStd();
+	private ObjectUtil() {
+		// utility class
+	}
 
-  private ObjectUtil() {
-    // utility class
-  }
+	/**
+	 * @return all super classes and interfaces of the given class including the
+	 *         class itself
+	 */
+	public static Set<Class<?>> getAllSuperTypes(Class<?> klass) {
+		Set<Class<?>> result = new HashSet<Class<?>>();
+		addTypes(result, klass);
+		return result;
+	}
 
-  public static boolean equals(Object expected, Object actual) {
-    if (expected == null) {
-      return actual == null;
-    }
-    return expected.equals(actual);
-  }
+	private static void addTypes(Set<Class<?>> result, @CheckForNull Class<?> klass) {
+		if (klass == null || !result.add(klass))
+			return;
+		addTypes(result, klass.getSuperclass());
+		for (Class<?> interf : klass.getInterfaces()) {
+			addTypes(result, interf);
+		}
+	}
 
-  /**
-   * @return all super classes and interfaces of the given class including the
-   *         class itself
-   */
-  public static Set<Class<?>> getAllSuperTypes(Class<?> klass) {
-    Set<Class<?>> result = new HashSet<Class<?>>();
-    addTypes(result, klass);
-    return result;
-  }
+	/**
+	 * Collects all non-static public, protected, package and private fields of
+	 * the given class including the inherited ones. Sorted first by class
+	 * hierarchy, then by field names.
+	 * 
+	 * TODO test if this works with synthetic fields
+	 * 
+	 * @return list of all fields
+	 */
+	public static List<Field> getAllFields(Class<?> clazz) {
+		List<Field> result = new ArrayList<Field>();
 
-  private static void addTypes(Set<Class<?>> result, @CheckForNull Class<?> klass) {
-    if (klass == null || !result.add(klass)) return;
-    addTypes(result, klass.getSuperclass());
-    for (Class<?> interf: klass.getInterfaces()) {
-      addTypes(result, interf);
-    }
-  }
+		for (Class<?> c : getAllSuperTypes(clazz)) {
 
-  /**
-   * Collects all non-static public, protected, package and private fields of
-   * the given class including the inherited ones. Sorted first by class
-   * hierarchy, then by field names.
-   * 
-   * TODO test if this works with synthetic fields
-   * 
-   * @return list of all fields
-   */
-  public static List<Field> getAllFields(Class<?> clazz) {
-    List<Field> result = new ArrayList<Field>();
+			Field[] fields = c.getDeclaredFields();
+			Arrays.sort(fields, new Comparator<Field>() {
+				@Override
+				public int compare(Field o1, Field o2) {
+					return o1.getName().compareTo(o2.getName());
+				}
+			});
 
-    for (Class<?> c: getAllSuperTypes(clazz)) {
+			for (Field field : fields) {
 
-      Field[] fields = c.getDeclaredFields();
-      Arrays.sort(fields, new Comparator<Field>() {
-        @Override
-        public int compare(Field o1, Field o2) {
-          return o1.getName().compareTo(o2.getName());
-        }
-      });
+				// skip static fields
+				if (Modifier.isStatic(field.getModifiers()))
+					continue;
+				result.add(field);
 
-      for (Field field: fields) {
+			}
 
-        // skip static fields
-        if (Modifier.isStatic(field.getModifiers())) continue;
-        result.add(field);
+		}
 
-      }
+		return result;
+	}
 
-    }
+	public static Class<?> getArrayElementType(Class<?> array) {
+		Class<?> cl = array.getComponentType();
+		while (cl.isArray()) {
+			cl = cl.getComponentType();
+		}
+		return cl;
+	}
 
-    return result;
-  }
-
-  public static Class<?> getArrayElementType(Class<?> array) {
-    Class<?> cl = array.getComponentType();
-    while (cl.isArray()) {
-      cl = cl.getComponentType();
-    }
-    return cl;
-  }
-
-  public static int getArrayDimension(Class<?> array) {
-    int dimension = 1;
-    Class<?> cl = array.getComponentType();
-    while (cl.isArray()) {
-      cl = cl.getComponentType();
-      dimension++;
-    }
-    return dimension;
-  }
+	public static int getArrayDimension(Class<?> array) {
+		int dimension = 1;
+		Class<?> cl = array.getComponentType();
+		while (cl.isArray()) {
+			cl = cl.getComponentType();
+			dimension++;
+		}
+		return dimension;
+	}
 
 }

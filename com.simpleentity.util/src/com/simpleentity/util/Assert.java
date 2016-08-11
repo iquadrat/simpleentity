@@ -4,6 +4,8 @@
  */
 package com.simpleentity.util;
 
+import org.povworld.collection.common.ObjectUtil;
+
 import com.simpleentity.util.logger.Logger;
 
 public class Assert {
@@ -36,7 +38,7 @@ public class Assert {
 	}
 
 	public static void equals(Object expected, Object actual) {
-		if (ObjectUtil.equals(expected, actual)) {
+		if (ObjectUtil.objectEquals(expected, actual)) {
 			return;
 		}
 		fail("Actual '", actual, "' is not equal to expected '", expected, "'");

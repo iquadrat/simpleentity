@@ -5,8 +5,6 @@
 package com.simpleentity.util.test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -17,26 +15,6 @@ import org.junit.Test;
 import com.simpleentity.util.ObjectUtil;
 
 public class ObjectUtilTest {
-
-	@Test
-	public void objectEquals() {
-		String a = "x";
-		String b = "y";
-		String c = "x";
-
-		assertTrue(ObjectUtil.equals(null, null));
-		assertFalse(ObjectUtil.equals(null, a));
-		assertFalse(ObjectUtil.equals(b, null));
-		assertTrue(ObjectUtil.equals(a, a));
-		assertFalse(ObjectUtil.equals(a, b));
-		assertTrue(ObjectUtil.equals(a, c));
-		assertFalse(ObjectUtil.equals(b, a));
-		assertTrue(ObjectUtil.equals(b, b));
-		assertFalse(ObjectUtil.equals(b, c));
-		assertTrue(ObjectUtil.equals(c, a));
-		assertFalse(ObjectUtil.equals(c, b));
-		assertTrue(ObjectUtil.equals(c, c));
-	}
 
 	@Test
 	public void getSuperTypesOfObject() {
