@@ -4,6 +4,11 @@ import java.io.Closeable;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import net.jcip.annotations.NotThreadSafe;
+
+import com.simpleentity.util.ByteChunk;
+
+@NotThreadSafe
 public interface LogFile extends Closeable {
 	
 	public enum State {
@@ -16,16 +21,19 @@ public interface LogFile extends Closeable {
 	
 	public State getState();
 	
-	// TODO add async read/write operation support
-
 	public InputStream read(long offset);
+	
+	public ByteChunk read(long offset, int length);
 	
 	public void read(long offset, ByteBuffer buffer);
 	
-	public ListenerHandle listen(long offset, LogFileListener listener);
+	// TODO does append flush? Should a flush() be added?
+	public void append(ByteChunk byteChunk);
 	
-	public void append(ByteBuffer buffer);
+	// TODO add async read/write operation support
 	
-	public void freeze();
+//	public ListenerHandle listen(long offset, LogFileListener listener);
+	
+//	public void freeze();
 	
 }

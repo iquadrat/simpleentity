@@ -11,6 +11,7 @@ import com.simpleentity.util.Assert;
  * A list of listeners. Helper for the implementation of the observer/observable pattern.
  * <p>
  * NOTE: Add and remove of listeners is O(number of listeners).
+ * TODO replace by something better
  *
  * @param <T> Listener type.
  */

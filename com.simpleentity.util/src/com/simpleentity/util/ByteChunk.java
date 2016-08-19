@@ -9,6 +9,7 @@ public class ByteChunk {
 
 	public static final int DEFAULT_INITIAL_BUILDER_CAPACITY = 20;
 
+	// TODO consider storing bytes wrapped in ByteBuffer
 	private final byte[] bytes;
 	private final int length;
 
@@ -58,6 +59,10 @@ public class ByteChunk {
 	@Override
 	public String toString() {
 		return StringUtil.bytesToHex(bytes, 0, length);
+	}
+	
+	public ByteChunk fromByteBuffer(ByteBuffer buffer) {
+		return newBuilder().append(buffer).build();
 	}
 
 	public static Builder newBuilder() {
@@ -124,7 +129,7 @@ public class ByteChunk {
 			return this;
 		}
 
-		public ByteChunk builder() {
+		public ByteChunk build() {
 			// TODO return constant if size is 0
 			return new ByteChunk(bytes, size);
 		}
@@ -138,6 +143,10 @@ public class ByteChunk {
 			}
 		}
 
+	}
+
+	public ByteBuffer asByteBuffer() {
+		return ByteBuffer.wrap(bytes, 0, length).asReadOnlyBuffer();
 	}
 
 }
