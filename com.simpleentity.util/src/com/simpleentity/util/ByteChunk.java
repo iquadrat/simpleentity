@@ -2,6 +2,7 @@ package com.simpleentity.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.zip.CRC32;
 
 import org.povworld.collection.common.ObjectUtil;
 
@@ -9,7 +10,6 @@ public class ByteChunk {
 
 	public static final int DEFAULT_INITIAL_BUILDER_CAPACITY = 20;
 
-	// TODO consider storing bytes wrapped in ByteBuffer
 	private final byte[] bytes;
 	private final int length;
 
@@ -31,6 +31,10 @@ public class ByteChunk {
 
 	public void get(ByteBuffer buffer) {
 		buffer.put(bytes, 0, length);
+	}
+	
+	public void appendTo(CRC32 crc) {
+		crc.update(bytes, 0, length);
 	}
 
 	@Override
@@ -74,6 +78,7 @@ public class ByteChunk {
 	}
 
 	public static class Builder {
+		// TODO consider storing bytes wrapped in ByteBuffer
 		private byte[] bytes;
 		private int size = 0;
 		private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
@@ -112,6 +117,17 @@ public class ByteChunk {
 			append(chunk.bytes, 0, chunk.length);
 			return this;
 		}
+		
+		public Builder appendByte(byte n) {
+			ensureCapacity(size + 1);
+			bytes[size] = n;
+			size++;
+			return this;
+		}
+		
+		public Builder appendByte(int n) {
+			return appendByte((byte)n);
+		}
 
 		public Builder appendInt(int n) {
 			ensureCapacity(size + 4);
@@ -129,8 +145,10 @@ public class ByteChunk {
 			return this;
 		}
 
+		// TODO consider adding a compact() method
 		public ByteChunk build() {
 			// TODO return constant if size is 0
+			// TODO consider shrinking if array length is >> size
 			return new ByteChunk(bytes, size);
 		}
 
