@@ -1,4 +1,4 @@
-package com.simpleentity.db.transaction;
+package com.simpleentity.db.session;
 
 public interface SessionListener {
 	public void changed(Session session, ChangeList changes);

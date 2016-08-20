@@ -1,4 +1,4 @@
-package com.simpleentity.db.transaction;
+package com.simpleentity.db.session;
 
 import com.simpleentity.db.Entity;
 import com.simpleentity.db.EntityId;
@@ -9,7 +9,7 @@ public interface ReadWriteSession extends Session {
 	public void modify(Entity<?> entity);
 
 	public void delete(Entity<?> entity);
-
+	
 	public void commit();
 
 	public void revert();

@@ -1,9 +1,10 @@
-package com.simpleentity.db.transaction;
+package com.simpleentity.db.session;
 
 import java.io.Closeable;
 
 import com.simpleentity.db.Entity;
 import com.simpleentity.db.EntityId;
+import com.simpleentity.util.collection.ListenerHandle;
 
 public interface Session extends Closeable {
 
@@ -12,6 +13,10 @@ public interface Session extends Closeable {
 	public boolean hasChanges();
 
 	public boolean isHead();
+	
+	public void sync();
+	
+	public ReadWriteSession fork();
 
 	/**
 	 * @throws IllegalStateException
@@ -19,6 +24,8 @@ public interface Session extends Closeable {
 	 * @see #isHead()
 	 */
 	public Session getBase() throws IllegalStateException;
+	
+	public ListenerHandle addChangeListener(ChangeListener changeListener);
 	
 	public void close();
 

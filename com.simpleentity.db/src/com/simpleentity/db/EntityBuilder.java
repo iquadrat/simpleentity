@@ -2,7 +2,7 @@ package com.simpleentity.db;
 
 import javax.annotation.Nullable;
 
-import com.simpleentity.db.transaction.ReadWriteSession;
+import com.simpleentity.db.session.ReadWriteSession;
 
 public abstract class EntityBuilder<T extends Entity<T>> {
 	

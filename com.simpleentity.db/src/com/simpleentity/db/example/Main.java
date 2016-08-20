@@ -1,6 +1,6 @@
 package com.simpleentity.db.example;
 
-import com.simpleentity.db.transaction.ReadWriteSession;
+import com.simpleentity.db.session.ReadWriteSession;
 
 public class Main {
 	

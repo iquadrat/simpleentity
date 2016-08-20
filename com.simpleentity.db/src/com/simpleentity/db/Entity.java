@@ -1,6 +1,6 @@
 package com.simpleentity.db;
 
-import com.simpleentity.db.transaction.ReadWriteSession;
+import com.simpleentity.db.session.ReadWriteSession;
 
 public abstract class Entity<T extends Entity<T>> {
 	
