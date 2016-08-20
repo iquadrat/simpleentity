@@ -21,14 +21,18 @@ public interface LogFile extends Closeable {
 	
 	public State getState();
 	
-	public InputStream read(long offset);
+	public InputStream read(long offset) throws LogFileException;
 	
-	public ByteChunk read(long offset, int length);
+	public ByteChunk read(long offset, int length) throws LogFileException;;
 	
-	public void read(long offset, ByteBuffer buffer);
+	public void read(long offset, ByteBuffer buffer) throws LogFileException;
 	
 	// TODO does append flush? Should a flush() be added?
-	public void append(ByteChunk byteChunk);
+	public void append(ByteChunk byteChunk) throws LogFileException;
+	
+	public void close();
+	
+	public long size();
 	
 	// TODO add async read/write operation support
 	

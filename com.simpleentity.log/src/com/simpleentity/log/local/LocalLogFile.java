@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
-import com.simpleentity.log.LogException;
+import com.simpleentity.log.LogFileException;
 import com.simpleentity.log.LogFile;
 import com.simpleentity.log.util.IOUtil;
 import com.simpleentity.util.Assert;
@@ -15,7 +15,7 @@ import com.simpleentity.util.ByteChunk;
 
 public class LocalLogFile implements LogFile {
 
-	public static class LocalLogFileException extends LogException {
+	public static class LocalLogFileException extends LogFileException {
 		private static final long serialVersionUID = 1L;
 		private final File file;
 
@@ -79,7 +79,7 @@ public class LocalLogFile implements LogFile {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		if (state == State.CLOSED) {
 			return;
 		}
@@ -122,6 +122,7 @@ public class LocalLogFile implements LogFile {
 	public void read(long offset, ByteBuffer buffer) {
 		try {
 			// FIXME check against reading beyond file end
+			// FIXME check that buffer was fully filled
 			randomAccess.getChannel().read(buffer, offset);
 		} catch (IOException e) {
 			throw new LocalLogFileException(file, e);
@@ -142,6 +143,15 @@ public class LocalLogFile implements LogFile {
 	@Override
 	public int getBlockSize() {
 		return 1;
+	}
+
+	@Override
+	public long size() {
+		try {
+			return randomAccess.length();
+		} catch(IOException e) {
+			throw new LocalLogFileException(file, e);
+		}
 	}
 
 	// @Override
