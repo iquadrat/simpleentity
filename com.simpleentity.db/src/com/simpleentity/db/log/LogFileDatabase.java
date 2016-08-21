@@ -59,11 +59,11 @@ public class LogFileDatabase implements Database {
 	private void initializeFrom(LogFile logFile) {
 		TransactionReader reader = new TransactionReader(logFile);
 		while(reader.hasNext()) {
-			initializeAdd(reader.next());
+			initializeAddTransaction(reader.next());
 		}
 	}
 
-	private void initializeAdd(ByteChunk byteChunk) {
+	private void initializeAddTransaction(ByteChunk data) {
 		// TODO Auto-generated method stub
 		
 	}

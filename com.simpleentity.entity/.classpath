@@ -2,10 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.simpleentity.log"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.simpleentity.util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.povworld.collection"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.simpleentity.serialize2"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.simpleentity.entity"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

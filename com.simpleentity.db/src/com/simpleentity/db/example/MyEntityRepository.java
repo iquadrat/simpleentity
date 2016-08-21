@@ -1,7 +1,6 @@
 package com.simpleentity.db.example;
 
 import java.io.Closeable;
-import java.lang.ref.Reference;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
@@ -12,17 +11,17 @@ import org.povworld.collection.persistent.PersistentHashMap;
 import org.povworld.collection.persistent.PersistentMap;
 
 import com.simpleentity.db.Database;
-import com.simpleentity.db.EntityId;
 import com.simpleentity.db.session.ChangeList;
-import com.simpleentity.db.session.ChangeListener;
-import com.simpleentity.db.session.ReadWriteSession;
-import com.simpleentity.db.session.Session;
-import com.simpleentity.db.session.SessionListener;
 import com.simpleentity.db.session.ChangeList.Creation;
 import com.simpleentity.db.session.ChangeList.Deletion;
 import com.simpleentity.db.session.ChangeList.EntityChange;
 import com.simpleentity.db.session.ChangeList.Modification;
 import com.simpleentity.db.session.ChangeList.Visitor;
+import com.simpleentity.db.session.ChangeListener;
+import com.simpleentity.db.session.ReadWriteSession;
+import com.simpleentity.db.session.Session;
+import com.simpleentity.db.session.SessionListener;
+import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.util.collection.ListenerHandle;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;

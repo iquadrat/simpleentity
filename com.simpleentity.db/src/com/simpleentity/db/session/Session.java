@@ -2,11 +2,12 @@ package com.simpleentity.db.session;
 
 import java.io.Closeable;
 
-import com.simpleentity.db.Entity;
-import com.simpleentity.db.EntityId;
+import com.simpleentity.entity.Entity;
+import com.simpleentity.entity.id.EntityId;
+import com.simpleentity.entity.id.IdFactory;
 import com.simpleentity.util.collection.ListenerHandle;
 
-public interface Session extends Closeable {
+public interface Session extends Closeable, IdFactory {
 
 	public <T extends Entity<T>> T getEntity(Class<T> type, EntityId id);
 

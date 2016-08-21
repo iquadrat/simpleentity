@@ -5,8 +5,8 @@ import java.util.Iterator;
 import org.povworld.collection.common.PreConditions;
 import org.povworld.collection.immutable.ImmutableList;
 
-import com.simpleentity.db.Entity;
 import com.simpleentity.db.session.ChangeList.EntityChange;
+import com.simpleentity.entity.Entity;
 
 public class ChangeList implements Iterable<EntityChange<?>> {
 

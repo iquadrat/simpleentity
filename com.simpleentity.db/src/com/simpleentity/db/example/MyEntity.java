@@ -1,8 +1,8 @@
 package com.simpleentity.db.example;
 
-import com.simpleentity.db.Entity;
-import com.simpleentity.db.EntityBuilder;
-import com.simpleentity.db.EntityId;
+import com.simpleentity.entity.Entity;
+import com.simpleentity.entity.EntityBuilder;
+import com.simpleentity.entity.id.EntityId;
 
 public class MyEntity extends Entity<MyEntity> {
 
@@ -17,8 +17,7 @@ public class MyEntity extends Entity<MyEntity> {
 		return name;
 	}
 
-	@Override
-	public Builder modify() {
+	public Builder toBuilder() {
 		return new Builder(this);
 	}
 
@@ -38,7 +37,7 @@ public class MyEntity extends Entity<MyEntity> {
 		}
 
 		@Override
-		protected MyEntity createInstance(EntityId id) {
+		protected MyEntity build(EntityId id) {
 			return new MyEntity(id, this);
 		}
 	}

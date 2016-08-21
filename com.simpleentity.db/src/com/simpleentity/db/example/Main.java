@@ -6,17 +6,15 @@ public class Main {
 	
 	public void crud(ReadWriteSession session) {
 		MyEntity e1 = 
-				MyEntity
-					.newBuilder()
-						.setName("foobar")
-						.build(session);
+				session.create(
+						MyEntity.newBuilder()
+							.setName("foobar"));
 		
-		e1 = e1
-			.modify()
-				.setName("Hello World!")
-				.build(session);
+		e1 = session.modify(
+				e1.toBuilder()
+					.setName("Hello World!"));
 
-		e1.delete(session);
+		session.delete(e1);
 	}
 
 }
