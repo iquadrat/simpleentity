@@ -25,7 +25,7 @@ import com.simpleentity.serialize.object.IObjectSerializer;
  *     special handling and registers it using 
  *     {@link IObjectGraphSerializer#registerSerializer(Class, IObjectSerializer)}.
  *     However, most classes from the java.* packages which implement the Serializable 
- *     interface should work with. If you encounter a class from java.* which makes 
+ *     interface should work. If you encounter a class from java.* which makes 
  *     problems with this serializer, please report it.       
  *     </li>
  * </ul>
