@@ -1,9 +1,12 @@
 package com.simpleentity.entity;
 
+import net.jcip.annotations.Immutable;
+
 import org.povworld.collection.common.ObjectUtil;
 
 import com.simpleentity.entity.id.EntityId;
 
+@Immutable
 public abstract class Entity<T extends Entity<T>> {
 	
 	private static final int HASH_CONSTANT = 0xdc2e681f;
