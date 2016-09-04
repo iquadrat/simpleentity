@@ -3,6 +3,8 @@ package com.simpleentity.util.bytes;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.povworld.collection.common.PreConditions;
+
 import com.simpleentity.util.StringUtil;
 
 public class ByteWriter {
@@ -53,6 +55,14 @@ public class ByteWriter {
 		return this;
 	}
 	
+	public ByteWriter put(ByteChunk chunk, int offset, int length) {
+		if (length > chunk.length) {
+			throw new IndexOutOfBoundsException("length > chunk.getLength()");
+		}
+		put(chunk.bytes, offset, length);
+		return this;
+	}
+	
 	public ByteWriter putByte(byte n) {
 		ensureCapacity(size + 1);
 		bytes[size] = n;
@@ -81,6 +91,7 @@ public class ByteWriter {
 	}
 
 	public ByteWriter putVarInt(long n) {
+		// TODO consider changing to be closer to LITTLE_ENDIAN format.
 		if (n < 0) {
 			throw new IllegalArgumentException("Argument must be positive but was: " + n);
 		}

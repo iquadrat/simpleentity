@@ -1,6 +1,7 @@
 package com.simpleentity.util.bytes;
 
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
 import java.util.zip.CRC32;
 
 import org.povworld.collection.common.ObjectUtil;
@@ -35,6 +36,26 @@ public class ByteChunk {
 	public void appendTo(CRC32 crc) {
 		crc.update(bytes, 0, length);
 	}
+	
+	public void appendTo(MessageDigest digest) {
+		digest.update(bytes, 0, length);
+	}
+	
+	public ByteChunk digest(MessageDigest digest) {
+		appendTo(digest);
+		byte[] result = digest.digest();
+		return new ByteChunk(result, result.length);
+	}
+	
+	public ByteChunk trim(int newLength) {
+		// TODO if newLenght << length, create a copy of the array
+		return new ByteChunk(bytes, newLength);
+	}
+	
+	public ByteChunk copyOfRange(int start, int length) {
+		// TODO optimize
+		return new ByteWriter(length).put(bytes, start, length).build();
+	}
 
 	@Override
 	public int hashCode() {
@@ -64,8 +85,17 @@ public class ByteChunk {
 		return toHexString(this);
 	}
 	
-	public static ByteChunk fromByteBuffer(ByteBuffer buffer) {
+	public static ByteChunk copyOf(ByteBuffer buffer) {
 		return new ByteWriter().put(buffer).build();
+	}
+	
+	public static ByteChunk copyOf(byte[] bytes) {
+		return new ByteChunk(bytes.clone(), bytes.length);
+	}
+	
+	public static ByteChunk copyOf(byte[] bytes, int offset, int length) {
+		// TODO optimize
+		return new ByteWriter(length).put(bytes, offset, length).build();
 	}
 
 	public static ByteBuffer toByteBuffer(ByteChunk byteChunk) {
@@ -79,6 +109,12 @@ public class ByteChunk {
 	
 	public static String toHexString(ByteChunk byteChunk) {
 		return StringUtil.bytesToHex(byteChunk.bytes, 0, byteChunk.length);
+	}
+
+	public static byte[] toByteArray(ByteChunk bytes) {
+		byte[] result = new byte[bytes.length];
+		System.arraycopy(bytes.bytes, 0, result, 0, bytes.length);
+		return result;
 	}
 
 }
