@@ -1,7 +1,12 @@
 package com.simpleentity.util;
 
+import java.nio.charset.Charset;
+
+
 
 public class StringUtil {
+	
+	public static Charset UTF8 = Charset.forName("UTF-8");
 
 	private StringUtil() {
 	}
@@ -36,6 +41,31 @@ public class StringUtil {
 		}
 		return result.toString();
 	}
+	
+	public static byte[] hex2Bytes(String string) {
+		//PreConditions.argument(string).verify(string.length() % 2 == 0, "Expected an even number of characters.");
+		int outputLength = string.length() / 2;
+		byte[] result = new byte[outputLength];
+		for (int i = 0; i < outputLength; ++i) {
+			int resultIndex = i;
+			result[resultIndex] = (byte) ((hex2Byte(string.charAt(2 * i)) << 4) | hex2Byte(string.charAt(2 * i + 1)));
+		}
+		return result;
+	}
+
+	private static byte hex2Byte(char c) {
+		if (c >= '0' && c <= '9') {
+			return (byte) (c - '0');
+		}
+		if (c >= 'a' && c <= 'f') {
+			return (byte) (c - 'a' + 10);
+		}
+		if (c >= 'A' && c <= 'F') {
+			return (byte) (c - 'A' + 10);
+		}
+		throw new IllegalArgumentException("Invalid character in hexadecimal string: " + c);
+	}
+
 	
 	private static char halfByteToChar(int halfByte) {
 		if (halfByte < 10) {

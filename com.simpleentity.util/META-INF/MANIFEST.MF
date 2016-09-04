@@ -11,6 +11,7 @@ Bundle-ClassPath: lib/annotations.jar,
  lib/objenesis-1.0.jar,
  .
 Export-Package: com.simpleentity.util,
+ com.simpleentity.util.bytes,
  com.simpleentity.util.collection,
  com.simpleentity.util.disposable,
  com.simpleentity.util.io,
