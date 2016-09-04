@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 
 import net.jcip.annotations.NotThreadSafe;
 
-import com.simpleentity.util.ByteChunk;
+import com.simpleentity.util.bytes.ByteChunk;
 
 @NotThreadSafe
 public interface LogFile extends Closeable {

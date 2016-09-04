@@ -7,11 +7,12 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
-import com.simpleentity.log.LogFileException;
 import com.simpleentity.log.LogFile;
+import com.simpleentity.log.LogFileException;
 import com.simpleentity.log.util.IOUtil;
 import com.simpleentity.util.Assert;
-import com.simpleentity.util.ByteChunk;
+import com.simpleentity.util.bytes.ByteChunk;
+import com.simpleentity.util.bytes.ByteWriter;
 
 public class LocalLogFile implements LogFile {
 
@@ -104,7 +105,7 @@ public class LocalLogFile implements LogFile {
 		ByteBuffer bytes = ByteBuffer.allocate(length);
 		read(offset, bytes);
 		bytes.flip();
-		return ByteChunk.newBuilder().append(bytes).build();
+		return new ByteWriter().put(bytes).build();
 	}
 
 	@Override
@@ -133,7 +134,7 @@ public class LocalLogFile implements LogFile {
 	public void append(ByteChunk byteChunk) {
 		try {
 			int toWrite = byteChunk.getLength();
-			int written = randomAccess.getChannel().write(byteChunk.asByteBuffer(), size);
+			int written = randomAccess.getChannel().write(ByteChunk.toByteBuffer(byteChunk), size);
 			Assert.isTrue(toWrite == written, "Did not write as many bytes as expected: ", toWrite, " != ", written);
 		} catch (IOException e) {
 			throw new LocalLogFileException(file, e);
