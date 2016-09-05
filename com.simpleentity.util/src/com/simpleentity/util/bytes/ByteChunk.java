@@ -86,7 +86,7 @@ public class ByteChunk {
 	}
 	
 	public static ByteChunk copyOf(ByteBuffer buffer) {
-		return new ByteWriter().put(buffer).build();
+		return new ByteWriter(buffer.remaining()).put(buffer).build();
 	}
 	
 	public static ByteChunk copyOf(byte[] bytes) {

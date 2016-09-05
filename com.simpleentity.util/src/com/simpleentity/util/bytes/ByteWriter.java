@@ -3,8 +3,6 @@ package com.simpleentity.util.bytes;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.povworld.collection.common.PreConditions;
-
 import com.simpleentity.util.StringUtil;
 
 public class ByteWriter {
@@ -47,6 +45,7 @@ public class ByteWriter {
 		int length = buffer.remaining();
 		ensureCapacity(size + length);
 		buffer.get(this.bytes, size, length);
+		size += length;
 		return this;
 	}
 
