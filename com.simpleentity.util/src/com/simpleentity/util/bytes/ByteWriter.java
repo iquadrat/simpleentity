@@ -160,6 +160,10 @@ public class ByteWriter {
 		}
 		bytes[index] = value;
 	}
+	
+	public void setByte(int index, int value) {
+		setByte(index, (byte)value);
+	}
 
 	// TODO consider adding a compact() method
 	public ByteChunk build() {

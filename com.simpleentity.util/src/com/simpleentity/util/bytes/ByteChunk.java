@@ -87,6 +87,7 @@ public class ByteChunk {
 		return toHexString(this);
 	}
 	
+	@Deprecated
 	public static ByteChunk copyOf(ByteBuffer buffer) {
 		return new ByteWriter(buffer.remaining()).put(buffer).build();
 	}
