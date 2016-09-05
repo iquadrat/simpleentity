@@ -12,21 +12,26 @@ public class ByteWriter {
 	// TODO consider storing bytes wrapped in ByteBuffer
 	private byte[] bytes;
 	private int size = 0;
-	private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+	private ByteOrder byteOrder;
 
 	public ByteWriter() {
 		this(DEFAULT_INITIAL_BUILDER_CAPACITY);
 	}
-
+	
 	public ByteWriter(int initialCapacity) {
+		this(initialCapacity, ByteOrder.LITTLE_ENDIAN);
+	}
+
+	public ByteWriter(int initialCapacity, ByteOrder byteOrder) {
 		this.bytes = new byte[initialCapacity];
+		this.byteOrder = byteOrder;
 	}
 
 	public ByteWriter setByteOrder(ByteOrder byteOrder) {
 		this.byteOrder = byteOrder;
 		return this;
 	}
-
+	
 	public ByteWriter put(byte[] bytes) {
 		ensureCapacity(size + bytes.length);
 		System.arraycopy(bytes, 0, this.bytes, size, bytes.length);
@@ -72,12 +77,26 @@ public class ByteWriter {
 	public ByteWriter putByte(int n) {
 		return putByte((byte) n);
 	}
+	
+	public ByteWriter putBytes(byte value, int count) {
+		ensureCapacity(size + count);
+		for (int i = size; i < size + count; ++i) {
+			bytes[i] = value;
+		}
+		size += count;
+		return this;
+	}
+	
+	public ByteWriter putBytes(int value, int count) {
+		return putBytes((byte)value, count);
+	}
 
 	public ByteWriter putInt(int n) {
 		ensureCapacity(size + 4);
 		ByteBuffer buffer = ByteBuffer.wrap(bytes, size, 4);
 		buffer.order(byteOrder);
 		buffer.putInt(n);
+		size += 4;
 		return this;
 	}
 
@@ -86,8 +105,20 @@ public class ByteWriter {
 		ByteBuffer buffer = ByteBuffer.wrap(bytes, size, 8);
 		buffer.order(byteOrder);
 		buffer.putLong(n);
+		size += 8;
 		return this;
 	}
+	
+	public ByteWriter putLong(int offset, long value) {
+		if (offset +8 > size) {
+			throw new IndexOutOfBoundsException((offset +8)+" > "+size);
+		}
+		ByteBuffer buffer = ByteBuffer.wrap(bytes, offset, 8);
+		buffer.order(byteOrder);
+		buffer.putLong(value);
+		return this;
+	}
+
 
 	public ByteWriter putVarInt(long n) {
 		// TODO consider changing to be closer to LITTLE_ENDIAN format.
@@ -115,6 +146,20 @@ public class ByteWriter {
 		put(encoded);
 		return this;
 	}
+	
+	public byte getByte(int index) {
+		if (index > size) {
+			throw new IndexOutOfBoundsException(index +" > "+size);
+		}
+		return bytes[index];
+	}
+	
+	public void setByte(int index, byte value) {
+		if (index > size) {
+			throw new IndexOutOfBoundsException(index +" > "+size);
+		}
+		bytes[index] = value;
+	}
 
 	// TODO consider adding a compact() method
 	public ByteChunk build() {
@@ -124,11 +169,12 @@ public class ByteWriter {
 	}
 
 	private void ensureCapacity(int capacity) {
-		if (size < capacity) {
+		if (bytes.length < capacity) {
 			int newCapacity = Math.max(capacity, size + size / 2);
 			byte[] newBytes = new byte[newCapacity];
 			System.arraycopy(bytes, 0, newBytes, 0, size);
 			bytes = newBytes;
 		}
 	}
+
 }

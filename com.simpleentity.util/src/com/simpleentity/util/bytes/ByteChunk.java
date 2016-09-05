@@ -9,6 +9,8 @@ import org.povworld.collection.common.ObjectUtil;
 import com.simpleentity.util.StringUtil;
 
 public class ByteChunk {
+	
+	public static final ByteChunk EMPTY = new ByteChunk(new byte[0], 0);
 
 	final byte[] bytes;
 	final int length;

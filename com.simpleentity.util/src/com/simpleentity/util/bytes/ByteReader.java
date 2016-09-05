@@ -49,6 +49,10 @@ public class ByteReader {
 		this.bytes.get(bytes);
 	}
 	
+	public void get(byte[] bytes, int offset, int length) {
+		this.bytes.get(bytes, offset, length);
+	}
+	
 	public int getInt() {
 		return bytes.getInt();
 	}
