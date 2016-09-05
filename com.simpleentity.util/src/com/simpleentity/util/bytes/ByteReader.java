@@ -18,6 +18,7 @@ public class ByteReader {
 
 	public ByteReader(ByteChunk bytes, int offset) {
 		this.bytes = ByteBuffer.wrap(bytes.bytes, offset, bytes.length - offset);
+		this.bytes.order(ByteOrder.LITTLE_ENDIAN);
 //		this.position = offset;
 	}
 	
