@@ -102,17 +102,17 @@ public abstract class GenericValue {
 	// TODO add more primitives
 
 	public static class ValueObjectValue extends GenericValue {
-		private final EntityId actualType;
+		private final EntityId metaDataId;
 		private final ObjectInfo value;
 
-		public ValueObjectValue(EntityId type, ObjectInfo value) {
-			this.actualType = type;
+		public ValueObjectValue(EntityId metaDataId, ObjectInfo value) {
+			this.metaDataId = metaDataId;
 			this.value = value;
 		}
 
 		@Override
 		public EntityId getActualMetaDataId() {
-			return actualType;
+			return metaDataId;
 		}
 
 		public ObjectInfo getValue() {
@@ -126,7 +126,7 @@ public abstract class GenericValue {
 
 		@Override
 		public int hashCode() {
-			return actualType.hashCode() + 31 * value.hashCode();
+			return metaDataId.hashCode() + 31 * value.hashCode();
 		}
 
 		@Override
@@ -135,12 +135,12 @@ public abstract class GenericValue {
 				return false;
 			}
 			ValueObjectValue other = (ValueObjectValue) obj;
-			return actualType.equals(other.actualType) && value.equals(other.value);
+			return metaDataId.equals(other.metaDataId) && value.equals(other.value);
 		}
 
 		@Override
 		public String toString() {
-			return "ValueObjectValue [actualType=" + actualType + ", value=" + value + "]";
+			return "ValueObjectValue [actualType=" + metaDataId + ", value=" + value + "]";
 		}
 	}
 

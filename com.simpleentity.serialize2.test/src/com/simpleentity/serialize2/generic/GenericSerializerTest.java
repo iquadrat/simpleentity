@@ -1,6 +1,7 @@
 package com.simpleentity.serialize2.generic;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import javax.annotation.CheckForNull;
 
@@ -20,6 +21,7 @@ import com.simpleentity.serialize2.MockIdFactory;
 import com.simpleentity.serialize2.SerializationContext;
 import com.simpleentity.serialize2.Serializer;
 import com.simpleentity.serialize2.SerializerRepository;
+import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
 import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueObjectValue;
 import com.simpleentity.serialize2.meta.BootStrap;
@@ -102,6 +104,7 @@ public class GenericSerializerTest {
 		private final Double D;
 
 		private final String string;
+		// TODO add optional field
 
 		EntityPrimitives(EntityId id, boolean b, boolean B, char c, char C, byte y, byte Y, short s, short S, int i, int I, long l, long L, float f, float F, double d, double D, String string) {
 			super(id);
@@ -188,6 +191,7 @@ public class GenericSerializerTest {
 		assertEquals("foo", entity.string);
 	}
 
+	@SuppressWarnings("unused")
 	private static class Value extends ValueObject {
 		final int number;
 		final @CheckForNull Value nested;
@@ -240,6 +244,154 @@ public class GenericSerializerTest {
 		assertEquals(value, entity.foo);
 	}
 
+	@SuppressWarnings("unused")
+	private static class AbstractValue extends ValueObject {
+		final int base;
+		AbstractValue(int base) {
+			this.base = base;
+		}
+	}
+
+	private static class ValueA extends AbstractValue {
+		@CheckForNull final String a;
+		ValueA(int base, @CheckForNull String a) {
+			super(base);
+			this.a = a;
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private static class ValueB extends AbstractValue {
+		final double b;
+		ValueB(int base, double b) {
+			super(base);
+			this.b = b;
+		}
+	}
+
+	private static class EntityWithPolymorphicObjects extends Entity<EntityWithPolymorphicObjects> {
+		final AbstractValue value;
+		final ValueB b;
+		final Object object;
+		final @CheckForNull Object primitive;
+		final Object entity;
+		final Object value2;
+
+		protected EntityWithPolymorphicObjects(EntityId id, AbstractValue value, ValueB b, Object object, Integer primitive, EntityId entity, AbstractValue value2) {
+			super(id);
+			this.value = value;
+			this.b = b;
+			this.object = object;
+			this.primitive = primitive;
+			this.entity = entity;
+			this.value2 = value2;
+		}
+
+		@Override
+		public EntityBuilder<EntityWithPolymorphicObjects> toBuilder() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	@Test
+	public void serializeEntityWithPolymorphicObjects() {
+		MetaData objectMetaData = prepareValueObjectMetaData(Object.class);
+		prepareValueObjectMetaData(AbstractValue.class);
+		MetaData valueAMetaData = prepareValueObjectMetaData(ValueA.class);
+		MetaData valueBMetaData = prepareValueObjectMetaData(ValueB.class);
+		MetaData entityMetaData = prepareEntityMetaData(EntityWithPolymorphicObjects.class);
+
+		EntityId other = new EntityId(1234);
+
+		ObjectInfo object = ObjectInfo.newBuilder()
+				.setMetaDataId(objectMetaData.getEntityId())
+				.build();
+		ObjectInfo valueAInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(valueAMetaData.getEntityId())
+				.setEntryValue("base", new PrimitiveValue(Primitive.INT, 12))
+				.setEntryValue("a", new PrimitiveValue(Primitive.STRING, "bar"))
+				.build();
+		ObjectInfo valueBInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(valueBMetaData.getEntityId())
+				.setEntryValue("base", new PrimitiveValue(Primitive.INT, 13))
+				.setEntryValue("b", new PrimitiveValue(Primitive.DOUBLE, Double.POSITIVE_INFINITY))
+				.build();
+		ObjectInfo value2Info = ObjectInfo.newBuilder()
+				.setMetaDataId(valueAMetaData.getEntityId())
+				.setEntryValue("base", new PrimitiveValue(Primitive.INT, 14))
+				.build();
+		ObjectInfo entityInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(entityMetaData.getEntityId())
+				.setEntryValue(Entity.ID_FIELD_NAME, new GenericValue.EntityIdValue(TEST_ENTITY_ID))
+				.setEntryValue("value", new ValueObjectValue(valueAMetaData.getEntityId(), valueAInfo))
+				.setEntryValue("b", new ValueObjectValue(valueBMetaData.getEntityId(), valueBInfo))
+				.setEntryValue("object", new ValueObjectValue(objectMetaData.getEntityId(), object))
+				.setEntryValue("primitive", new PrimitiveValue(Primitive.INT, Integer.MAX_VALUE))
+				.setEntryValue("entity", new EntityIdValue(other))
+				.setEntryValue("value2", new ValueObjectValue(valueAMetaData.getEntityId(), value2Info))
+				.build();
+
+		ValueA valueA = new ValueA(12, "bar");
+		ValueB valueB = new ValueB(13, Double.POSITIVE_INFINITY);
+		ValueA value2 = new ValueA(14, null);
+		ObjectInfo actual = serialize(EntityWithPolymorphicObjects.class, new EntityWithPolymorphicObjects(
+				TEST_ENTITY_ID, valueA, valueB, new Object(),
+				Integer.MAX_VALUE, other, value2));
+		assertEquals(entityInfo, actual);
+
+		EntityWithPolymorphicObjects entity = deserialize(EntityWithPolymorphicObjects.class, entityInfo);
+		assertEquals(TEST_ENTITY_ID, entity.getEntityId());
+		assertEquals(valueA, entity.value);
+		assertEquals(valueB, entity.b);
+		assertTrue(entity.object instanceof Object);
+		assertEquals(Integer.MAX_VALUE, entity.primitive);
+		assertEquals(other, entity.entity);
+		assertEquals(value2, entity.value2);
+	}
+
+	private static class EntityWithReference extends Entity<EntityWithReference> {
+		final EntityId another;
+		final @CheckForNull EntityId optional;
+		final @CheckForNull EntityId missing;
+		public EntityWithReference(EntityId id, EntityId another, EntityId optional) {
+			super(id);
+			this.another = another;
+			this.optional = optional;
+			this.missing = null;
+		}
+		@Override
+		public EntityBuilder<EntityWithReference> toBuilder() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	@Test
+	public void serializeEntityWithReferences() {
+		MetaData entityMetaData = prepareEntityMetaData(EntityWithReference.class);
+		EntityId otherId = new EntityId(1010);
+		EntityId optionalId = new EntityId(1011);
+		ObjectInfo objectInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(entityMetaData.getEntityId())
+				.setEntryValue(Entity.ID_FIELD_NAME, new GenericValue.EntityIdValue(TEST_ENTITY_ID))
+				.setEntryValue("another", new EntityIdValue(otherId))
+				.setEntryValue("optional", new EntityIdValue(optionalId))
+				.build();
+
+		ObjectInfo actual = serialize(EntityWithReference.class,
+				new EntityWithReference(TEST_ENTITY_ID, otherId, optionalId));
+		assertEquals(objectInfo, actual);
+
+		EntityWithReference entity = deserialize(EntityWithReference.class, objectInfo);
+		assertEquals(TEST_ENTITY_ID, entity.getEntityId());
+		assertEquals(otherId, entity.another);
+		assertEquals(optionalId, entity.optional);
+	}
+
+	@Test
+	public void serializeEntityWithMultiFields() {
+		// TODO
+	}
+
 	private <T> ObjectInfo serialize(Class<T> class_, T object) {
 		Serializer<T> serializer =  new GenericSerializer<T>(context, class_);
 		return serializer.serialize(object);
@@ -265,7 +417,7 @@ public class GenericSerializerTest {
 		Mockito.when(serializerRepository.getMetaDataId(class_)).thenReturn(new EntityId(idFactory.nextId.get()));
 		Builder builder = MetaData.newBuilder()
 			.setClassName(class_.getName())
-			.setDomain(TEST_DOMAIN)
+			.setDomain(class_.getName().startsWith("java.lang") ? "java.lang" : TEST_DOMAIN)
 			.setVersion(TEST_VERSION)
 			.setMetaType(metaType)
 			.build(idFactory)
@@ -275,5 +427,4 @@ public class GenericSerializerTest {
 		Mockito.when(serializerRepository.getMetaData(class_)).thenReturn(result);
 		return result;
 	}
-
 }
