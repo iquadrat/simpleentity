@@ -10,8 +10,8 @@ import com.simpleentity.entity.value.ValueObject;
 @Immutable
 @ValueObject
 public class EntityId {
-	
-	private static final int HASH_CONSTANT = 0xa9ff883e; 
+
+	private static final int HASH_CONSTANT = 0xa9ff883e;
 
 	private final long id;
 
@@ -35,5 +35,10 @@ public class EntityId {
 			return false;
 		}
 		return this.id == other.id;
+	}
+
+	@Override
+	public String toString() {
+		return "EntityId[" + id + "]";
 	}
 }

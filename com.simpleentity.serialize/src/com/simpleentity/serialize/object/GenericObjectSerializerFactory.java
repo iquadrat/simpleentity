@@ -57,7 +57,7 @@ public class GenericObjectSerializerFactory implements IObjectSerializerFactory 
   }
 
   public static void createFieldSerializationEntries(Class<?> clazz, GenericObjectSerializer<?> serializer) {
-    for (Field field: ObjectUtil.getAllFields(clazz)) {
+    for (Field field: ClassUtil.getAllFields(clazz)) {
       // do not serialize transient fields
       if (Modifier.isTransient(field.getModifiers())) {
         continue;

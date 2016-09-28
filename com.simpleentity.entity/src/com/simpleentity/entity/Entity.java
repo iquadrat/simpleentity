@@ -2,8 +2,9 @@ package com.simpleentity.entity;
 
 import net.jcip.annotations.Immutable;
 
+import org.povworld.collection.common.ObjectUtil;
+
 import com.simpleentity.entity.id.EntityId;
-import com.simpleentity.util.ObjectUtil;
 
 @Immutable
 public abstract class Entity<T extends Entity<T>> {
