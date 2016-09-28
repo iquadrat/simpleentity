@@ -51,6 +51,24 @@ public abstract class GenericValue {
 			visitor.visit(this);
 		}
 
+		@Override
+		public int hashCode() {
+			return type.hashCode() + 31 * value.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null || getClass() != obj.getClass()) {
+				return false;
+			}
+			PrimitiveValue other = (PrimitiveValue) obj;
+			return (type == other.type) && value.equals(other.value);
+		}
+
+		@Override
+		public String toString() {
+			return "PrimitiveValue [type=" + type + ", value=" + value + "]";
+		}
 	}
 
 	// public static class ByteValue extends FieldValue {
@@ -106,6 +124,24 @@ public abstract class GenericValue {
 			visitor.visit(this);
 		}
 
+		@Override
+		public int hashCode() {
+			return actualType.hashCode() + 31 * value.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null || (getClass() != obj.getClass())) {
+				return false;
+			}
+			ValueObjectValue other = (ValueObjectValue) obj;
+			return actualType.equals(other.actualType) && value.equals(other.value);
+		}
+
+		@Override
+		public String toString() {
+			return "ValueObjectValue [actualType=" + actualType + ", value=" + value + "]";
+		}
 	}
 
 	public static class EntityIdValue extends GenericValue {
@@ -127,6 +163,25 @@ public abstract class GenericValue {
 		@Override
 		public void accept(ValueVisitor visitor) {
 			visitor.visit(this);
+		}
+
+		@Override
+		public int hashCode() {
+			return 31 * entityId.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null || (getClass() != obj.getClass())) {
+				return false;
+			}
+			EntityIdValue other = (EntityIdValue) obj;
+			return entityId.equals(other.entityId);
+		}
+
+		@Override
+		public String toString() {
+			return "EntityIdValue [entityId=" + entityId + "]";
 		}
 	}
 
@@ -161,6 +216,27 @@ public abstract class GenericValue {
 		@Override
 		public void accept(ValueVisitor visitor) {
 			visitor.visit(this);
+		}
+
+		@Override
+		public int hashCode() {
+			return actualMetaDataId.hashCode() + 31 * collectionInfo.hashCode() + 31 * 31 * values.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null || (getClass() != obj.getClass())) {
+				return false;
+			}
+			CollectionValue other = (CollectionValue) obj;
+			return actualMetaDataId.equals(other.actualMetaDataId) && collectionInfo.equals(other.collectionInfo)
+					&& values.equals(other.values);
+		}
+
+		@Override
+		public String toString() {
+			return "CollectionValue [actualMetaDataId=" + actualMetaDataId + ", collectionInfo=" + collectionInfo
+					+ ", values=" + values + "]";
 		}
 	}
 

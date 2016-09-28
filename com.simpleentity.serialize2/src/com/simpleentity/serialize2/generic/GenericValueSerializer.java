@@ -1,4 +1,4 @@
-package com.simpleentity.serialize2.entity;
+package com.simpleentity.serialize2.generic;
 
 import java.util.Iterator;
 
@@ -11,13 +11,11 @@ import com.simpleentity.serialize2.Serializer;
 import com.simpleentity.serialize2.SerializerException;
 import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.collection.CollectionSerializer;
-import com.simpleentity.serialize2.generic.GenericValue;
 import com.simpleentity.serialize2.generic.GenericValue.CollectionValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
 import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueObjectValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueVisitor;
-import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.meta.MetaData;
 import com.simpleentity.serialize2.meta.Primitive;
 import com.simpleentity.util.Reference;

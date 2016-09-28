@@ -1,6 +1,7 @@
 package com.simpleentity.serialize2.generic;
 
 import org.povworld.collection.Map;
+import org.povworld.collection.common.ObjectUtil;
 import org.povworld.collection.mutable.HashMap;
 
 import com.simpleentity.annotation.CheckForNull;
@@ -11,7 +12,6 @@ import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
 import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueObjectValue;
 import com.simpleentity.util.BuilderUtil;
-import com.simpleentity.util.ObjectUtil;
 
 public class ObjectInfo {
 	// TODO add full MetaData instead just its EntityId?
@@ -72,7 +72,8 @@ public class ObjectInfo {
 	}
 
 	public static class Builder {
-		@CheckForNull private EntityId metaDataId = null;
+		@CheckForNull
+		private EntityId metaDataId = null;
 		private final HashMap<String, GenericValue> entries = new HashMap<>();
 
 		public Builder setMetaDataId(EntityId metaDataId) {
@@ -88,6 +89,42 @@ public class ObjectInfo {
 		public ObjectInfo build() {
 			return new ObjectInfo(this);
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((entries == null) ? 0 : entries.hashCode());
+		result = prime * result + ((metaDataId == null) ? 0 : metaDataId.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ObjectInfo other = (ObjectInfo) obj;
+		if (entries == null) {
+			if (other.entries != null)
+				return false;
+		} else if (!entries.equals(other.entries))
+			return false;
+		if (metaDataId == null) {
+			if (other.metaDataId != null)
+				return false;
+		} else if (!metaDataId.equals(other.metaDataId))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "ObjectInfo [metaDataId=" + metaDataId + ", entries=" + entries + "]";
 	}
 
 }

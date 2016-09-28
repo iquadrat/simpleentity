@@ -1,6 +1,5 @@
-package com.simpleentity.serialize2.entity;
+package com.simpleentity.serialize2.generic;
 
-import com.simpleentity.serialize2.generic.GenericValue;
 
 // TODO remove?
 interface ValueSerializer {

@@ -1,16 +1,13 @@
-package com.simpleentity.serialize2.entity;
+package com.simpleentity.serialize2.generic;
 
 import java.lang.reflect.Field;
 
 import javax.annotation.CheckForNull;
 
-import com.simpleentity.entity.Entity;
 import com.simpleentity.serialize2.SerializerException;
-import com.simpleentity.serialize2.generic.GenericValue;
-import com.simpleentity.serialize2.generic.ObjectInfo;
 
 // TODO merge with GenericValueSerializer?
-class EntrySerializer<T extends Entity<T>> {
+class EntrySerializer<T> {
 	private final String entryId;
 	private final Field field;
 	private final ValueSerializer valueSerializer;

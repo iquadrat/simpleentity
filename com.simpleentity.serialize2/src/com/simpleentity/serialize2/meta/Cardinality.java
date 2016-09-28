@@ -2,6 +2,7 @@ package com.simpleentity.serialize2.meta;
 
 import org.povworld.collection.common.PreConditions;
 
+import com.simpleentity.annotation.CheckForNull;
 import com.simpleentity.annotation.Positive;
 import com.simpleentity.entity.Entity;
 import com.simpleentity.entity.EntityBuilder;
@@ -31,17 +32,20 @@ public class Cardinality extends Entity<Cardinality> {
 
 	@Override
 	public Builder toBuilder() {
-		return new Builder(); // FIXME
+		return new Builder(this).setMin(min).setMax(max);
 	}
 
 	public static Builder newBuilder() {
-		return new Builder();
+		return new Builder(null);
 	}
 
 	public static class Builder extends EntityBuilder<Cardinality> {
-
 		private long min = -1;
 		private long max = -1;
+
+		private Builder(@CheckForNull Cardinality entity) {
+			super(entity);
+		}
 
 		public Builder setMin(long min) {
 			this.min = min;

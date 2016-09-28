@@ -8,17 +8,24 @@ import com.simpleentity.entity.id.EntityId;
 
 public enum Primitive {
 
-	BYTE(BootStrap.ID_PRIMITIVE_BYTE, Byte.class), CHAR(BootStrap.ID_PRIMITIVE_CHAR, Character.class), SHORT(
-			BootStrap.ID_PRIMITIVE_SHORT, Short.class), INT(BootStrap.ID_PRIMITIVE_INT, Integer.class), LONG(
-			BootStrap.ID_PRIMITIVE_LONG, Long.class), FLOAT(BootStrap.ID_PRIMITIVE_FLOAT, Float.class), STRING(
-			BootStrap.ID_PRIMITIVE_STRING, String.class), DOUBLE(BootStrap.ID_PRIMITIVE_DOUBLE, Double.class);
+	BOOLEAN(BootStrap.ID_PRIMITIVE_BOOLEAN, boolean.class, Boolean.class),
+	BYTE(BootStrap.ID_PRIMITIVE_BYTE, byte.class, Byte.class),
+	CHAR(BootStrap.ID_PRIMITIVE_CHAR, char.class, Character.class),
+	SHORT(BootStrap.ID_PRIMITIVE_SHORT, short.class, Short.class),
+	INT(BootStrap.ID_PRIMITIVE_INT, int.class, Integer.class),
+	LONG(BootStrap.ID_PRIMITIVE_LONG, long.class, Long.class),
+	FLOAT(BootStrap.ID_PRIMITIVE_FLOAT, float.class, Float.class),
+	DOUBLE(BootStrap.ID_PRIMITIVE_DOUBLE, double.class, Double.class),
+	STRING(BootStrap.ID_PRIMITIVE_STRING, String.class, String.class);
 
 	private final EntityId entityId;
-	private Class<?> type;
+	private final Class<?> boxedType;
+	private final Class<?> type;
 
-	private Primitive(EntityId entityId, Class<?> type) {
+	private Primitive(EntityId entityId, Class<?> type, Class<?> boxedType) {
 		this.entityId = entityId;
 		this.type = type;
+		this.boxedType = boxedType;
 	}
 
 	public EntityId getEntityId() {
@@ -29,8 +36,21 @@ public enum Primitive {
 		return entityId.getId();
 	}
 
-	private Class<?> getType() {
+	public Class<?> getType() {
 		return type;
+	}
+
+	public Class<?> getBoxedType() {
+		return boxedType;
+	}
+
+	public MetaData getMetaData() {
+		return MetaData.newBuilder()
+				.setClassName(getBoxedType().getName())
+				.setDomain(BootStrap.PRIMITIVE_DOMAIN)
+				.setMetaType(MetaType.PRIMITIVE)
+				.setVersion(BootStrap.SIMPLE_ENTITY_VERSION)
+				.build(getEntityId());
 	}
 
 	// TODO Create PerfectHashMap.

@@ -28,6 +28,7 @@ public class MetaData extends Entity<MetaData> {
 
 	private final ImmutableList<Entry> entries;
 
+	// TODO move to entry?
 	@CheckForNull
 	private final EntityId elementTypeId;
 
@@ -67,12 +68,17 @@ public class MetaData extends Entity<MetaData> {
 	}
 
 	@Override
-	public EntityBuilder<MetaData> toBuilder() {
-		return new Builder(); // FIXME
+	public Builder toBuilder() {
+		return new Builder(this)
+			.setClassName(className)
+			.setDomain(domain)
+			.setElementTypeId(elementTypeId)
+			.setMetaType(metaType)
+			.setVersion(version);
 	}
 
-	public EntityBuilder<MetaData> newBuilder() {
-		return new Builder();
+	public static Builder newBuilder() {
+		return new Builder(null);
 	}
 
 	public static class Builder extends EntityBuilder<MetaData> {
@@ -82,32 +88,45 @@ public class MetaData extends Entity<MetaData> {
 		@CheckForNull
 		private String className;
 		@CheckForNull
-		private String domain = null;
+		private String domain;
 		private long version = -1;
 		@CheckForNull
-		private MetaType metaType = null;
+		private MetaType metaType;
 		@CheckForNull
 		private EntityId elementTypeId;
 
+		private Builder(@CheckForNull MetaData entity) {
+			super(entity);
+		}
 
-		public void setClassName(String className) {
+		public Builder setClassName(String className) {
 			this.className = className;
+			return this;
 		}
 
-		public void setDomain(String domain) {
+		public Builder setDomain(String domain) {
 			this.domain = domain;
+			return this;
 		}
 
-		public void setVersion(@Positive long version) {
+		public Builder setVersion(@Positive long version) {
 			this.version = PreConditions.paramPositive(version);
+			return this;
 		}
 
-		public void setMetaType(MetaType type) {
+		public Builder setMetaType(MetaType type) {
 			this.metaType = type;
+			return this;
 		}
 
-		public void setElementTypeId(EntityId elementTypeId) {
+		public Builder setElementTypeId(EntityId elementTypeId) {
 			this.elementTypeId = elementTypeId;
+			return this;
+		}
+
+		public Builder addEntry(Entry entry) {
+			this.entries.add(entry);
+			return this;
 		}
 
 		@Override
