@@ -26,6 +26,10 @@ public class ByteReader {
 //		this.byteOrder = byteOrder;
 		bytes.order(byteOrder);
 	}
+	
+	public boolean getBoolean() {
+		return getByte() != 0;
+	}
 
 	public byte getByte() {
 		return bytes.get();
@@ -54,12 +58,28 @@ public class ByteReader {
 		this.bytes.get(bytes, offset, length);
 	}
 	
+	public short getShort() {
+		return bytes.getShort();
+	}
+	
 	public int getInt() {
 		return bytes.getInt();
 	}
 	
 	public long getLong() {
 		return bytes.getLong();
+	}
+	
+	public float getFloat() {
+		return bytes.getFloat();
+	}
+	
+	public double getDouble() {
+		return bytes.getDouble();
+	}
+	
+	public char getChar() {
+		return bytes.getChar();
 	}
 	
 	public String getStringUtf8() {

@@ -17,7 +17,7 @@ public class ByteWriter {
 	public ByteWriter() {
 		this(DEFAULT_INITIAL_BUILDER_CAPACITY);
 	}
-	
+
 	public ByteWriter(int initialCapacity) {
 		this(initialCapacity, ByteOrder.LITTLE_ENDIAN);
 	}
@@ -31,7 +31,7 @@ public class ByteWriter {
 		this.byteOrder = byteOrder;
 		return this;
 	}
-	
+
 	public ByteWriter put(byte[] bytes) {
 		ensureCapacity(size + bytes.length);
 		System.arraycopy(bytes, 0, this.bytes, size, bytes.length);
@@ -58,7 +58,7 @@ public class ByteWriter {
 		put(chunk.bytes, 0, chunk.length);
 		return this;
 	}
-	
+
 	public ByteWriter put(ByteChunk chunk, int offset, int length) {
 		if (length > chunk.length) {
 			throw new IndexOutOfBoundsException("length > chunk.getLength()");
@@ -66,7 +66,12 @@ public class ByteWriter {
 		put(chunk.bytes, offset, length);
 		return this;
 	}
-	
+
+	public ByteWriter putBoolean(boolean b) {
+		putByte(b ? 1 : 0);
+		return this;
+	}
+
 	public ByteWriter putByte(byte n) {
 		ensureCapacity(size + 1);
 		bytes[size] = n;
@@ -77,7 +82,7 @@ public class ByteWriter {
 	public ByteWriter putByte(int n) {
 		return putByte((byte) n);
 	}
-	
+
 	public ByteWriter putBytes(byte value, int count) {
 		ensureCapacity(size + count);
 		for (int i = size; i < size + count; ++i) {
@@ -86,9 +91,27 @@ public class ByteWriter {
 		size += count;
 		return this;
 	}
-	
+
 	public ByteWriter putBytes(int value, int count) {
-		return putBytes((byte)value, count);
+		return putBytes((byte) value, count);
+	}
+
+	public ByteWriter putChar(char c) {
+		ensureCapacity(size + 2);
+		ByteBuffer buffer = ByteBuffer.wrap(bytes, size, 2);
+		buffer.order(byteOrder);
+		buffer.putChar(c);
+		size += 2;
+		return this;
+	}
+
+	public ByteWriter putShort(short s) {
+		ensureCapacity(size + 2);
+		ByteBuffer buffer = ByteBuffer.wrap(bytes, size, 2);
+		buffer.order(byteOrder);
+		buffer.putShort(s);
+		size += 2;
+		return this;
 	}
 
 	public ByteWriter putInt(int n) {
@@ -108,17 +131,16 @@ public class ByteWriter {
 		size += 8;
 		return this;
 	}
-	
+
 	public ByteWriter putLong(int offset, long value) {
-		if (offset +8 > size) {
-			throw new IndexOutOfBoundsException((offset +8)+" > "+size);
+		if (offset + 8 > size) {
+			throw new IndexOutOfBoundsException((offset + 8) + " > " + size);
 		}
 		ByteBuffer buffer = ByteBuffer.wrap(bytes, offset, 8);
 		buffer.order(byteOrder);
 		buffer.putLong(value);
 		return this;
 	}
-
 
 	public ByteWriter putVarInt(long n) {
 		// TODO consider changing to be closer to LITTLE_ENDIAN format.
@@ -132,37 +154,55 @@ public class ByteWriter {
 			putByte(0);
 			bytes = 7;
 		}
-		putByte((byte)(mask | (n >> (bytes * 8))));
+		putByte((byte) (mask | (n >> (bytes * 8))));
 		// Write remaining data bytes.
 		for (int i = bytes - 1; i >= 0; i--) {
 			putByte((byte) (n >> (i * 8)));
 		}
 		return this;
 	}
-	
+
+	public ByteWriter putFloat(float f) {
+		ensureCapacity(size + 4);
+		ByteBuffer buffer = ByteBuffer.wrap(bytes, size, 4);
+		buffer.order(byteOrder);
+		buffer.putFloat(f);
+		size += 4;
+		return this;
+	}
+
+	public ByteWriter putDouble(double d) {
+		ensureCapacity(size + 8);
+		ByteBuffer buffer = ByteBuffer.wrap(bytes, size, 8);
+		buffer.order(byteOrder);
+		buffer.putDouble(d);
+		size += 8;
+		return this;
+	}
+
 	public ByteWriter putStringUtf8(String string) {
 		byte[] encoded = string.getBytes(StringUtil.UTF8);
 		putVarInt(encoded.length);
 		put(encoded);
 		return this;
 	}
-	
+
 	public byte getByte(int index) {
 		if (index > size) {
-			throw new IndexOutOfBoundsException(index +" > "+size);
+			throw new IndexOutOfBoundsException(index + " > " + size);
 		}
 		return bytes[index];
 	}
-	
+
 	public void setByte(int index, byte value) {
 		if (index > size) {
-			throw new IndexOutOfBoundsException(index +" > "+size);
+			throw new IndexOutOfBoundsException(index + " > " + size);
 		}
 		bytes[index] = value;
 	}
-	
+
 	public void setByte(int index, int value) {
-		setByte(index, (byte)value);
+		setByte(index, (byte) value);
 	}
 
 	// TODO consider adding a compact() method
