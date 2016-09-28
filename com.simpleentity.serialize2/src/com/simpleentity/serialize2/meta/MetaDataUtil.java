@@ -27,14 +27,14 @@ public class MetaDataUtil {
 			Builder builder) {
 		for (Field field : ClassUtil.getAllFields(class_)) {
 			String id = getId(field);
-			MetaData metaData = serializerRepository.getMetaData(field.getType());
+			EntityId metaDataId = serializerRepository.getMetaDataId(field.getType());
 			EntityId cardinality;
-			if (metaData.getMetaType() == MetaType.COLLECTION) {
-				cardinality = BootStrap.ID_CARDINALITY_ANY;
-			} else {
+//			if (metaData.getMetaType() == MetaType.COLLECTION) {
+//				cardinality = BootStrap.ID_CARDINALITY_ANY;
+//			} else {
 				cardinality = isOptional(field) ? BootStrap.ID_CARDINALITY_OPTIONAL : BootStrap.ID_CARDINALITY_ONE;
-			}
-			builder.addEntry(new Entry(id, cardinality, metaData.getEntityId()));
+//			}
+			builder.addEntry(new Entry(id, cardinality, metaDataId));
 		}
 	}
 

@@ -31,6 +31,7 @@ public class MyEntity extends Entity<MyEntity> {
 		}
 
 		private Builder() {
+			super(null);
 		}
 
 		private Builder(MyEntity myEntity) {

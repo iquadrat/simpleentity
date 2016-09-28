@@ -14,6 +14,7 @@ import com.simpleentity.serialize2.meta.Cardinality;
 import com.simpleentity.serialize2.meta.Entry;
 import com.simpleentity.serialize2.meta.MetaData;
 
+// TODO rename to JavaSerializer?
 public class GenericSerializer<T> extends AbstractSerializer<T> {
 
 	// private static final Field idField;

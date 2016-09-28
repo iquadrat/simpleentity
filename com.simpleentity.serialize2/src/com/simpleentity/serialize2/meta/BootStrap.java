@@ -10,7 +10,7 @@ public class BootStrap {
 
 	public static final EntityId ID_NULL_REFERENCE = new EntityId(0);
 
-	public static final EntityId ID_ENTITIY_ID = new EntityId(1);
+	public static final EntityId ID_ENTITY_ID = new EntityId(1);
 	public static final EntityId ID_META_DATA = new EntityId(2);
 
 	private static final long ID_PRIMITIVE_FIRST = 16;
@@ -48,7 +48,7 @@ public class BootStrap {
 				.setDomain(SIMPLE_ENTITY_DOMAIN)
 				.setMetaType(MetaType.ENTITY)
 				.setVersion(SIMPLE_ENTITY_VERSION)
-				.build(ID_ENTITIY_ID);
+				.build(ID_ENTITY_ID);
 	}
 
 }

@@ -2,8 +2,8 @@ package com.simpleentity.serialize2.meta;
 
 import org.povworld.collection.common.PreConditions;
 
+import com.simpleentity.annotation.ValueObject;
 import com.simpleentity.entity.id.EntityId;
-import com.simpleentity.entity.value.ValueObject;
 
 @ValueObject
 public class Entry {

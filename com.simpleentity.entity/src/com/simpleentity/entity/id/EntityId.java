@@ -5,7 +5,7 @@ import net.jcip.annotations.Immutable;
 import org.povworld.collection.common.MathUtil;
 import org.povworld.collection.common.ObjectUtil;
 
-import com.simpleentity.entity.value.ValueObject;
+import com.simpleentity.annotation.ValueObject;
 
 @Immutable
 @ValueObject

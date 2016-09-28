@@ -43,7 +43,7 @@ public abstract class GenericValue {
 
 		@Override
 		public EntityId getActualMetaDataId() {
-			return type.getEntityId();
+			return type.getMetaDataId();
 		}
 
 		@Override
@@ -157,7 +157,7 @@ public abstract class GenericValue {
 
 		@Override
 		public EntityId getActualMetaDataId() {
-			return BootStrap.ID_ENTITIY_ID;
+			return BootStrap.ID_ENTITY_ID;
 		}
 
 		@Override

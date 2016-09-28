@@ -18,22 +18,18 @@ public enum Primitive {
 	DOUBLE(BootStrap.ID_PRIMITIVE_DOUBLE, double.class, Double.class),
 	STRING(BootStrap.ID_PRIMITIVE_STRING, String.class, String.class);
 
-	private final EntityId entityId;
+	private final EntityId metaDataId;
 	private final Class<?> boxedType;
 	private final Class<?> type;
 
-	private Primitive(EntityId entityId, Class<?> type, Class<?> boxedType) {
-		this.entityId = entityId;
+	private Primitive(EntityId metaDataId, Class<?> type, Class<?> boxedType) {
+		this.metaDataId = metaDataId;
 		this.type = type;
 		this.boxedType = boxedType;
 	}
 
-	public EntityId getEntityId() {
-		return entityId;
-	}
-
 	public long getId() {
-		return entityId.getId();
+		return metaDataId.getId();
 	}
 
 	public Class<?> getType() {
@@ -44,13 +40,17 @@ public enum Primitive {
 		return boxedType;
 	}
 
+	public EntityId getMetaDataId() {
+		return metaDataId;
+	}
+
 	public MetaData getMetaData() {
 		return MetaData.newBuilder()
 				.setClassName(getBoxedType().getName())
 				.setDomain(BootStrap.PRIMITIVE_DOMAIN)
 				.setMetaType(MetaType.PRIMITIVE)
 				.setVersion(BootStrap.SIMPLE_ENTITY_VERSION)
-				.build(getEntityId());
+				.build(getMetaDataId());
 	}
 
 	// TODO Create PerfectHashMap.
@@ -60,7 +60,7 @@ public enum Primitive {
 		HashMap<EntityId, Primitive> byEntityId = new HashMap<>(values().length);
 		HashMap<Class<?>, Primitive> byType = new HashMap<>(values().length);
 		for (Primitive primitive : values()) {
-			byEntityId.put(primitive.entityId, primitive);
+			byEntityId.put(primitive.metaDataId, primitive);
 			byType.put(primitive.getType(), primitive);
 		}
 		entityId2Primitive = byEntityId;
