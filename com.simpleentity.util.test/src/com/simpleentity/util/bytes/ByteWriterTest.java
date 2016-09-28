@@ -8,11 +8,10 @@ import org.junit.Test;
  * Unit tests for {@link ByteWriter}.
  */
 public class ByteWriterTest {
-
 	@Test
 	public void putVarInt() {
-		int n = 0;
-		assertEquals(ByteChunk.fromHexString("80"), encodeVarInt(n));
+		assertEquals(ByteChunk.fromHexString("80"), encodeVarInt(0));
+		assertEquals(ByteChunk.fromHexString("81"), encodeVarInt(1));
 		assertEquals(ByteChunk.fromHexString("aa"), encodeVarInt(42));
 		assertEquals(ByteChunk.fromHexString("ff"), encodeVarInt(127));
 		assertEquals(ByteChunk.fromHexString("4080"), encodeVarInt(128));
@@ -45,5 +44,4 @@ public class ByteWriterTest {
 	public void putVarIntNegativeThrows() {
 		encodeVarInt(-1);
 	}
-
 }

@@ -11,6 +11,7 @@ public class ByteReaderTest {
 	@Test
 	public void getVarInt() {
 		assertEquals(0, decodeVarInt("80"));
+		assertEquals(1, decodeVarInt("81"));
 		assertEquals(42, decodeVarInt("aa"));
 		assertEquals(127, decodeVarInt("ff"));
 		assertEquals(128, decodeVarInt("4080"));
@@ -35,11 +36,11 @@ public class ByteReaderTest {
 		ByteReader reader = new ByteReader(ByteChunk.fromHexString(hex));
 		return reader.getVarInt();
 	}
-	
+
 	@Test
 	public void getVarIntBeyondEof() {
-		
+
 	}
-	
-	
+
+
 }
