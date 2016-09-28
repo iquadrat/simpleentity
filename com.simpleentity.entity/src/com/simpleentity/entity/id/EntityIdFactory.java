@@ -1,7 +1,7 @@
 package com.simpleentity.entity.id;
 
 
-public interface IdFactory {
+public interface EntityIdFactory {
 
 	public EntityId newEntityId();
 

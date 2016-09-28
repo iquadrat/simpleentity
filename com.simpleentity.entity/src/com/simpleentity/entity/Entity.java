@@ -2,36 +2,31 @@ package com.simpleentity.entity;
 
 import net.jcip.annotations.Immutable;
 
-import org.povworld.collection.common.ObjectUtil;
-
 import com.simpleentity.entity.id.EntityId;
+import com.simpleentity.util.ObjectUtil;
 
 @Immutable
 public abstract class Entity<T extends Entity<T>> {
-	
+
 	private static final int HASH_CONSTANT = 0xdc2e681f;
-	
-	private final EntityId id;
-	private final Class<T> type;
-	
-	protected Entity(Class<T> type, EntityId id) {
-		this.type = type;
-		this.id = id;
-	}
-	
-	public Class<T> getType() {
-		return type;
+
+	public static String ID_FIELD_NAME = "entityId";
+
+	private final EntityId entityId;
+
+	protected Entity(EntityId id) {
+		this.entityId = id;
 	}
 
 	public EntityId getEntityId() {
-		return id;
+		return entityId;
 	}
-	
+
 	public abstract EntityBuilder<T> toBuilder();
 
 	@Override
 	public final int hashCode() {
-		return HASH_CONSTANT + id.hashCode();
+		return HASH_CONSTANT + entityId.hashCode();
 	}
 
 	@Override
@@ -40,6 +35,6 @@ public abstract class Entity<T extends Entity<T>> {
 		if (other == null) {
 			return false;
 		}
-		return this.id.equals(other.id) && this.type.equals(other.type);
+		return this.entityId.equals(other.entityId);
 	}
 }
