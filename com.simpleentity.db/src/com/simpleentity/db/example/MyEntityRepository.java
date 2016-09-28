@@ -121,7 +121,7 @@ public class MyEntityRepository implements Closeable {
 	}
 
 	private static final class MyEntityChangeVisitor implements Visitor<MyEntity, None> {
-		private Indices indices;
+		private final Indices indices;
 
 		MyEntityChangeVisitor(Indices indices) {
 			this.indices = indices;

@@ -9,7 +9,7 @@ public class MyEntity extends Entity<MyEntity> {
 	private final String name;
 
 	private MyEntity(EntityId id, Builder builder) {
-		super(MyEntity.class, id);
+		super(id);
 		this.name = builder.name;
 	}
 
@@ -17,6 +17,7 @@ public class MyEntity extends Entity<MyEntity> {
 		return name;
 	}
 
+	@Override
 	public Builder toBuilder() {
 		return new Builder(this);
 	}

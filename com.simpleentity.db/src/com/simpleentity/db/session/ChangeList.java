@@ -13,7 +13,7 @@ public class ChangeList implements Iterable<EntityChange<?>> {
 	public abstract static class EntityChange<T extends Entity<T>> {
 		public abstract <R> R accept(Visitor<T, R> visitor);
 
-		public abstract Class<T> getType();
+		public abstract Class<?> getType();
 	}
 
 	public static class Creation<T extends Entity<T>> extends EntityChange<T> {
@@ -24,8 +24,8 @@ public class ChangeList implements Iterable<EntityChange<?>> {
 		}
 
 		@Override
-		public Class<T> getType() {
-			return newEntity.getType();
+		public Class<?> getType() {
+			return newEntity.getClass();
 
 		}
 
@@ -44,14 +44,14 @@ public class ChangeList implements Iterable<EntityChange<?>> {
 		private final T newEntity;
 
 		public Modification(T oldEntity, T newEntity) {
-			PreConditions.conditionCheck("Entity type missmatch", oldEntity.getType() == newEntity.getType());
+			PreConditions.conditionCheck("Entity type missmatch", oldEntity.getClass() == newEntity.getClass());
 			this.oldEntity = oldEntity;
 			this.newEntity = newEntity;
 		}
 
 		@Override
-		public Class<T> getType() {
-			return newEntity.getType();
+		public Class<?> getType() {
+			return newEntity.getClass();
 		}
 
 		public T getNewEntity() {
@@ -77,8 +77,8 @@ public class ChangeList implements Iterable<EntityChange<?>> {
 		}
 
 		@Override
-		public Class<T> getType() {
-			return oldEntity.getType();
+		public Class<?> getType() {
+			return oldEntity.getClass();
 		}
 
 		public T getOldEntity() {

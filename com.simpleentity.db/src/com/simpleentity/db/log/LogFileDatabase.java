@@ -10,7 +10,7 @@ import com.simpleentity.log.LogFile;
 import com.simpleentity.log.LogFileException;
 import com.simpleentity.log.LogFileManager;
 import com.simpleentity.log.LogFileNotFoundException;
-import com.simpleentity.util.ByteChunk;
+import com.simpleentity.util.bytes.ByteChunk;
 import com.simpleentity.util.collection.ListenerHandle;
 import com.simpleentity.util.collection.ListenerList;
 

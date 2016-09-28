@@ -11,7 +11,7 @@ import java.util.zip.CRC32;
 import javax.annotation.CheckForNull;
 
 import com.simpleentity.log.LogFile;
-import com.simpleentity.util.ByteChunk;
+import com.simpleentity.util.bytes.ByteChunk;
 
 // TODO consider moving reading and writing of transaction to log project
 public class TransactionReader implements Iterator<ByteChunk> {

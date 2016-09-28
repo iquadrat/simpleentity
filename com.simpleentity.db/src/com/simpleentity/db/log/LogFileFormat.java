@@ -1,6 +1,7 @@
 package com.simpleentity.db.log;
 
-import com.simpleentity.util.ByteChunk;
+import com.simpleentity.util.bytes.ByteChunk;
+import com.simpleentity.util.bytes.ByteWriter;
 
 /**
  * File format:
@@ -13,11 +14,11 @@ import com.simpleentity.util.ByteChunk;
  **/
 public class LogFileFormat {
 
-	public static ByteChunk HEADER_TAG = ByteChunk.newBuilder(4)
-			.appendByte(161)
-			.appendByte(184)
-			.appendByte(152)
-			.appendByte(105)
+	public static ByteChunk HEADER_TAG = new ByteWriter(4)
+			.putByte(161)
+			.putByte(184)
+			.putByte(152)
+			.putByte(105)
 			.build();
 
 }
