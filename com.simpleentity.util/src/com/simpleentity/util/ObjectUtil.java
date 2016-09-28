@@ -21,6 +21,14 @@ public class ObjectUtil {
 		// utility class
 	}
 
+	@CheckForNull
+	public static <T> T castOrNull(@CheckForNull Object object, Class<T> clazz) {
+		if (!clazz.isInstance(object)) {
+			return null;
+		}
+		return clazz.cast(object);
+	}
+
 	/**
 	 * @return all super classes and interfaces of the given class including the
 	 *         class itself
@@ -44,9 +52,9 @@ public class ObjectUtil {
 	 * Collects all non-static public, protected, package and private fields of
 	 * the given class including the inherited ones. Sorted first by class
 	 * hierarchy, then by field names.
-	 * 
+	 *
 	 * TODO test if this works with synthetic fields
-	 * 
+	 *
 	 * @return list of all fields
 	 */
 	public static List<Field> getAllFields(Class<?> clazz) {
