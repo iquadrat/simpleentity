@@ -15,35 +15,27 @@ import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
-public class ObjectUtil {
+public class ClassUtil {
 
-	private ObjectUtil() {
+	private ClassUtil() {
 		// utility class
-	}
-
-	@CheckForNull
-	public static <T> T castOrNull(@CheckForNull Object object, Class<T> clazz) {
-		if (!clazz.isInstance(object)) {
-			return null;
-		}
-		return clazz.cast(object);
 	}
 
 	/**
 	 * @return all super classes and interfaces of the given class including the
 	 *         class itself
 	 */
-	public static Set<Class<?>> getAllSuperTypes(Class<?> klass) {
+	public static Set<Class<?>> getAllSuperTypes(Class<?> class_) {
 		Set<Class<?>> result = new HashSet<Class<?>>();
-		addTypes(result, klass);
+		addTypes(result, class_);
 		return result;
 	}
 
-	private static void addTypes(Set<Class<?>> result, @CheckForNull Class<?> klass) {
-		if (klass == null || !result.add(klass))
+	private static void addTypes(Set<Class<?>> result, @CheckForNull Class<?> class_) {
+		if (class_ == null || !result.add(class_))
 			return;
-		addTypes(result, klass.getSuperclass());
-		for (Class<?> interf : klass.getInterfaces()) {
+		addTypes(result, class_.getSuperclass());
+		for (Class<?> interf : class_.getInterfaces()) {
 			addTypes(result, interf);
 		}
 	}
@@ -57,10 +49,10 @@ public class ObjectUtil {
 	 *
 	 * @return list of all fields
 	 */
-	public static List<Field> getAllFields(Class<?> clazz) {
+	public static List<Field> getAllFields(Class<?> class_) {
 		List<Field> result = new ArrayList<Field>();
 
-		for (Class<?> c : getAllSuperTypes(clazz)) {
+		for (Class<?> c : getAllSuperTypes(class_)) {
 
 			Field[] fields = c.getDeclaredFields();
 			Arrays.sort(fields, new Comparator<Field>() {
@@ -71,12 +63,11 @@ public class ObjectUtil {
 			});
 
 			for (Field field : fields) {
-
 				// skip static fields
-				if (Modifier.isStatic(field.getModifiers()))
+				if (Modifier.isStatic(field.getModifiers())) {
 					continue;
+				}
 				result.add(field);
-
 			}
 
 		}
