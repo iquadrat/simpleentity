@@ -72,17 +72,15 @@ public abstract class GenericValue {
 	}
 
 	public static class ValueObjectValue extends GenericValue {
-		private final EntityId metaDataId;
 		private final ObjectInfo value;
 
-		public ValueObjectValue(EntityId metaDataId, ObjectInfo value) {
-			this.metaDataId = metaDataId;
+		public ValueObjectValue(ObjectInfo value) {
 			this.value = value;
 		}
 
 		@Override
 		public EntityId getActualMetaDataId() {
-			return metaDataId;
+			return value.getMetaTypeId();
 		}
 
 		public ObjectInfo getValue() {
@@ -96,7 +94,7 @@ public abstract class GenericValue {
 
 		@Override
 		public int hashCode() {
-			return metaDataId.hashCode() + 31 * value.hashCode();
+			return value.hashCode();
 		}
 
 		@Override
@@ -105,12 +103,12 @@ public abstract class GenericValue {
 				return false;
 			}
 			ValueObjectValue other = (ValueObjectValue) obj;
-			return metaDataId.equals(other.metaDataId) && value.equals(other.value);
+			return value.equals(other.value);
 		}
 
 		@Override
 		public String toString() {
-			return "ValueObjectValue [actualType=" + metaDataId + ", value=" + value + "]";
+			return "ValueObjectValue [value=" + value + "]";
 		}
 	}
 
@@ -156,19 +154,17 @@ public abstract class GenericValue {
 	}
 
 	public static class CollectionValue extends GenericValue {
-		private final EntityId actualMetaDataId;
 		private final ObjectInfo collectionInfo;
 		private final ImmutableList<GenericValue> values;
 
-		public CollectionValue(EntityId actualMetaDataId, ObjectInfo collectionInfo, ImmutableList<GenericValue> values) {
-			this.actualMetaDataId = actualMetaDataId;
+		public CollectionValue(ObjectInfo collectionInfo, ImmutableList<GenericValue> values) {
 			this.collectionInfo = collectionInfo;
 			this.values = values;
 		}
 
 		@Override
 		public EntityId getActualMetaDataId() {
-			return actualMetaDataId;
+			return collectionInfo.getMetaTypeId();
 		}
 
 		public ObjectInfo getCollectionInfo() {
@@ -190,7 +186,7 @@ public abstract class GenericValue {
 
 		@Override
 		public int hashCode() {
-			return actualMetaDataId.hashCode() + 31 * collectionInfo.hashCode() + 31 * 31 * values.hashCode();
+			return collectionInfo.hashCode() + 31 * values.hashCode();
 		}
 
 		@Override
@@ -199,13 +195,12 @@ public abstract class GenericValue {
 				return false;
 			}
 			CollectionValue other = (CollectionValue) obj;
-			return actualMetaDataId.equals(other.actualMetaDataId) && collectionInfo.equals(other.collectionInfo)
-					&& values.equals(other.values);
+			return collectionInfo.equals(other.collectionInfo) && values.equals(other.values);
 		}
 
 		@Override
 		public String toString() {
-			return "CollectionValue [actualMetaDataId=" + actualMetaDataId + ", collectionInfo=" + collectionInfo
+			return "CollectionValue [collectionInfo=" + collectionInfo
 					+ ", values=" + values + "]";
 		}
 	}

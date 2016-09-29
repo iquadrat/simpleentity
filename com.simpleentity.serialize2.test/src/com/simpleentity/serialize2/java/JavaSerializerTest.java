@@ -11,6 +11,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.povworld.collection.List;
+import org.povworld.collection.immutable.ImmutableCollections;
 
 import com.simpleentity.entity.Entity;
 import com.simpleentity.entity.EntityBuilder;
@@ -20,6 +22,7 @@ import com.simpleentity.serialize2.MockIdFactory;
 import com.simpleentity.serialize2.Serializer;
 import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.generic.GenericValue;
+import com.simpleentity.serialize2.generic.GenericValue.CollectionValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
 import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueObjectValue;
@@ -105,9 +108,11 @@ public class JavaSerializerTest {
 		private final Double D;
 
 		private final String string;
-		// TODO add optional field
 
-		EntityPrimitives(EntityId id, boolean b, boolean B, char c, char C, byte y, byte Y, short s, short S, int i, int I, long l, long L, float f, float F, double d, double D, String string) {
+		private final @CheckForNull Boolean oB;
+
+		EntityPrimitives(EntityId id, boolean b, boolean B, char c, char C, byte y, byte Y, short s, short S, int i,
+				int I, long l, long L, float f, float F, double d, double D, String string, Boolean oB) {
 			super(id);
 			this.b = b;
 			this.B = B;
@@ -122,10 +127,11 @@ public class JavaSerializerTest {
 			this.l = l;
 			this.L = L;
 			this.f = f;
-			this.F= F;
+			this.F = F;
 			this.d = d;
 			this.D = D;
 			this.string = string;
+			this.oB = oB;
 		}
 
 		@Override
@@ -157,6 +163,7 @@ public class JavaSerializerTest {
 			.setEntryValue("d", new PrimitiveValue(Primitive.DOUBLE, 11.11))
 			.setEntryValue("D", new PrimitiveValue(Primitive.DOUBLE, 12.12))
 			.setEntryValue("string", new PrimitiveValue(Primitive.STRING, "foo"))
+			.setEntryValue("oB", new PrimitiveValue(Primitive.BOOLEAN, true))
 			.build();
 
 		ObjectInfo actual = serialize(EntityPrimitives.class,
@@ -168,7 +175,7 @@ public class JavaSerializerTest {
 						50000, 60000,
 						700000000L,
 						800000000L,
-						9.9f, 10.1f, 11.11, 12.12, "foo"));
+						9.9f, 10.1f, 11.11, 12.12, "foo", Boolean.TRUE));
 		assertEquals(objectInfo, actual);
 
 		EntityPrimitives entity = deserialize(EntityPrimitives.class, objectInfo);
@@ -190,13 +197,14 @@ public class JavaSerializerTest {
 		assertEquals(11.11, entity.d, 0);
 		assertEquals(12.12, entity.D, 0);
 		assertEquals("foo", entity.string);
+		assertEquals(true, entity.oB);
 	}
 
 	@SuppressWarnings("unused")
 	private static class Value extends ValueObject {
 		final int number;
 		final @CheckForNull Value nested;
-		public Value(int number, Value nested) {
+		public Value(int number, @CheckForNull Value nested) {
 			this.number = number;
 			this.nested = nested;
 		}
@@ -225,7 +233,7 @@ public class JavaSerializerTest {
 		ObjectInfo valueInfo = ObjectInfo.newBuilder()
 				.setMetaDataId(valueMetaData.getEntityId())
 				.setEntryValue("number", new PrimitiveValue(Primitive.INT, 42))
-				.setEntryValue("nested", new ValueObjectValue(valueMetaData.getEntityId(),
+				.setEntryValue("nested", new ValueObjectValue(
 						ObjectInfo.newBuilder()
 							.setMetaDataId(valueMetaData.getEntityId())
 							.setEntryValue("number", new PrimitiveValue(Primitive.INT, 43))
@@ -234,7 +242,7 @@ public class JavaSerializerTest {
 		ObjectInfo objectInfo = ObjectInfo.newBuilder()
 				.setMetaDataId(entityMetaData.getEntityId())
 				.setEntryValue(Entity.ID_FIELD_NAME, new GenericValue.EntityIdValue(TEST_ENTITY_ID))
-				.setEntryValue("foo", new ValueObjectValue(valueMetaData.getEntityId(), valueInfo))
+				.setEntryValue("foo", new ValueObjectValue(valueInfo))
 				.build();
 		ObjectInfo actual = serialize(EntityWithValueObject.class,
 				new EntityWithValueObject(TEST_ENTITY_ID, value));
@@ -324,12 +332,12 @@ public class JavaSerializerTest {
 		ObjectInfo entityInfo = ObjectInfo.newBuilder()
 				.setMetaDataId(entityMetaData.getEntityId())
 				.setEntryValue(Entity.ID_FIELD_NAME, new GenericValue.EntityIdValue(TEST_ENTITY_ID))
-				.setEntryValue("value", new ValueObjectValue(valueAMetaData.getEntityId(), valueAInfo))
-				.setEntryValue("b", new ValueObjectValue(valueBMetaData.getEntityId(), valueBInfo))
-				.setEntryValue("object", new ValueObjectValue(objectMetaData.getEntityId(), object))
+				.setEntryValue("value", new ValueObjectValue(valueAInfo))
+				.setEntryValue("b", new ValueObjectValue(valueBInfo))
+				.setEntryValue("object", new ValueObjectValue(object))
 				.setEntryValue("primitive", new PrimitiveValue(Primitive.INT, Integer.MAX_VALUE))
 				.setEntryValue("entity", new EntityIdValue(other))
-				.setEntryValue("value2", new ValueObjectValue(valueAMetaData.getEntityId(), value2Info))
+				.setEntryValue("value2", new ValueObjectValue(value2Info))
 				.build();
 
 		ValueA valueA = new ValueA(12, "bar");
@@ -388,8 +396,62 @@ public class JavaSerializerTest {
 		assertEquals(optionalId, entity.optional);
 	}
 
+	private static class EntityWithMultiFields extends Entity<EntityWithMultiFields> {
+
+		final List<Object> objects;
+		final int[] ints;
+		final int[][] ints2d;
+		final @CheckForNull int[] maybeInts;
+		final Object anything;
+
+		EntityWithMultiFields(EntityId id, List<Object> objects, int[] ints, int[][] ints2d, int[] maybeInts, Object anything) {
+			super(id);
+			this.objects = objects;
+			this.ints = ints;
+			this.ints2d = ints2d;
+			this.maybeInts = maybeInts;
+			this.anything = anything;
+		}
+
+		@Override
+		public EntityBuilder<EntityWithMultiFields> toBuilder() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+
 	@Test
 	public void serializeEntityWithMultiFields() {
+		MetaData objectMetaData = prepareEntityMetaData(Object.class);
+		MetaData valueMetaData = prepareEntityMetaData(Value.class);
+		MetaData entityMetaData = prepareEntityMetaData(EntityWithMultiFields.class);
+
+		EntityId listId = new EntityId(1010);
+		EntityId entity1Id = new EntityId(1011);
+
+		ObjectInfo listInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(listId)
+				.build();
+
+
+		ObjectInfo objectInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(entityMetaData.getEntityId())
+				.setEntryValue(Entity.ID_FIELD_NAME, new EntityIdValue(TEST_ENTITY_ID))
+				.setEntryValue("object", new CollectionValue(listInfo,
+						ImmutableCollections.<GenericValue>asList(
+								new EntityIdValue(entity1Id),
+								new PrimitiveValue(Primitive.BOOLEAN, true),
+								new ValueObjectValue(
+										ObjectInfo.newBuilder()
+											.setMetaDataId(valueMetaData.getElementTypeId())
+											.setEntryValue("number", new PrimitiveValue(Primitive.INT, 1))
+											.build()))))
+				.build();
+
+		ObjectInfo actual = serialize(EntityWithMultiFields.class,
+				new EntityWithMultiFields(TEST_ENTITY_ID, ImmutableCollections.asList(entity1Id, true, new Value(1, null)), null, null, null, null));
+		assertEquals(objectInfo, actual);
+
 		// TODO
 	}
 

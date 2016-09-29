@@ -8,12 +8,12 @@ import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.serialize2.BinarySerializer;
 import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.generic.GenericValue;
-import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.generic.GenericValue.CollectionValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
 import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueObjectValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueVisitor;
+import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.meta.BootStrap;
 import com.simpleentity.serialize2.meta.Cardinality;
 import com.simpleentity.serialize2.meta.MetaData;
@@ -91,7 +91,7 @@ class EntrySerializer {
 			@Override
 			public void visit(CollectionValue collection) {
 				// Write collection type id.
-				EntityId typeId = collection.getActualMetaDataId();
+				EntityId typeId = collection.getCollectionInfo().getMetaTypeId();
 				serializerRepository.getEntityIdSerializer().serialize(typeId, destination);
 				// Write custom collection implementation data.
 				BinarySerializer<ObjectInfo> serializer = serializerRepository.getBinarySerializer(typeId);
@@ -149,7 +149,7 @@ class EntrySerializer {
 		}
 		case VALUE_OBJECT: {
 			BinarySerializer<ObjectInfo> serializer = serializerRepository.getBinarySerializer(actualType.getEntityId());
-			return new ValueObjectValue(actualType.getEntityId(), serializer.deserialize(source));
+			return new ValueObjectValue(serializer.deserialize(source));
 		}
 		case COLLECTION: {
 			// Read custom collection implementation data.
@@ -163,7 +163,7 @@ class EntrySerializer {
 			for (int i = 0; i < count; ++i) {
 				builder.add(deserializeValue(source, null));
 			}
-			return new CollectionValue(actualType.getEntityId(), collectionInfo, builder.build());
+			return new CollectionValue(collectionInfo, builder.build());
 		}
 		default:
 			throw new IllegalStateException("Unknown MetaType " + actualType.getMetaType());
