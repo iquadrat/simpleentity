@@ -1,4 +1,4 @@
-package com.simpleentity.serialize2.generic;
+package com.simpleentity.serialize2.java;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -16,14 +16,14 @@ import com.simpleentity.entity.Entity;
 import com.simpleentity.entity.EntityBuilder;
 import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.entity.value.ValueObject;
-import com.simpleentity.serialize2.Instantiator;
 import com.simpleentity.serialize2.MockIdFactory;
-import com.simpleentity.serialize2.SerializationContext;
 import com.simpleentity.serialize2.Serializer;
 import com.simpleentity.serialize2.SerializerRepository;
+import com.simpleentity.serialize2.generic.GenericValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
 import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueObjectValue;
+import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.meta.BootStrap;
 import com.simpleentity.serialize2.meta.MetaData;
 import com.simpleentity.serialize2.meta.MetaData.Builder;
@@ -31,14 +31,15 @@ import com.simpleentity.serialize2.meta.MetaDataUtil;
 import com.simpleentity.serialize2.meta.MetaType;
 import com.simpleentity.serialize2.meta.Primitive;
 
+/** Unit tests for {@link JavaSerializer}. */
 @RunWith(MockitoJUnitRunner.class)
-public class GenericSerializerTest {
+public class JavaSerializerTest {
 
-	private static final String TEST_DOMAIN = GenericSerializerTest.class.getPackage().getName();
+	private static final String TEST_DOMAIN = JavaSerializerTest.class.getPackage().getName();
 	private static final long TEST_VERSION = 4;
 	private static final EntityId TEST_ENTITY_ID = new EntityId(1000L);
 
-	@Mock private SerializationContext context;
+	@Mock private JavaSerializationContext context;
 	@Mock private SerializerRepository serializerRepository;
 	private final MockIdFactory idFactory = new MockIdFactory();
 	private final Instantiator instantiator = new ObjenesisInstantiator();
@@ -393,12 +394,12 @@ public class GenericSerializerTest {
 	}
 
 	private <T> ObjectInfo serialize(Class<T> class_, T object) {
-		Serializer<T> serializer =  new GenericSerializer<T>(context, class_);
+		Serializer<T> serializer =  new JavaSerializer<T>(context, class_);
 		return serializer.serialize(object);
 	}
 
 	private <T> T deserialize(Class<T> class_, ObjectInfo objectInfo) {
-		Serializer<T> serializer = new GenericSerializer<>(context, class_);
+		Serializer<T> serializer = new JavaSerializer<>(context, class_);
 		return serializer.deserialize(objectInfo);
 	}
 
@@ -408,7 +409,7 @@ public class GenericSerializerTest {
 
 	private <T> MetaData prepareValueObjectMetaData(Class<T> class_) {
 		MetaData result = prepareMetaData(class_, MetaType.VALUE_OBJECT);
-		Mockito.doReturn(new GenericSerializer<T>(context, class_))
+		Mockito.doReturn(new JavaSerializer<T>(context, class_))
 			   .when(serializerRepository).getSerializer(result.getEntityId());
 		return result;
 	}

@@ -1,9 +1,7 @@
-package com.simpleentity.serialize2.generic;
+package com.simpleentity.serialize2.java;
 
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
-
-import com.simpleentity.serialize2.Instantiator;
 
 public class ObjenesisInstantiator implements Instantiator {
 

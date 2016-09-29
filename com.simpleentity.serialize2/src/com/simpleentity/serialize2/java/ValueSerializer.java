@@ -1,4 +1,4 @@
-package com.simpleentity.serialize2.generic;
+package com.simpleentity.serialize2.java;
 
 import java.util.Iterator;
 
@@ -11,6 +11,8 @@ import com.simpleentity.serialize2.Serializer;
 import com.simpleentity.serialize2.SerializerException;
 import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.collection.CollectionSerializer;
+import com.simpleentity.serialize2.generic.GenericValue;
+import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.generic.GenericValue.CollectionValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
 import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
@@ -20,15 +22,14 @@ import com.simpleentity.serialize2.meta.MetaData;
 import com.simpleentity.serialize2.meta.Primitive;
 import com.simpleentity.util.Reference;
 
-class GenericValueSerializer implements ValueSerializer {
+class ValueSerializer {
 
 	private final SerializerRepository serializerRepository;
 
-	GenericValueSerializer(SerializerRepository serializerRepository) {
+	ValueSerializer(SerializerRepository serializerRepository) {
 		this.serializerRepository = serializerRepository;
 	}
 
-	@Override
 	public GenericValue serialize(Object value) {
 		MetaData metaData = serializerRepository.getMetaData(value.getClass());
 		// TODO check expected type matches actual
@@ -62,7 +63,6 @@ class GenericValueSerializer implements ValueSerializer {
 		return new CollectionValue(metaData.getEntityId(), collectionInfo, elements.build());
 	}
 
-	@Override
 	public Object deserialize(GenericValue value) {
 		// TODO check expected type matches actual
 		final Reference<Object> result = new Reference<>();

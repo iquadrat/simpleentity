@@ -1,4 +1,4 @@
-package com.simpleentity.serialize2;
+package com.simpleentity.serialize2.java;
 
 public interface Instantiator {
 

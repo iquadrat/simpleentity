@@ -1,4 +1,4 @@
-package com.simpleentity.serialize2.generic;
+package com.simpleentity.serialize2.java;
 
 import java.lang.reflect.Field;
 
@@ -8,14 +8,13 @@ import org.povworld.collection.immutable.ImmutableList;
 
 import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.serialize2.AbstractSerializer;
-import com.simpleentity.serialize2.SerializationContext;
 import com.simpleentity.serialize2.SerializationUtil;
+import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.meta.Cardinality;
 import com.simpleentity.serialize2.meta.Entry;
 import com.simpleentity.serialize2.meta.MetaData;
 
-// TODO rename to JavaSerializer?
-public class GenericSerializer<T> extends AbstractSerializer<T> {
+public class JavaSerializer<T> extends AbstractSerializer<T> {
 
 	// private static final Field idField;
 	// static {
@@ -26,13 +25,13 @@ public class GenericSerializer<T> extends AbstractSerializer<T> {
 	// }
 	// }
 
-	private final SerializationContext context;
+	private final JavaSerializationContext context;
 	private final MetaData metaData;
 
 //	private final Class<T> entityClass;
-	private final ImmutableList<EntrySerializer<T>> fieldSerializers;
+	private final ImmutableList<FieldSerializer<T>> fieldSerializers;
 
-	public GenericSerializer(SerializationContext context, Class<T> type) {
+	public JavaSerializer(JavaSerializationContext context, Class<T> type) {
 		super(type);
 		this.context = context;
 		this.metaData = context.getSerializerRepository().getMetaData(type);
@@ -52,27 +51,27 @@ public class GenericSerializer<T> extends AbstractSerializer<T> {
 		this.fieldSerializers = createFieldSerializers(context, type, metaData);
 	}
 
-	private static <T> ImmutableList<EntrySerializer<T>> createFieldSerializers(
-			SerializationContext context, Class<T> entityClass, MetaData metaData) {
-		ImmutableArrayList.Builder<EntrySerializer<T>> result = ImmutableArrayList.newBuilder();
+	private static <T> ImmutableList<FieldSerializer<T>> createFieldSerializers(
+			JavaSerializationContext context, Class<T> entityClass, MetaData metaData) {
+		ImmutableArrayList.Builder<FieldSerializer<T>> result = ImmutableArrayList.newBuilder();
 		for (Entry entry : metaData.getEntries()) {
 			result.add(createFieldSerializer(context, entityClass, entry));
 		}
 		return result.build();
 	}
 
-	private static <T> EntrySerializer<T> createFieldSerializer(SerializationContext context,
+	private static <T> FieldSerializer<T> createFieldSerializer(JavaSerializationContext context,
 			Class<T> entityClass, Entry entry) {
 		Field field = SerializationUtil.findField(entityClass, entry.getId());
 		field.setAccessible(true);
 		Cardinality cardinality = context.getSerializerRepository().getCardinality(entry.getCardinality());
 		ValueSerializer valueSerializer = getValueSerializer(context, entry.getDeclaredTypeId(), cardinality);
-		return new EntrySerializer<>(entry.getId(), field, valueSerializer);
+		return new FieldSerializer<>(entry.getId(), field, valueSerializer);
 	}
 
-	private static ValueSerializer getValueSerializer(SerializationContext context, EntityId declaredTypeId,
+	private static ValueSerializer getValueSerializer(JavaSerializationContext context, EntityId declaredTypeId,
 			Cardinality cardinality) {
-		return new GenericValueSerializer(context.getSerializerRepository());
+		return new ValueSerializer(context.getSerializerRepository());
 		// if (BootStrap.isPrimitive(declaredTypeId)) {
 		// // TODO register full MetaData for primitives as well?
 		// Primitive primitive = Primitive.byEntityId(declaredTypeId);
@@ -105,7 +104,7 @@ public class GenericSerializer<T> extends AbstractSerializer<T> {
 		PreConditions.paramCheck(entity, "Class mismatch!", entity.getClass().equals(getType()));
 		ObjectInfo.Builder builder = ObjectInfo.newBuilder();
 		builder.setMetaDataId(metaData.getEntityId());
-		for (EntrySerializer<T> fieldSerializer : fieldSerializers) {
+		for (FieldSerializer<T> fieldSerializer : fieldSerializers) {
 			fieldSerializer.serialize(entity, builder);
 		}
 		return builder.build();
@@ -114,7 +113,7 @@ public class GenericSerializer<T> extends AbstractSerializer<T> {
 	@Override
 	public T deserialize(ObjectInfo objectInfo) {
 		T entity = context.getInstantiator().newInstance(getType());
-		for (EntrySerializer<T> fieldSerializer : fieldSerializers) {
+		for (FieldSerializer<T> fieldSerializer : fieldSerializers) {
 			fieldSerializer.deserialize(objectInfo, entity);
 		}
 		return entity;

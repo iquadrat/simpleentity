@@ -71,36 +71,6 @@ public abstract class GenericValue {
 		}
 	}
 
-	// public static class ByteValue extends FieldValue {
-	// private final byte value;
-	// public ByteValue(byte value) {
-	// this.value = value;
-	// }
-	// }
-	//
-	// public static class CharValue extends FieldValue {
-	// private final char value;
-	// public CharValue(char value) {
-	// this.value = value;
-	// }
-	// }
-	//
-	// public static class ShortValue extends FieldValue {
-	// private final short value;
-	// public ShortValue(short value) {
-	// this.value = value;
-	// }
-	// }
-	//
-	// public static class IntValue extends FieldValue {
-	// private final int value;
-	// public IntValue(int value) {
-	// this.value = value;
-	// }
-	// }
-
-	// TODO add more primitives
-
 	public static class ValueObjectValue extends GenericValue {
 		private final EntityId metaDataId;
 		private final ObjectInfo value;
