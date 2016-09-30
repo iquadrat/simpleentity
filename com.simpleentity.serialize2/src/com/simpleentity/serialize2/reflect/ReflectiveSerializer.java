@@ -1,20 +1,20 @@
-package com.simpleentity.serialize2.java;
+package com.simpleentity.serialize2.reflect;
 
 import java.lang.reflect.Field;
 
+import org.povworld.collection.EntryIterator;
 import org.povworld.collection.common.PreConditions;
 import org.povworld.collection.immutable.ImmutableArrayList;
 import org.povworld.collection.immutable.ImmutableList;
 
-import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.serialize2.AbstractSerializer;
+import com.simpleentity.serialize2.SerializationContext;
 import com.simpleentity.serialize2.SerializationUtil;
 import com.simpleentity.serialize2.generic.ObjectInfo;
-import com.simpleentity.serialize2.meta.Cardinality;
-import com.simpleentity.serialize2.meta.Entry;
 import com.simpleentity.serialize2.meta.MetaData;
+import com.simpleentity.serialize2.meta.Type;
 
-public class JavaSerializer<T> extends AbstractSerializer<T> {
+public class ReflectiveSerializer<T> extends AbstractSerializer<T> {
 
 	// private static final Field idField;
 	// static {
@@ -25,13 +25,13 @@ public class JavaSerializer<T> extends AbstractSerializer<T> {
 	// }
 	// }
 
-	private final JavaSerializationContext context;
+	private final SerializationContext context;
 	private final MetaData metaData;
 
 //	private final Class<T> entityClass;
 	private final ImmutableList<FieldSerializer<T>> fieldSerializers;
 
-	public JavaSerializer(JavaSerializationContext context, Class<T> type) {
+	public ReflectiveSerializer(SerializationContext context, Class<T> type) {
 		super(type);
 		this.context = context;
 		this.metaData = context.getSerializerRepository().getMetaData(type);
@@ -52,51 +52,50 @@ public class JavaSerializer<T> extends AbstractSerializer<T> {
 	}
 
 	private static <T> ImmutableList<FieldSerializer<T>> createFieldSerializers(
-			JavaSerializationContext context, Class<T> entityClass, MetaData metaData) {
+			SerializationContext context, Class<T> entityClass, MetaData metaData) {
 		ImmutableArrayList.Builder<FieldSerializer<T>> result = ImmutableArrayList.newBuilder();
-		for (Entry entry : metaData.getEntries()) {
-			result.add(createFieldSerializer(context, entityClass, entry));
+		EntryIterator<String, Type> entries = metaData.getEntries();
+		while(entries.next()) {
+			result.add(createFieldSerializer(context, entityClass, entries.getCurrentKey(), entries.getCurrentValue()));
 		}
 		return result.build();
 	}
 
-	private static <T> FieldSerializer<T> createFieldSerializer(JavaSerializationContext context,
-			Class<T> entityClass, Entry entry) {
-		Field field = SerializationUtil.findField(entityClass, entry.getId());
+	private static <T> FieldSerializer<T> createFieldSerializer(SerializationContext context,
+			Class<T> entityClass, String id, Type type) {
+		Field field = SerializationUtil.findField(entityClass, id);
 		field.setAccessible(true);
-		Cardinality cardinality = context.getSerializerRepository().getCardinality(entry.getCardinality());
-		ValueSerializer valueSerializer = getValueSerializer(context, entry.getDeclaredTypeId(), cardinality);
-		return new FieldSerializer<>(entry.getId(), field, valueSerializer);
+		ValueSerializer valueSerializer = new ValueSerializer(context.getSerializerRepository());
+		return new FieldSerializer<>(id, field, valueSerializer);
 	}
 
-	private static ValueSerializer getValueSerializer(JavaSerializationContext context, EntityId declaredTypeId,
-			Cardinality cardinality) {
-		return new ValueSerializer(context.getSerializerRepository());
-		// if (BootStrap.isPrimitive(declaredTypeId)) {
-		// // TODO register full MetaData for primitives as well?
-		// Primitive primitive = Primitive.byEntityId(declaredTypeId);
-		// return PrimitiveSerializer.getSerializer(primitive);
-		// }
-		// MetaData metaData =
-		// context.getSerializerRepository().getMetaData(declaredTypeId);
-		// MetaType type = metaData.getMetaType();
-		// switch (type) {
-		// case ENTITY:
-		// return context.getSerializerRepository().getEntityIdSerializer();
-		// case VALUE_OBJECT: {
-		// Class<?> class_;
-		// try {
-		// class_ = context.getClassLoader().loadClass(metaData.getClassName());
-		// } catch (ClassNotFoundException e) {
-		// throw new SerializerException(e);
-		// }
-		// return new PolymorphicEntrySerializer<>(class_,
-		// context.getSerializerRepository());
-		// }
-		// default:
-		// throw new SerializerException("Unhandled MetaType " + type);
-		// }
-	}
+//	private static ValueSerializer getValueSerializer(JavaSerializationContext context, EntityId declaredTypeId,
+//			Cardinality cardinality) {
+//		 if (BootStrap.isPrimitive(declaredTypeId)) {
+//		 // TODO register full MetaData for primitives as well?
+//		 Primitive primitive = Primitive.byEntityId(declaredTypeId);
+//		 return PrimitiveSerializer.getSerializer(primitive);
+//		 }
+//		 MetaData metaData =
+//		 context.getSerializerRepository().getMetaData(declaredTypeId);
+//		 MetaType type = metaData.getMetaType();
+//		 switch (type) {
+//		 case ENTITY:
+//		 return context.getSerializerRepository().getEntityIdSerializer();
+//		 case VALUE_OBJECT: {
+//		 Class<?> class_;
+//		 try {
+//		 class_ = context.getClassLoader().loadClass(metaData.getClassName());
+//		 } catch (ClassNotFoundException e) {
+//		 throw new SerializerException(e);
+//		 }
+//		 return new PolymorphicEntrySerializer<>(class_,
+//		 context.getSerializerRepository());
+//		 }
+//		 default:
+//		 throw new SerializerException("Unhandled MetaType " + type);
+//		 }
+//	}
 
 	@Override
 	public ObjectInfo serialize(T entity) {

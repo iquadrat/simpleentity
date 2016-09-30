@@ -71,6 +71,46 @@ public abstract class GenericValue {
 		}
 	}
 
+	public static PrimitiveValue booleanValue(Boolean value) {
+		return new PrimitiveValue(Primitive.BOOLEAN, value);
+	}
+
+	public static PrimitiveValue byteValue(Byte value) {
+		return new PrimitiveValue(Primitive.BYTE, value);
+	}
+
+	public static PrimitiveValue charValue(Character value) {
+		return new PrimitiveValue(Primitive.CHAR, value);
+	}
+
+	public static PrimitiveValue doubleValue(Double value) {
+		return new PrimitiveValue(Primitive.DOUBLE, value);
+	}
+
+	public static PrimitiveValue floatValue(Float value) {
+		return new PrimitiveValue(Primitive.FLOAT, value);
+	}
+
+	public static PrimitiveValue intValue(Integer value) {
+		return new PrimitiveValue(Primitive.INT, value);
+	}
+
+	public static PrimitiveValue longValue(Long value) {
+		return new PrimitiveValue(Primitive.LONG, value);
+	}
+
+	public static PrimitiveValue varIntValue(long value) {
+		return new PrimitiveValue(Primitive.VARINT, value);
+	}
+
+	public static PrimitiveValue shortValue(Short value) {
+		return new PrimitiveValue(Primitive.SHORT, value);
+	}
+
+	public static PrimitiveValue stringValue(String value) {
+		return new PrimitiveValue(Primitive.STRING, value);
+	}
+
 	public static class ValueObjectValue extends GenericValue {
 		private final ObjectInfo value;
 

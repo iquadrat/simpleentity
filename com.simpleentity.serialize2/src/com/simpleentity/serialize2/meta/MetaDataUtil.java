@@ -2,12 +2,12 @@ package com.simpleentity.serialize2.meta;
 
 import java.lang.reflect.Field;
 
-import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.entity.id.EntityIdFactory;
 import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.meta.MetaData.Builder;
-import com.simpleentity.util.ClassUtil;
+import com.simpleentity.util.TypeUtil;
 
+// TODO rename to ReflectUtil
 public class MetaDataUtil {
 
 	public static MetaData getMetaDataByReflection(Class<?> class_, String domain, long version, MetaType metaType,
@@ -25,26 +25,49 @@ public class MetaDataUtil {
 
 	public static void addFieldsToMetaDataEntries(Class<?> class_, SerializerRepository serializerRepository,
 			Builder builder) {
-		for (Field field : ClassUtil.getAllFields(class_)) {
-			String id = getId(field);
-			EntityId metaDataId = serializerRepository.getMetaDataId(field.getType());
-			EntityId cardinality;
-//			if (metaData.getMetaType() == MetaType.COLLECTION) {
-//				cardinality = BootStrap.ID_CARDINALITY_ANY;
-//			} else {
-				cardinality = isOptional(field) ? BootStrap.ID_CARDINALITY_OPTIONAL : BootStrap.ID_CARDINALITY_ONE;
-//			}
-			builder.addEntry(new Entry(id, cardinality, metaDataId));
+		for (Field field : TypeUtil.getAllFields(class_)) {
+			Type declaredType = serializerRepository.getDeclaredType(field);
+			builder.addEntry(getId(field), declaredType);
 		}
-	}
-
-	private static boolean isOptional(Field field) {
-		// TODO
-		return false;
 	}
 
 	public static String getId(Field field) {
 		return field.getName();
 	}
+
+//
+//	public static Type getDeclaredType(Field field, SerializerRepository serializerRepository) {
+//		serializerRepository.getMetaData(class_)
+//
+//		return getDeclaredType(field.getGenericType(), isOptional(field), serializerRepository);
+//	}
+//
+//
+//	private static Type getDeclaredType(java.lang.reflect.Type type, boolean optional, SerializerRepository serializerRepository) {
+//		Class<?> class_ = ObjectUtil.castOrNull(type, Class.class);
+//		if (class_ != null) {
+//			return new Type(serializerRepository.getMetaDataId(class_), optional);
+//		}
+//
+//
+//		ParameterizedType parameterizedType = ObjectUtil.castOrNull(type, ParameterizedType.class);
+//		parameterizedType.getActualTypeArguments();
+//		class_ = (Class<?>)parameterizedType.getRawType();
+//		MetaData metaData = serializerRepository.getMetaData(class_);
+//		if (metaData.getMetaType() == MetaType.COLLECTION) {
+//			CollectionSerializer<C>
+//		} else {
+//			return new Type(serializerRepository.getMetaDataId(class_), optional);
+//		}
+//	}
+//
+//	public static boolean isOptional(Field field) {
+//		for(Annotation annotation: field.getAnnotations()) {
+//			if (annotation.annotationType().getSimpleName().equals("CheckForNull")) {
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 
 }

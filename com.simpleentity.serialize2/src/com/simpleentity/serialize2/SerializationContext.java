@@ -1,16 +1,15 @@
-package com.simpleentity.serialize2.java;
-
-import com.simpleentity.serialize2.SerializerRepository;
+package com.simpleentity.serialize2;
 
 
 
-public class JavaSerializationContext {
+
+public class SerializationContext {
 
 	private final ClassLoader classLoader;
 	private final SerializerRepository serializerRepository;
 	private final Instantiator instantiator;
 
-	public JavaSerializationContext(ClassLoader classLoader, SerializerRepository serializerRepository, Instantiator instantiator) {
+	public SerializationContext(ClassLoader classLoader, SerializerRepository serializerRepository, Instantiator instantiator) {
 		this.classLoader = classLoader;
 		this.serializerRepository = serializerRepository;
 		this.instantiator = instantiator;

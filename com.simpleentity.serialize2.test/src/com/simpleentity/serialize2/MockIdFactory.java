@@ -7,7 +7,19 @@ import com.simpleentity.entity.id.EntityIdFactory;
 
 public class MockIdFactory implements EntityIdFactory {
 
-	public AtomicLong nextId = new AtomicLong(9000);
+	public final AtomicLong nextId ;
+
+	public MockIdFactory() {
+		this(9000);
+	}
+
+	public MockIdFactory(EntityId nextId) {
+		this(nextId.getId());
+	}
+
+	public MockIdFactory(long nextId) {
+		this.nextId = new AtomicLong(nextId);
+	}
 
 	@Override
 	public EntityId newEntityId() {

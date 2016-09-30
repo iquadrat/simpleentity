@@ -1,4 +1,4 @@
-package com.simpleentity.serialize2.java;
+package com.simpleentity.serialize2.reflect;
 
 import java.lang.reflect.Field;
 

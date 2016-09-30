@@ -5,9 +5,10 @@ import static com.simpleentity.util.BuilderUtil.requiredBuilderField;
 
 import javax.annotation.CheckForNull;
 
+import org.povworld.collection.EntryIterator;
+import org.povworld.collection.Map;
 import org.povworld.collection.common.PreConditions;
-import org.povworld.collection.immutable.ImmutableArrayList;
-import org.povworld.collection.immutable.ImmutableList;
+import org.povworld.collection.mutable.HashMap;
 
 import com.simpleentity.annotation.Positive;
 import com.simpleentity.entity.Entity;
@@ -26,11 +27,8 @@ public class MetaData extends Entity<MetaData> {
 
 	private final String className;
 
-	private final ImmutableList<Entry> entries;
-
-	// TODO move to entry?
-	@CheckForNull
-	private final EntityId elementTypeId;
+	// TODO replace with immutable Map version.
+	private final Map<String, Type> entries;
 
 	private MetaData(EntityId id, Builder builder) {
 		super(id);
@@ -38,8 +36,7 @@ public class MetaData extends Entity<MetaData> {
 		this.version = positiveLong("version", builder.version);
 		this.metaType = requiredBuilderField("metaType", builder.metaType);
 		this.className = requiredBuilderField("relativeClassName", builder.className);
-		this.entries = builder.entries.build();
-		this.elementTypeId = builder.elementTypeId;
+		this.entries = new HashMap<>(builder.entries);
 	}
 
 	public String getDomain() {
@@ -58,13 +55,8 @@ public class MetaData extends Entity<MetaData> {
 		return className;
 	}
 
-	public ImmutableList<Entry> getEntries() {
-		return entries;
-	}
-
-	@CheckForNull
-	public EntityId getElementTypeId() {
-		return elementTypeId;
+	public EntryIterator<String, Type> getEntries() {
+		return entries.entryIterator();
 	}
 
 	@Override
@@ -72,9 +64,9 @@ public class MetaData extends Entity<MetaData> {
 		return new Builder(this)
 			.setClassName(className)
 			.setDomain(domain)
-			.setElementTypeId(elementTypeId)
 			.setMetaType(metaType)
-			.setVersion(version);
+			.setVersion(version)
+			.addAllEntries(entries);
 	}
 
 	public static Builder newBuilder() {
@@ -83,7 +75,7 @@ public class MetaData extends Entity<MetaData> {
 
 	public static class Builder extends EntityBuilder<MetaData> {
 
-		private final ImmutableArrayList.Builder<Entry> entries = ImmutableArrayList.newBuilder();
+		private final HashMap<String, Type> entries = new HashMap<>();
 
 		@CheckForNull
 		private String className;
@@ -92,8 +84,6 @@ public class MetaData extends Entity<MetaData> {
 		private long version = -1;
 		@CheckForNull
 		private MetaType metaType;
-		@CheckForNull
-		private EntityId elementTypeId;
 
 		private Builder(@CheckForNull MetaData entity) {
 			super(entity);
@@ -119,13 +109,13 @@ public class MetaData extends Entity<MetaData> {
 			return this;
 		}
 
-		public Builder setElementTypeId(EntityId elementTypeId) {
-			this.elementTypeId = elementTypeId;
+		public Builder addEntry(String id, Type type) {
+			this.entries.put(id, type);
 			return this;
 		}
 
-		public Builder addEntry(Entry entry) {
-			this.entries.add(entry);
+		public Builder addAllEntries(Map<String, Type> entries) {
+			this.entries.putAll(entries);
 			return this;
 		}
 

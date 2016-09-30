@@ -40,7 +40,7 @@ public class ObjectInfo {
 	}
 
 	@CheckForNull
-	public PrimitiveValue getPrimiviteValue(String entryId) {
+	public PrimitiveValue getPrimitiveValue(String entryId) {
 		return getTypedFieldValue(entryId, PrimitiveValue.class);
 	}
 

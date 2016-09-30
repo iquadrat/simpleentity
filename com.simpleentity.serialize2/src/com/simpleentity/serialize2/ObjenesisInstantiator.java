@@ -1,4 +1,4 @@
-package com.simpleentity.serialize2.java;
+package com.simpleentity.serialize2;
 
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;

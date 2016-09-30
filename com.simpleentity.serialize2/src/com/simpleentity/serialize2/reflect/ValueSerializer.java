@@ -1,4 +1,4 @@
-package com.simpleentity.serialize2.java;
+package com.simpleentity.serialize2.reflect;
 
 import java.util.Iterator;
 
@@ -55,6 +55,10 @@ class ValueSerializer {
 	private <C> CollectionValue serializeCollection(MetaData metaData, CollectionSerializer<C> serializer, Object value) {
 		C collection = serializer.getType().cast(value);
 		ObjectInfo collectionInfo = serializer.serialize(collection);
+		if (collectionInfo == null) {
+			throw new SerializerException("CollectionSerializer " + serializer + " returned null when serializing "
+					+ value);
+		}
 		Collection<?> adpatedCollection = serializer.asCollection(collection);
 		ImmutableArrayList.Builder<GenericValue> elements = ImmutableArrayList.newBuilder(adpatedCollection.size());
 		for (Object element : adpatedCollection) {
