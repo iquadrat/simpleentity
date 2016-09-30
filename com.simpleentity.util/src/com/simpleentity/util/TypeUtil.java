@@ -15,12 +15,7 @@ import java.util.Set;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
-public class ClassUtil {
-
-	private ClassUtil() {
-		// utility class
-	}
-
+public class TypeUtil {
 	/**
 	 * @return all super classes and interfaces of the given class including the
 	 *         class itself
@@ -91,6 +86,10 @@ public class ClassUtil {
 			dimension++;
 		}
 		return dimension;
+	}
+
+	private TypeUtil() {
+		// utility class
 	}
 
 }

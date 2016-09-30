@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 import org.povworld.collection.common.ObjectUtil;
 
-import com.simpleentity.util.ClassUtil;
+import com.simpleentity.util.TypeUtil;
 
 @com.simpleentity.annotation.ValueObject
 public abstract class ValueObject {
@@ -19,7 +19,7 @@ public abstract class ValueObject {
 			return false;
 		}
 		try {
-			for (Field field : ClassUtil.getAllFields(getClass())) {
+			for (Field field : TypeUtil.getAllFields(getClass())) {
 				if (!field.isAccessible()) {
 					field.setAccessible(true);
 				}
@@ -37,7 +37,7 @@ public abstract class ValueObject {
 	public int hashCode() {
 		try {
 			int hashCode = 1;
-			for (Field field : ClassUtil.getAllFields(getClass())) {
+			for (Field field : TypeUtil.getAllFields(getClass())) {
 				if (!field.isAccessible()) {
 					field.setAccessible(true);
 				}
@@ -55,7 +55,7 @@ public abstract class ValueObject {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getClass().getSimpleName());
 		sb.append(" [");
-		Iterator<Field> iterator = ClassUtil.getAllFields(getClass()).iterator();
+		Iterator<Field> iterator = TypeUtil.getAllFields(getClass()).iterator();
 		try {
 			while (iterator.hasNext()) {
 				Field field = iterator.next();

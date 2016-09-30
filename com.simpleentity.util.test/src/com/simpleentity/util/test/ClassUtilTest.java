@@ -12,13 +12,13 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.simpleentity.util.ClassUtil;
+import com.simpleentity.util.TypeUtil;
 
 public class ClassUtilTest {
 
 	@Test
 	public void getSuperTypesOfObject() {
-		assertEquals(asSet(Object.class), ClassUtil.getAllSuperTypes(Object.class));
+		assertEquals(asSet(Object.class), TypeUtil.getAllSuperTypes(Object.class));
 	}
 
 	@Test
@@ -30,9 +30,9 @@ public class ClassUtilTest {
 		class CC extends CB {
 		}
 
-		assertEquals(asSet(CA.class, Object.class), ClassUtil.getAllSuperTypes(CA.class));
-		assertEquals(asSet(CB.class, CA.class, Object.class), ClassUtil.getAllSuperTypes(CB.class));
-		assertEquals(asSet(CC.class, CB.class, CA.class, Object.class), ClassUtil.getAllSuperTypes(CC.class));
+		assertEquals(asSet(CA.class, Object.class), TypeUtil.getAllSuperTypes(CA.class));
+		assertEquals(asSet(CB.class, CA.class, Object.class), TypeUtil.getAllSuperTypes(CB.class));
+		assertEquals(asSet(CC.class, CB.class, CA.class, Object.class), TypeUtil.getAllSuperTypes(CC.class));
 	}
 
 	interface A {
@@ -49,10 +49,10 @@ public class ClassUtilTest {
 
 	@Test
 	public void getSuperTypesOfInterfaces() {
-		assertEquals(asSet(A.class), ClassUtil.getAllSuperTypes(A.class));
-		assertEquals(asSet(B.class, A.class), ClassUtil.getAllSuperTypes(B.class));
-		assertEquals(asSet(C.class, A.class), ClassUtil.getAllSuperTypes(C.class));
-		assertEquals(asSet(D.class, C.class, B.class, A.class), ClassUtil.getAllSuperTypes(D.class));
+		assertEquals(asSet(A.class), TypeUtil.getAllSuperTypes(A.class));
+		assertEquals(asSet(B.class, A.class), TypeUtil.getAllSuperTypes(B.class));
+		assertEquals(asSet(C.class, A.class), TypeUtil.getAllSuperTypes(C.class));
+		assertEquals(asSet(D.class, C.class, B.class, A.class), TypeUtil.getAllSuperTypes(D.class));
 	}
 
 	private Set<Class<?>> asSet(Class<?>... class_) {
