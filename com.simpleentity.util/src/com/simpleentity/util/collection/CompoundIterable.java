@@ -15,52 +15,49 @@
  */
 package com.simpleentity.util.collection;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Unrolls a nested iterable. The outer iterable may not contain <code>null</code> values!
- *  
+ *
  * @author micha
  *
  * @param <T> value type
  */
 public class CompoundIterable<T> implements Iterable<T> {
-  
+
   protected Iterable<? extends Iterable<? extends T>> fCompound;
-  
+
   public static <T> CompoundIterable<T> create(Iterable<? extends Iterable<? extends T>> values) {
     return new CompoundIterable<T>(values);
   }
-  
+
   public CompoundIterable(Iterable<? extends Iterable<? extends T>> compound) {
     fCompound = compound;
-  }
-  
-  public CompoundIterable(Iterable<? extends T>... iterables) {
-    this(Arrays.asList(iterables));
   }
 
   @Override
   public Iterator<T> iterator() {
     return new Iterator<T>() {
-      
+
       private final Iterator<? extends Iterable<? extends T>> fValueIter;
-      
+
       /**
        * Invariant: fCurrentIter == null || fCurrentIter.hasNext() == true
        */
       private Iterator<? extends T>                           fCurrentIter;
-      
+
       { // this is the constructor
         fValueIter = fCompound.iterator();
         findNextIter();
       }
-      
+
       @Override
       public boolean hasNext() {
         return fCurrentIter != null;
       }
-      
+
       @Override
       public T next() {
         if (fCurrentIter == null) throw new NoSuchElementException();
@@ -68,12 +65,12 @@ public class CompoundIterable<T> implements Iterable<T> {
         if (!fCurrentIter.hasNext()) findNextIter();
         return result;
       }
-      
+
       @Override
       public void remove() {
         throw new UnsupportedOperationException();
       }
-      
+
       private void findNextIter() {
         do {
           if (!fValueIter.hasNext()) {
@@ -83,8 +80,8 @@ public class CompoundIterable<T> implements Iterable<T> {
           fCurrentIter = fValueIter.next().iterator();
         } while (!fCurrentIter.hasNext());
       }
-      
+
     };
   }
-  
+
 }
