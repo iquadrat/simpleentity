@@ -8,7 +8,7 @@ import javax.annotation.CheckForNull;
 import org.povworld.collection.EntryIterator;
 import org.povworld.collection.Map;
 import org.povworld.collection.common.PreConditions;
-import org.povworld.collection.mutable.HashMap;
+import org.povworld.collection.mutable.AvlTreeMap;
 
 import com.simpleentity.annotation.Positive;
 import com.simpleentity.entity.Entity;
@@ -36,7 +36,7 @@ public class MetaData extends Entity<MetaData> {
 		this.version = positiveLong("version", builder.version);
 		this.metaType = requiredBuilderField("metaType", builder.metaType);
 		this.className = requiredBuilderField("relativeClassName", builder.className);
-		this.entries = new HashMap<>(builder.entries);
+		this.entries = builder.entries;
 	}
 
 	public String getDomain() {
@@ -75,7 +75,7 @@ public class MetaData extends Entity<MetaData> {
 
 	public static class Builder extends EntityBuilder<MetaData> {
 
-		private final HashMap<String, Type> entries = new HashMap<>();
+		private final AvlTreeMap<String, Type> entries = AvlTreeMap.create(String.class);
 
 		@CheckForNull
 		private String className;

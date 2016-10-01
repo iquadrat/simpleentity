@@ -6,7 +6,8 @@ public enum MetaType {
 //	VALUE(false), // TODO consider adding non-polymorphic value
 	VALUE_OBJECT(true),
 	ENTITY(true),
-	COLLECTION(true)
+	COLLECTION(true),
+	// TODO add Maps
 	// TODO consider adding AGGREGATION_ROOT
 	;
 
