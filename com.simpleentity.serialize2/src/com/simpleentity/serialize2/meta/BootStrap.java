@@ -28,14 +28,6 @@ public class BootStrap {
 	private static final long ID_PRIMITIVE_LAST = ID_PRIMITIVE_STRING.getId();
 
 	public static final EntityId ID_ARRAY = new EntityId(32);
-	public static final EntityId ID_ARRAY_BYTE = new EntityId(ID_PRIMITIVE_FIRST + 2);
-	public static final EntityId ID_ARRAY_CHAR = new EntityId(ID_PRIMITIVE_FIRST + 3);
-	public static final EntityId ID_ARRAY_SHORT = new EntityId(ID_PRIMITIVE_FIRST + 3);
-	public static final EntityId ID_ARRAY_INT = new EntityId(ID_PRIMITIVE_FIRST + 4);
-	public static final EntityId ID_ARRAY_LONG = new EntityId(ID_PRIMITIVE_FIRST + 5);
-	public static final EntityId ID_ARRAY_FLOAT = new EntityId(ID_PRIMITIVE_FIRST + 6);
-	public static final EntityId ID_ARRAY_DOUBLE = new EntityId(ID_PRIMITIVE_FIRST + 7);
-	public static final EntityId ID_ARRAY_STRING = new EntityId(ID_PRIMITIVE_FIRST + 8);
 
 	public static boolean isPrimitive(EntityId entityId) {
 		return (entityId.getId() >= ID_PRIMITIVE_FIRST) && (entityId.getId() <= ID_PRIMITIVE_LAST);
