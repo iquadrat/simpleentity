@@ -4,7 +4,6 @@ import org.povworld.collection.EntryIterator;
 import org.povworld.collection.immutable.ImmutableArrayList;
 import org.povworld.collection.immutable.ImmutableList;
 
-import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.serialize2.BinarySerializer;
 import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.generic.ObjectInfo;
@@ -16,7 +15,7 @@ import com.simpleentity.util.bytes.ByteWriter;
 
 public class ObjectInfoSerializer implements BinarySerializer<ObjectInfo> {
 
-	private final BinarySerializer<EntityId> entityIdSerialzer;
+	private final MetaData metaData;
 	private final ImmutableList<EntrySerializer> entrySerializers;
 
 	@Override
@@ -25,7 +24,7 @@ public class ObjectInfoSerializer implements BinarySerializer<ObjectInfo> {
 	}
 
 	public ObjectInfoSerializer(SerializerRepository serializerRepository, MetaData metaData) {
-		this.entityIdSerialzer = serializerRepository.getEntityIdSerializer();
+		this.metaData = metaData;
 		this.entrySerializers = createFieldSerializers(serializerRepository, metaData);
 	}
 
@@ -45,7 +44,6 @@ public class ObjectInfoSerializer implements BinarySerializer<ObjectInfo> {
 
 	@Override
 	public void serialize(ObjectInfo objectInfo, ByteWriter destination) {
-		entityIdSerialzer.serialize(objectInfo.getMetaTypeId(), destination);
 		for (EntrySerializer serializer : entrySerializers) {
 			serializer.serialize(objectInfo, destination);
 		}
@@ -53,8 +51,8 @@ public class ObjectInfoSerializer implements BinarySerializer<ObjectInfo> {
 
 	@Override
 	public ObjectInfo deserialize(ByteReader source) {
-		Builder builder = ObjectInfo.newBuilder();
-		builder.setMetaDataId(entityIdSerialzer.deserialize(source));
+		Builder builder = ObjectInfo.newBuilder()
+			.setMetaDataId(metaData.getEntityId());
 		for (EntrySerializer serializer : entrySerializers) {
 			serializer.deserialize(source, builder);
 		}

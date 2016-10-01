@@ -1,6 +1,7 @@
 package com.simpleentity.serialize2.binary;
 
 import org.povworld.collection.common.MathUtil;
+import org.povworld.collection.common.ObjectUtil;
 import org.povworld.collection.immutable.ImmutableArrayList;
 
 import com.simpleentity.annotation.CheckForNull;
@@ -31,26 +32,31 @@ class EntrySerializer {
 	EntrySerializer(String fieldId, Type type, SerializerRepository serializerRepository) {
 		this.entryId = fieldId;
 		this.type = type;
-		this.metaData = serializerRepository.getMetaData(type.getMetaDataId());
+		this.metaData = ObjectUtil.checkNotNull(serializerRepository.getMetaData(type.getMetaDataId()));
 		this.serializerRepository = serializerRepository;
 	}
 
 	void serialize(ObjectInfo objectInfo, ByteWriter destination) {
-		serialize(type, metaData, objectInfo.getCollectionValue(entryId), destination);
+		serialize(type, metaData, objectInfo.getValue(entryId), destination);
 	}
 
 	private void serialize(final @CheckForNull Type declaredType, @CheckForNull MetaData declaredMetaData,
 			@CheckForNull GenericValue value, final ByteWriter destination) {
 		boolean optional = (declaredType == null || declaredType.isOptional());
-		if (value == null && !optional) {
-			throw new SerializerException("Non-optional entry found to be null!");
-		}
-		if (declaredMetaData == null || declaredMetaData.getMetaType().isPolymorphic()) {
-			// Polymorphic type: Write actual type or 'null'-type.
-			if (value == null) {
-				serializerRepository.getEntityIdSerializer().serialize(BootStrap.ID_NULL_REFERENCE, destination);
-				return;
+		boolean polymorphic = (declaredMetaData == null || declaredMetaData.getMetaType().isPolymorphic());
+		if (value == null) {
+			if (!optional) {
+				throw new SerializerException("Non-optional entry found to be null!");
 			}
+			if (polymorphic) {
+				serializerRepository.getEntityIdSerializer().serialize(BootStrap.ID_NULL_REFERENCE, destination);
+			} else {
+				destination.putVarInt(0); // TODO optimize
+			}
+			return;
+		}
+		if (polymorphic) {
+			// Polymorphic type: Write actual type or 'null'-type.
 			serializerRepository.getEntityIdSerializer().serialize(value.getActualMetaDataId(), destination);
 		} else {
 			// Non-polymorphic type: Do not write actual type.
@@ -58,7 +64,7 @@ class EntrySerializer {
 				// As we do not serialize the type if the declared type is not
 				// polymorphic we need to serialize whether it is present or
 				// not.
-				destination.putVarInt((value == null) ? 0 : 1); // TODO optimize
+				destination.putVarInt(1); // TODO optimize
 			}
 		}
 
@@ -69,17 +75,15 @@ class EntrySerializer {
 		value.accept(new ValueVisitor() {
 			@Override
 			public void visit(PrimitiveValue primitive) {
-				// TODO oops that's ugly
-				BinarySerializer<Object> serializer = serializerRepository.getPrimitiveSerializer(primitive
-						.getActualMetaDataId());
+				BinarySerializer<Object> serializer = serializerRepository.getPrimitiveSerializer(
+						primitive.getActualMetaDataId());
 				serializer.serialize(primitive.getValue(), destination);
 			}
 
 			@Override
 			public void visit(ValueObjectValue valueObject) {
-				EntityId metaTypeId = valueObject.getActualMetaDataId();
-				serializerRepository.getEntityIdSerializer().serialize(metaTypeId, destination);
-				BinarySerializer<ObjectInfo> serializer = serializerRepository.getBinarySerializer(metaTypeId);
+				BinarySerializer<ObjectInfo> serializer =
+						serializerRepository.getBinarySerializer(valueObject.getActualMetaDataId());
 				serializer.serialize(valueObject.getValue(), destination);
 			}
 

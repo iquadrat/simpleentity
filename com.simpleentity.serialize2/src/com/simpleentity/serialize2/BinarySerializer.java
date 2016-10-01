@@ -9,6 +9,7 @@ public interface BinarySerializer<T> {
 
 	public T deserialize(ByteReader source);
 
+	// TODO remove?
 	public Class<T> getType();
 
 }

@@ -1,6 +1,7 @@
 package com.simpleentity.serialize2.binary;
 
 import com.simpleentity.serialize2.BinarySerializer;
+import com.simpleentity.serialize2.SerializerException;
 import com.simpleentity.serialize2.meta.Primitive;
 import com.simpleentity.util.bytes.ByteReader;
 import com.simpleentity.util.bytes.ByteWriter;
@@ -17,6 +18,18 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 	public Class<T> getType() {
 		return type;
 	}
+
+	static final BinarySerializer<Boolean> BOOLEAN = new PrimitiveSerializer<Boolean>(Boolean.class) {
+		@Override
+		public void serialize(Boolean value, ByteWriter destination) {
+			destination.putBoolean(value);
+		};
+
+		@Override
+		public Boolean deserialize(ByteReader source) {
+			return source.getBoolean();
+		}
+	};
 
 	static final BinarySerializer<Byte> BYTE = new PrimitiveSerializer<Byte>(Byte.class) {
 		@Override
@@ -88,6 +101,22 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 			return source.getLong();
 		}
 	};
+	static final BinarySerializer<Long> VARINT = new PrimitiveSerializer<Long>(Long.class) {
+		@Override
+		public void serialize(Long value, ByteWriter destination) {
+			long v = value;
+			if (v < 0) {
+				throw new SerializerException("Cannot serialize negative var int: "+v);
+			}
+			destination.putVarInt(v);
+		}
+
+		@Override
+		public Long deserialize(ByteReader source) {
+			return source.getVarInt();
+		}
+
+	};
 	static final BinarySerializer<Short> SHORT = new PrimitiveSerializer<Short>(Short.class) {
 
 		@Override
@@ -115,6 +144,8 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 
 	public static BinarySerializer<?> getSerializer(Primitive primitive) {
 		switch (primitive) {
+		case BOOLEAN:
+			return BOOLEAN;
 		case BYTE:
 			return BYTE;
 		case CHAR:
@@ -127,6 +158,8 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 			return INT;
 		case LONG:
 			return LONG;
+		case VARINT:
+			return VARINT;
 		case SHORT:
 			return SHORT;
 		case STRING:
