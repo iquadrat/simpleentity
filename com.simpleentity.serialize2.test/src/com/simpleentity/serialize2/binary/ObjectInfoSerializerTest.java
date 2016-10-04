@@ -49,15 +49,16 @@ public class ObjectInfoSerializerTest {
 	public void setUp() {
 		when(repository.getMetaData(BootStrap.ID_ENTITY_ID)).thenReturn(BootStrap.ENTITY_ID);
 		when(repository.getMetaData(BootStrap.ID_ANY)).thenReturn(BootStrap.ANY);
-		when(repository.getMetaData(BootStrap.ID_ARRAY)).thenReturn(BootStrap.ARRAY);
+		when(repository.getMetaData(BootStrap.ID_PRIMITIVE_ARRAY)).thenReturn(BootStrap.PRIMITIVE_ARRAY);
+		when(repository.getMetaData(BootStrap.ID_OBJECT_ARRAY)).thenReturn(BootStrap.OBJECT_ARRAY);
 		for(Primitive primitive: Primitive.values()) {
 			BinarySerializer<?> serializer = PrimitiveSerializer.getSerializer(primitive);
 			Mockito.doReturn(serializer).when(repository).getPrimitiveSerializer(primitive.getMetaDataId());
 			Mockito.when(repository.getMetaData(primitive.getMetaDataId())).thenReturn(primitive.getMetaData());
 		}
 		when(repository.getEntityIdSerializer()).thenReturn(new EntityIdSerializer());
-		ObjectInfoSerializer arraySerializer = new ObjectInfoSerializer(repository, BootStrap.ARRAY);
-		when(repository.getBinarySerializer(BootStrap.ID_ARRAY)).thenReturn(arraySerializer);
+		when(repository.getBinarySerializer(BootStrap.ID_PRIMITIVE_ARRAY)).thenReturn(new ObjectInfoSerializer(repository, BootStrap.PRIMITIVE_ARRAY));
+		when(repository.getBinarySerializer(BootStrap.ID_OBJECT_ARRAY)).thenReturn(new ObjectInfoSerializer(repository, BootStrap.OBJECT_ARRAY));
 
 		metaDataBase = MetaData.newBuilder()
 				.setDomain(TEST_DOMAIN)
@@ -207,14 +208,16 @@ public class ObjectInfoSerializerTest {
 				.addEntry("cap", new Type(BootStrap.ID_PRIMITIVE_VARINT, false))
 				.build(new MockIdFactory(collectionId));
 		MetaData metaData = metaDataBase.toBuilder()
-				.addEntry("0Ints", new Type(BootStrap.ID_ARRAY, false, new Type(BootStrap.ID_PRIMITIVE_INT, false)))
-				.addEntry("1IntsOrNot", new Type(BootStrap.ID_ARRAY, false, new Type(BootStrap.ID_PRIMITIVE_INT, true)))
+				.addEntry("0Ints", new Type(BootStrap.ID_PRIMITIVE_ARRAY, false, new Type(BootStrap.ID_PRIMITIVE_INT, false)))
+				.addEntry("1IntsOrNot", new Type(BootStrap.ID_OBJECT_ARRAY, false, new Type(BootStrap.ID_PRIMITIVE_INT, true)))
 				.addEntry("2Ids", new Type(collectionId, true, new Type(BootStrap.ID_ENTITY_ID, false)))
 				.addEntry("3anys", new Type(collectionId, true, new Type(BootStrap.ID_ANY, true)))
 				.addEntry("99missing", new Type(collectionId, true, new Type(BootStrap.ID_ANY, true)))
 				.build(idFactory);
-		ObjectInfo arrayInfo = ObjectInfo.newBuilder()
-				.setMetaDataId(BootStrap.ID_ARRAY).build();
+		ObjectInfo primitiveArrayInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(BootStrap.ID_PRIMITIVE_ARRAY).build();
+		ObjectInfo objectArrayInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(BootStrap.ID_OBJECT_ARRAY).build();
 		ObjectInfo collectionInfo = ObjectInfo.newBuilder()
 				.setMetaDataId(collectionId)
 				.setEntryValue("cap", GenericValue.varIntValue(0x17))
@@ -223,9 +226,9 @@ public class ObjectInfoSerializerTest {
 				.setMetaDataId(TEST_METADATA_ID)
 				.setEntryValue(
 						"0Ints",
-						new CollectionValue(arrayInfo, BootStrap.ID_PRIMITIVE_INT, ImmutableCollections.<GenericValue> asList(
+						new CollectionValue(primitiveArrayInfo, BootStrap.ID_PRIMITIVE_INT, ImmutableCollections.<GenericValue> asList(
 								GenericValue.intValue(1), GenericValue.intValue(2), GenericValue.intValue(3), GenericValue.intValue(5))))
-				.setEntryValue("1IntsOrNot", new CollectionValue(arrayInfo, BootStrap.ID_PRIMITIVE_INT,
+				.setEntryValue("1IntsOrNot", new CollectionValue(objectArrayInfo, BootStrap.ID_PRIMITIVE_INT,
 						ImmutableCollections.<GenericValue> asList(
 								GenericValue.intValue(0x12345678), GenericValue.intValue(0x42))))
 				.setEntryValue("2Ids", new CollectionValue(collectionInfo, BootStrap.ID_ENTITY_ID, ImmutableCollections.<GenericValue>asList(
@@ -239,12 +242,13 @@ public class ObjectInfoSerializerTest {
 
 		serializeAndDeserialize(objectInfo, metaData,
 				"a094" /* int array */+ "84" + "01000000020000000300000005000000" +
-				"a094" /* int array */+ "82" + "8178563412" + "8142000000" +
+				"a194" /* int array */+ "82" + "8178563412" + "8142000000" +
 				"41aa" /* collection MetaData id */+ "81"/* ID_ENTITIY_ID */ + "83" + "97" /* cap */ +  "433343344335" +
 				"41aa" /* collection MetaData id */+ "83" /* ID_ANY */ + "83" + "97" /* cap */ + "9434120000" + "9001" + "814334" +
-				"80"
-				);
+				"80");
 	}
+
+	// TODO add test for mutli-dimensional array
 
 	private void serializeAndDeserialize(ObjectInfo objectInfo, MetaData metaData, String expectedBytes) {
 		ObjectInfoSerializer serializer = new ObjectInfoSerializer(repository, metaData);

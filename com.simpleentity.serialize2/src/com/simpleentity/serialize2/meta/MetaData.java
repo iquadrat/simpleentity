@@ -121,7 +121,7 @@ public class MetaData extends Entity<MetaData> {
 
 		@Override
 		protected MetaData build(EntityId id) {
-			if (!className.startsWith(domain + ".")) {
+			if (!domain.isEmpty() && !className.startsWith(domain + ".")) {
 				throw new IllegalStateException("Domain must be a prefix of class name but is not: " + className
 						+ " does not start with " + domain);
 			}

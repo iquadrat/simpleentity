@@ -6,14 +6,13 @@ package org.povworld.serialize;
 
 import java.nio.ByteBuffer;
 
+import junit.framework.TestCase;
 
 import com.simpleentity.serialize.ObjectGraphSerializer;
 import com.simpleentity.util.io.IOUtil;
 
-import junit.framework.TestCase;
-
 public abstract class AbstractSerializationTest extends TestCase {
-  
+
   protected ObjectGraphSerializer fSerializer;
 
   @Override
@@ -27,15 +26,15 @@ public abstract class AbstractSerializationTest extends TestCase {
     fSerializer = null;
     super.tearDown();
   }
-  
+
   @SuppressWarnings("unchecked")
   protected <T> T serializeAndDeserialize(T p) {
     ByteBuffer[] data = fSerializer.serializeObjectGraph(p);
     ByteBuffer reader = createInput(data);
-    T actual = (T) fSerializer.deserializeObjectGraph(reader);
+    T actual = (T)  new ObjectGraphSerializer().deserializeObjectGraph(reader);
     return actual;
   }
-  
+
   protected ByteBuffer createInput(ByteBuffer[] data) {
     return ByteBuffer.wrap(IOUtil.compact(data));
   }

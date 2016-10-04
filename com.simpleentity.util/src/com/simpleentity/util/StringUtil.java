@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 
 
 public class StringUtil {
-	
+
 	public static Charset UTF8 = Charset.forName("UTF-8");
 
 	private StringUtil() {
@@ -13,7 +13,7 @@ public class StringUtil {
 
 	/**
 	 * Splits a file name in name and extension.
-	 * 
+	 *
 	 * @param name
 	 *            the file name to split
 	 * @return an array of two elements: The file name and the extension.
@@ -41,7 +41,7 @@ public class StringUtil {
 		}
 		return result.toString();
 	}
-	
+
 	public static byte[] hex2Bytes(String string) {
 		//PreConditions.argument(string).verify(string.length() % 2 == 0, "Expected an even number of characters.");
 		int outputLength = string.length() / 2;
@@ -63,10 +63,10 @@ public class StringUtil {
 		if (c >= 'A' && c <= 'F') {
 			return (byte) (c - 'A' + 10);
 		}
-		throw new IllegalArgumentException("Invalid character in hexadecimal string: " + c);
+		throw new IllegalArgumentException("Invalid character in hexadecimal string: '" + c + "'");
 	}
 
-	
+
 	private static char halfByteToChar(int halfByte) {
 		if (halfByte < 10) {
 			return (char) ('0' + halfByte);

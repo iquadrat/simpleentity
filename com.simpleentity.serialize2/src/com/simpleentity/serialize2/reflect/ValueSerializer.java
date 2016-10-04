@@ -28,6 +28,9 @@ class ValueSerializer {
 
 	public GenericValue serialize(Object value) {
 		MetaData metaData = serializerRepository.getMetaData(value.getClass());
+		if (metaData == null) {
+			throw new SerializerException("Failed to get serializer for "+value);
+		}
 		// TODO check expected type matches actual
 		switch (metaData.getMetaType()) {
 		case ENTITY:
