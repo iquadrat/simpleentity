@@ -1,6 +1,5 @@
 package com.simpleentity.serialize2.binary;
 
-import com.simpleentity.serialize2.BinarySerializer;
 import com.simpleentity.serialize2.SerializerException;
 import com.simpleentity.serialize2.meta.Primitive;
 import com.simpleentity.util.bytes.ByteReader;

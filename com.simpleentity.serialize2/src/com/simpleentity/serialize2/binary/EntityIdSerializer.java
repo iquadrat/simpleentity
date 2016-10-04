@@ -1,7 +1,6 @@
 package com.simpleentity.serialize2.binary;
 
 import com.simpleentity.entity.id.EntityId;
-import com.simpleentity.serialize2.BinarySerializer;
 import com.simpleentity.util.bytes.ByteReader;
 import com.simpleentity.util.bytes.ByteWriter;
 

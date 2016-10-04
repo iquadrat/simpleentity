@@ -12,9 +12,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.povworld.collection.immutable.ImmutableCollections;
 
 import com.simpleentity.entity.id.EntityId;
-import com.simpleentity.serialize2.BinarySerializer;
 import com.simpleentity.serialize2.MockIdFactory;
-import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.generic.GenericValue;
 import com.simpleentity.serialize2.generic.GenericValue.CollectionValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
@@ -39,7 +37,7 @@ public class ObjectInfoSerializerTest {
 	private static final long TEST_VERSION = 42;
 
 	@Mock
-	SerializerRepository repository;
+	private BinarySerializerRepository repository;
 
 	private final MockIdFactory idFactory = new MockIdFactory();
 

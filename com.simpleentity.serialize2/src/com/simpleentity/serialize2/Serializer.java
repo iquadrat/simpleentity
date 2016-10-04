@@ -10,6 +10,4 @@ public interface Serializer<T> {
 
 	public Class<T> getType();
 
-//	public EntityId getMetaDataId();
-
 }

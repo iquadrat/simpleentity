@@ -1,4 +1,4 @@
-package com.simpleentity.serialize2.java;
+package com.simpleentity.serialize2.reflect;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -28,7 +28,6 @@ import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.entity.value.ValueObject;
 import com.simpleentity.serialize2.Instantiator;
 import com.simpleentity.serialize2.MockIdFactory;
-import com.simpleentity.serialize2.ObjenesisInstantiator;
 import com.simpleentity.serialize2.SerializationContext;
 import com.simpleentity.serialize2.Serializer;
 import com.simpleentity.serialize2.SerializerRepository;
@@ -47,13 +46,12 @@ import com.simpleentity.serialize2.meta.MetaDataUtil;
 import com.simpleentity.serialize2.meta.MetaType;
 import com.simpleentity.serialize2.meta.Primitive;
 import com.simpleentity.serialize2.meta.Type;
-import com.simpleentity.serialize2.reflect.ReflectiveSerializer;
 
 /** Unit tests for {@link ReflectiveSerializer}. */
 @RunWith(MockitoJUnitRunner.class)
-public class JavaSerializerTest {
+public class ReflectiveSerializerTest {
 
-	private static final String TEST_DOMAIN = JavaSerializerTest.class.getPackage().getName();
+	private static final String TEST_DOMAIN = ReflectiveSerializerTest.class.getPackage().getName();
 	private static final long TEST_VERSION = 4;
 	private static final EntityId TEST_ENTITY_ID = new EntityId(1000L);
 
@@ -64,7 +62,6 @@ public class JavaSerializerTest {
 
 	@Before
 	public void setUp() {
-		when(context.getClassLoader()).thenReturn(getClass().getClassLoader());
 		when(context.getSerializerRepository()).thenReturn(serializerRepository);
 		when(context.getInstantiator()).thenReturn(instantiator);
 		when(serializerRepository.getDeclaredType(Mockito.any(Field.class))).then(new Answer<Type>() {

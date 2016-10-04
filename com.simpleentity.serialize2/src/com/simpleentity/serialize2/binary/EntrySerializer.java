@@ -6,9 +6,7 @@ import org.povworld.collection.immutable.ImmutableArrayList;
 
 import com.simpleentity.annotation.CheckForNull;
 import com.simpleentity.entity.id.EntityId;
-import com.simpleentity.serialize2.BinarySerializer;
 import com.simpleentity.serialize2.SerializerException;
-import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.generic.GenericValue;
 import com.simpleentity.serialize2.generic.GenericValue.CollectionValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
@@ -27,10 +25,10 @@ import com.simpleentity.util.bytes.ByteWriter;
 class EntrySerializer {
 	private final String entryId;
 	private final Type type;
-	private final SerializerRepository serializerRepository;
+	private final BinarySerializerRepository serializerRepository;
 	private final MetaData metaData;
 
-	EntrySerializer(String fieldId, Type type, SerializerRepository serializerRepository) {
+	EntrySerializer(String fieldId, Type type, BinarySerializerRepository serializerRepository) {
 		this.entryId = fieldId;
 		this.type = type;
 		this.metaData = ObjectUtil.checkNotNull(serializerRepository.getMetaData(type.getMetaDataId()));

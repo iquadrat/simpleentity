@@ -4,8 +4,6 @@ import org.povworld.collection.EntryIterator;
 import org.povworld.collection.immutable.ImmutableArrayList;
 import org.povworld.collection.immutable.ImmutableList;
 
-import com.simpleentity.serialize2.BinarySerializer;
-import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.generic.ObjectInfo.Builder;
 import com.simpleentity.serialize2.meta.MetaData;
@@ -18,13 +16,13 @@ public class ObjectInfoSerializer implements BinarySerializer<ObjectInfo> {
 	private final MetaData metaData;
 	private final ImmutableList<EntrySerializer> entrySerializers;
 
-	public ObjectInfoSerializer(SerializerRepository serializerRepository, MetaData metaData) {
+	public ObjectInfoSerializer(BinarySerializerRepository serializerRepository, MetaData metaData) {
 		this.metaData = metaData;
 		this.entrySerializers = createFieldSerializers(serializerRepository, metaData);
 	}
 
 	private static ImmutableList<EntrySerializer> createFieldSerializers(
-			SerializerRepository serializerRepository, MetaData metaData) {
+			BinarySerializerRepository serializerRepository, MetaData metaData) {
 		ImmutableArrayList.Builder<EntrySerializer> result = ImmutableArrayList.newBuilder();
 		EntryIterator<String, Type> entries = metaData.getEntries();
 		while(entries.next()) {
@@ -33,7 +31,7 @@ public class ObjectInfoSerializer implements BinarySerializer<ObjectInfo> {
 		return result.build();
 	}
 
-	private static EntrySerializer createFieldSerializer(SerializerRepository serializerRepository, String id, Type type) {
+	private static EntrySerializer createFieldSerializer(BinarySerializerRepository serializerRepository, String id, Type type) {
 		return new EntrySerializer(id, type, serializerRepository);
 	}
 

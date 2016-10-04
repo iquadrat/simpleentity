@@ -1,4 +1,4 @@
-package com.simpleentity.serialize2;
+package com.simpleentity.serialize2.binary;
 
 import com.simpleentity.util.bytes.ByteReader;
 import com.simpleentity.util.bytes.ByteWriter;
