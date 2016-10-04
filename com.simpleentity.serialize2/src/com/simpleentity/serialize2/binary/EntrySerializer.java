@@ -18,6 +18,7 @@ import com.simpleentity.serialize2.generic.GenericValue.ValueVisitor;
 import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.meta.BootStrap;
 import com.simpleentity.serialize2.meta.MetaData;
+import com.simpleentity.serialize2.meta.MetaType;
 import com.simpleentity.serialize2.meta.Primitive;
 import com.simpleentity.serialize2.meta.Type;
 import com.simpleentity.util.bytes.ByteReader;
@@ -46,7 +47,7 @@ class EntrySerializer {
 		boolean polymorphic = (declaredMetaData == null || declaredMetaData.getMetaType().isPolymorphic());
 		if (value == null) {
 			if (!optional) {
-				throw new SerializerException("Non-optional entry found to be null!");
+				throw new SerializerException("Non-optional entry '"+entryId+"' found to be null!");
 			}
 			if (polymorphic) {
 				serializerRepository.getEntityIdSerializer().serialize(BootStrap.ID_NULL_REFERENCE, destination);
@@ -56,8 +57,10 @@ class EntrySerializer {
 			return;
 		}
 		if (polymorphic) {
-			// Polymorphic type: Write actual type or 'null'-type.
-			serializerRepository.getEntityIdSerializer().serialize(value.getActualMetaDataId(), destination);
+			if (declaredMetaData == null || declaredMetaData.getMetaType() != MetaType.ENTITY) {
+				// Polymorphic type: Write actual type or 'null'-type.
+				serializerRepository.getEntityIdSerializer().serialize(value.getActualMetaDataId(), destination);
+			}
 		} else {
 			// Non-polymorphic type: Do not write actual type.
 			if (optional) {
@@ -131,13 +134,16 @@ class EntrySerializer {
 	private GenericValue deserializeValue(ByteReader source, @CheckForNull Type declaredType,
 			@CheckForNull MetaData declaredMetaData) {
 		boolean optional = (declaredType == null || declaredType.isOptional());
-
 		MetaData actualMetaData = null;
 		if (declaredMetaData == null || declaredMetaData.getMetaType().isPolymorphic()) {
-			// Polymorphic type: Read actual type or 'null'-type.
-			EntityId actualTypeId = serializerRepository.getEntityIdSerializer().deserialize(source);
-			if (actualTypeId != BootStrap.ID_NULL_REFERENCE) {
-				actualMetaData = serializerRepository.getMetaData(actualTypeId);
+			if (declaredMetaData.getMetaType() == MetaType.ENTITY) {
+				actualMetaData = BootStrap.ENTITY_ID;
+			} else {
+				// Polymorphic type: Read actual type or 'null'-type.
+				EntityId actualTypeId = serializerRepository.getEntityIdSerializer().deserialize(source);
+				if (actualTypeId != BootStrap.ID_NULL_REFERENCE) {
+					actualMetaData = serializerRepository.getMetaData(actualTypeId);
+				}
 			}
 		} else {
 			// Non-polymorphic type: Do not read actual type.
@@ -154,8 +160,10 @@ class EntrySerializer {
 		}
 
 		switch (actualMetaData.getMetaType()) {
-		case ENTITY:
-			return new EntityIdValue(serializerRepository.getEntityIdSerializer().deserialize(source));
+		case ENTITY: {
+			EntityId entityId = serializerRepository.getEntityIdSerializer().deserialize(source);
+			return BootStrap.ID_NULL_REFERENCE.equals(entityId) ? null : new EntityIdValue(entityId);
+		}
 		case PRIMITIVE: {
 			Primitive primitive = Primitive.byEntityId(actualMetaData.getEntityId());
 			BinarySerializer<?> serializer = serializerRepository.getPrimitiveSerializer(actualMetaData.getEntityId());

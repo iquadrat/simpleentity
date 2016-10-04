@@ -22,7 +22,7 @@ public class ObjectInfo {
 
 	private ObjectInfo(Builder builder) {
 		this.metaDataId = BuilderUtil.requiredBuilderField("metaTypeId", builder.metaDataId);
-		this.entries = builder.entries;
+		this.entries = new HashMap<>(builder.entries);
 	}
 
 	public EntityId getMetaTypeId() {

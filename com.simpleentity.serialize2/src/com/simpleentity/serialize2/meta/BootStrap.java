@@ -13,6 +13,7 @@ public class BootStrap {
 
 	public static final EntityId ID_ENTITY_ID = new EntityId(1);
 	public static final EntityId ID_META_DATA = new EntityId(2);
+	public static final EntityId ID_ANY = new EntityId(3);
 
 	private static final long ID_PRIMITIVE_FIRST = 16;
 	public static final EntityId ID_PRIMITIVE_BOOLEAN = new EntityId(ID_PRIMITIVE_FIRST + 0);
@@ -36,6 +37,7 @@ public class BootStrap {
 
 	public static final MetaData ENTITY_ID;
 	public static final MetaData ARRAY;
+	public static final MetaData ANY;
 
 	static {
 		ENTITY_ID = MetaData.newBuilder()
@@ -49,7 +51,16 @@ public class BootStrap {
 				.setDomain(JAVA_DOMAIN)
 				.setMetaType(MetaType.COLLECTION)
 				.setVersion(SIMPLE_ENTITY_VERSION)
+				.addEntry("componentType", new Type(ID_PRIMITIVE_STRING, false))
+				.addEntry("dimension", new Type(ID_PRIMITIVE_VARINT, false))
+				.addEntry("length", new Type(ID_PRIMITIVE_VARINT, false))
 				.build(ID_ARRAY);
+		ANY = MetaData.newBuilder()
+				.setClassName("java.lang.Object")
+				.setDomain(JAVA_DOMAIN)
+				.setMetaType(MetaType.UNKNOWN)
+				.setVersion(SIMPLE_ENTITY_VERSION)
+				.build(ID_ANY);
 	}
 
 }

@@ -9,12 +9,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.povworld.collection.immutable.ImmutableCollections;
 
 import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.serialize2.BinarySerializer;
 import com.simpleentity.serialize2.MockIdFactory;
 import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.generic.GenericValue;
+import com.simpleentity.serialize2.generic.GenericValue.CollectionValue;
+import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
+import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueObjectValue;
 import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.meta.BootStrap;
@@ -43,12 +47,17 @@ public class ObjectInfoSerializerTest {
 
 	@Before
 	public void setUp() {
-		Mockito.when(repository.getEntityIdSerializer()).thenReturn(new EntityIdSerializer());
+		when(repository.getMetaData(BootStrap.ID_ENTITY_ID)).thenReturn(BootStrap.ENTITY_ID);
+		when(repository.getMetaData(BootStrap.ID_ANY)).thenReturn(BootStrap.ANY);
+		when(repository.getMetaData(BootStrap.ID_ARRAY)).thenReturn(BootStrap.ARRAY);
 		for(Primitive primitive: Primitive.values()) {
 			BinarySerializer<?> serializer = PrimitiveSerializer.getSerializer(primitive);
 			Mockito.doReturn(serializer).when(repository).getPrimitiveSerializer(primitive.getMetaDataId());
 			Mockito.when(repository.getMetaData(primitive.getMetaDataId())).thenReturn(primitive.getMetaData());
 		}
+		when(repository.getEntityIdSerializer()).thenReturn(new EntityIdSerializer());
+		ObjectInfoSerializer arraySerializer = new ObjectInfoSerializer(repository, BootStrap.ARRAY);
+		when(repository.getBinarySerializer(BootStrap.ID_ARRAY)).thenReturn(arraySerializer);
 
 		metaDataBase = MetaData.newBuilder()
 				.setDomain(TEST_DOMAIN)
@@ -146,6 +155,99 @@ public class ObjectInfoSerializerTest {
 		when(repository.getMetaData(value.getEntityId())).thenReturn(value);
 		serializeAndDeserialize(objectInfo, metaData,
 				"41aa77000000" + "41aa88000000" + "80");
+	}
+
+	@Test
+	public void serializeEntityReference() {
+		EntityId ref1 = new EntityId(257);
+		EntityId ref2 = new EntityId(258);
+		MetaData metaData = metaDataBase.toBuilder()
+				.addEntry("0ref", new Type(BootStrap.ID_ENTITY_ID, false))
+				.addEntry("1maybe", new Type(BootStrap.ID_ENTITY_ID, true))
+				.addEntry("2missing", new Type(BootStrap.ID_ENTITY_ID, true))
+				.build(idFactory);
+		ObjectInfo objectInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(TEST_METADATA_ID)
+				.setEntryValue("0ref", new EntityIdValue(ref1))
+				.setEntryValue("1maybe", new EntityIdValue(ref2))
+				.build();
+		serializeAndDeserialize(objectInfo, metaData,
+				"4101" + "4102" + "80");
+	}
+
+	@Test
+	public void serializeUnknownMetaType() {
+		EntityId ref1 = new EntityId(257);
+		MetaData metaData = metaDataBase.toBuilder()
+				.addEntry("0primitive", new Type(BootStrap.ID_ANY, true))
+				.addEntry("1entity", new Type(BootStrap.ID_ANY, false))
+				.addEntry("2missing", new Type(BootStrap.ID_ANY, true))
+				.build(idFactory);
+		ObjectInfo objectInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(TEST_METADATA_ID)
+				.setEntryValue("0primitive", new PrimitiveValue(Primitive.INT, 0x77))
+				.setEntryValue("1entity", new EntityIdValue(ref1))
+				.build();
+		serializeAndDeserialize(objectInfo, metaData,
+				"9477000000" + "814101" + "80");
+	}
+
+	@Test
+	public void serializeCollection() {
+		EntityId e1 = new EntityId(0x333);
+		EntityId e2 = new EntityId(0x334);
+		EntityId e3 = new EntityId(0x335);
+
+		EntityId collectionId = new EntityId(0x1aa);
+		MetaData collection = MetaData.newBuilder()
+				.setDomain(TEST_DOMAIN)
+				.setVersion(TEST_VERSION)
+				.setClassName(TEST_DOMAIN+".Collection")
+				.setMetaType(MetaType.COLLECTION)
+				.addEntry("cap", new Type(BootStrap.ID_PRIMITIVE_VARINT, false))
+				.build(new MockIdFactory(collectionId));
+		MetaData metaData = metaDataBase.toBuilder()
+				.addEntry("0Ints", new Type(BootStrap.ID_ARRAY, false, new Type(BootStrap.ID_PRIMITIVE_INT, false)))
+				.addEntry("1IntsOrNot", new Type(BootStrap.ID_ARRAY, false, new Type(BootStrap.ID_PRIMITIVE_INT, true)))
+				.addEntry("2Ids", new Type(collectionId, true, new Type(BootStrap.ID_ENTITY_ID, false)))
+				.addEntry("3anys", new Type(collectionId, true, new Type(BootStrap.ID_ANY, true)))
+				.addEntry("99missing", new Type(collectionId, true, new Type(BootStrap.ID_ANY, true)))
+				.build(idFactory);
+		ObjectInfo.Builder intsInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(BootStrap.ID_ARRAY)
+				.setEntryValue("componentType", GenericValue.stringValue("java.lang.Integer"))
+				.setEntryValue("dimension", GenericValue.varIntValue(1));
+		ObjectInfo collectionInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(collectionId)
+				.setEntryValue("cap", GenericValue.varIntValue(0x17))
+				.build();
+		ObjectInfo objectInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(TEST_METADATA_ID)
+				.setEntryValue(
+						"0Ints",
+						new CollectionValue(intsInfo.setEntryValue("length", GenericValue.varIntValue(4)).build(), ImmutableCollections.<GenericValue> asList(
+								GenericValue.intValue(1), GenericValue.intValue(2), GenericValue.intValue(3),
+								GenericValue.intValue(5))))
+				.setEntryValue("1IntsOrNot", new CollectionValue( intsInfo.setEntryValue("length", GenericValue.varIntValue(2)).build(), ImmutableCollections.<GenericValue> asList(
+						GenericValue.intValue(0x12345678), GenericValue.intValue(0x42))))
+				.setEntryValue("2Ids", new CollectionValue(collectionInfo, ImmutableCollections.<GenericValue>asList(
+						new GenericValue.EntityIdValue(e1), new GenericValue.EntityIdValue(e2), new GenericValue.EntityIdValue(e3))))
+				.setEntryValue("3anys", new CollectionValue(collectionInfo, ImmutableCollections.<GenericValue>asList(
+						GenericValue.intValue(0x1234), GenericValue.booleanValue(true), new GenericValue.EntityIdValue(e2))))
+				.build();
+		when(repository.getMetaData(collectionId)).thenReturn(collection);
+		ObjectInfoSerializer collectionSerializer = new ObjectInfoSerializer(repository, collection);
+		when(repository.getBinarySerializer(collectionId)).thenReturn(collectionSerializer);
+
+		serializeAndDeserialize(objectInfo, metaData,
+				"a0" + "916a6176612e6c616e672e496e7465676572" /* componentType */+
+				"81" /* dimension */+ "84" /* length */+ "8401000000020000000300000005000000" +
+				"a0" + "916a6176612e6c616e672e496e7465676572" /* componentType */+
+				"81" /* dimension */+ "82" /* length */+ "82"+ "8178563412" + "8142000000" +
+				"41aa" + "97" /* cap */ + "83" + "433343344335" +
+				"41aa" + "97" /* cap */ + "83" + "9434120000" + "9001" + "814334" +
+				"80"
+				);
 	}
 
 	private void serializeAndDeserialize(ObjectInfo objectInfo, MetaData metaData, String expectedBytes) {

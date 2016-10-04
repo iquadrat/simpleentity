@@ -9,6 +9,7 @@ public enum MetaType {
 	COLLECTION(true),
 	// TODO add Maps
 	// TODO consider adding AGGREGATION_ROOT
+	UNKNOWN(true),
 	;
 
 	private final boolean polymorphic;

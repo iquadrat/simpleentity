@@ -471,7 +471,7 @@ public class JavaSerializerTest {
 		@SuppressWarnings("unchecked")
 		CollectionSerializer<Object> arraySerializer = Mockito.mock(CollectionSerializer.class);
 
-		prepareEntityMetaData(Object.class);
+		prepareMetaData(Object.class, MetaType.UNKNOWN);
 		prepareMetaData(List.class, MetaType.COLLECTION);
 		MetaData arrayListMetaData = prepareMetaData(ImmutableArrayList.class, MetaType.COLLECTION);
 		MetaData valueMetaData = prepareValueObjectMetaData(Value.class);
