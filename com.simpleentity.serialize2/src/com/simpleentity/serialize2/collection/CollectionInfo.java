@@ -7,7 +7,7 @@ import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.entity.value.ValueObject;
 import com.simpleentity.serialize2.generic.ObjectInfo;
 
-public class CollectionInfo<C> extends ValueObject {
+public class CollectionInfo extends ValueObject {
 	private final ObjectInfo collectionInfo;
 	private final EntityId elementMetaDataId;
 	private final int elementCount;
@@ -61,7 +61,7 @@ public class CollectionInfo<C> extends ValueObject {
 			return true;
 		if (getClass() != obj.getClass())
 			return false;
-		CollectionInfo<?> other = (CollectionInfo<?>) obj;
+		CollectionInfo other = (CollectionInfo) obj;
 		if (collectionInfo == null) {
 			if (other.collectionInfo != null)
 				return false;

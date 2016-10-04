@@ -32,7 +32,7 @@ public class ArraySerializer implements CollectionSerializer<Object> {
 	}
 
 	@Override
-	public CollectionInfo<Object> serialize(Object array) {
+	public CollectionInfo serialize(Object array) {
 		Class<?> arrayType = array.getClass();
 		if (!arrayType.isArray()) {
 			throw new SerializerException("Requested to serialize non-array type: " + arrayType.getName());
@@ -58,12 +58,12 @@ public class ArraySerializer implements CollectionSerializer<Object> {
 					.build();
 		}
 
-		return new CollectionInfo<Object>(arrayInfo, elementMetaDataId, Array.getLength(array), new ArrayWrapper(array));
+		return new CollectionInfo(arrayInfo, elementMetaDataId, Array.getLength(array), new ArrayWrapper(array));
 	}
 
 
 	@Override
-	public Object deserialize(CollectionInfo<Object> collectionInfo) {
+	public Object deserialize(CollectionInfo collectionInfo) {
 		Object array = createArrayInstance(collectionInfo);
 		int i = 0;
 		for (Object object : collectionInfo.getElements()) {
@@ -73,7 +73,7 @@ public class ArraySerializer implements CollectionSerializer<Object> {
 		return array;
 	}
 
-	private Object createArrayInstance(CollectionInfo<Object> collectionInfo) {
+	private Object createArrayInstance(CollectionInfo collectionInfo) {
 		EntityId arrayMetaDataId = collectionInfo.getCollectionInfo().getMetaTypeId();
 		EntityId componentMetaDataId;
 		int dimensions;

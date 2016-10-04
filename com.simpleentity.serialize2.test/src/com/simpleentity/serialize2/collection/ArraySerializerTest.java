@@ -56,8 +56,8 @@ public class ArraySerializerTest {
 	@Test
 	public void serialize0LengthArray() {
 		int[] array = new int[0];
-		CollectionInfo<Object> actual = serializer.serialize(array);
-		CollectionInfo<Object> expected = new CollectionInfo<>(
+		CollectionInfo actual = serializer.serialize(array);
+		CollectionInfo expected = new CollectionInfo(
 				ObjectInfo.newBuilder()
 					.setMetaDataId(BootStrap.ID_PRIMITIVE_ARRAY)
 					.build(),
@@ -71,8 +71,8 @@ public class ArraySerializerTest {
 	@Test
 	public void serializePrimitiveArray() {
 		byte[] array = new byte[] {1,2,3};
-		CollectionInfo<Object> actual = serializer.serialize(array);
-		CollectionInfo<Object> expected = new CollectionInfo<>(
+		CollectionInfo actual = serializer.serialize(array);
+		CollectionInfo expected = new CollectionInfo(
 				ObjectInfo.newBuilder()
 					.setMetaDataId(BootStrap.ID_PRIMITIVE_ARRAY)
 					.build(),
@@ -86,8 +86,8 @@ public class ArraySerializerTest {
 	@Test
 	public void serializeBoxedPrimitiveArray() {
 		Integer[] array = new Integer[] {1,2,3};
-		CollectionInfo<Object> actual = serializer.serialize(array);
-		CollectionInfo<Object> expected = new CollectionInfo<>(
+		CollectionInfo actual = serializer.serialize(array);
+		CollectionInfo expected = new CollectionInfo(
 				ObjectInfo.newBuilder()
 					.setMetaDataId(BootStrap.ID_OBJECT_ARRAY)
 					.build(),
@@ -106,8 +106,8 @@ public class ArraySerializerTest {
 
 		Value[] values = new Value[] {new Value(), new Value()};
 
-		CollectionInfo<Object> actual = serializer.serialize(values);
-		CollectionInfo<Object> expected = new CollectionInfo<>(
+		CollectionInfo actual = serializer.serialize(values);
+		CollectionInfo expected = new CollectionInfo(
 				ObjectInfo.newBuilder()
 					.setMetaDataId(BootStrap.ID_OBJECT_ARRAY)
 					.build(),
@@ -124,8 +124,8 @@ public class ArraySerializerTest {
 
 		Object[] values = new Object[] {new Value(), new Value()};
 
-		CollectionInfo<Object> actual = serializer.serialize(values);
-		CollectionInfo<Object> expected = new CollectionInfo<>(
+		CollectionInfo actual = serializer.serialize(values);
+		CollectionInfo expected = new CollectionInfo(
 				ObjectInfo.newBuilder()
 					.setMetaDataId(BootStrap.ID_OBJECT_ARRAY)
 					.build(),
@@ -139,8 +139,8 @@ public class ArraySerializerTest {
 	public void serialize2dPrimitiveArray() {
 		MetaData intArray = prepareMetaData(int[].class, MetaType.COLLECTION);
 		int[][] array = new int[][] {{},{1},{1,2}};
-		CollectionInfo<Object> actual = serializer.serialize(array);
-		CollectionInfo<Object> expected = new CollectionInfo<>(
+		CollectionInfo actual = serializer.serialize(array);
+		CollectionInfo expected = new CollectionInfo(
 				ObjectInfo.newBuilder()
 					.setMetaDataId(BootStrap.ID_MULTI_DIMENSIONAL_ARRAY)
 					.setEntryValue("dimensions", GenericValue.varIntValue(2))

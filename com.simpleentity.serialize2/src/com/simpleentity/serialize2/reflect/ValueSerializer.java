@@ -54,7 +54,7 @@ class ValueSerializer {
 	private <C> CollectionValue serializeCollection(MetaData metaData, CollectionSerializer<C> serializer, Object value) {
 		@SuppressWarnings("unchecked")
 		C collection = (C)value;
-		CollectionInfo<C> collectionInfo = serializer.serialize(collection);
+		CollectionInfo collectionInfo = serializer.serialize(collection);
 		if (collectionInfo == null) {
 			throw new SerializerException("CollectionSerializer " + serializer + " returned null when serializing "
 					+ value);
@@ -98,7 +98,7 @@ class ValueSerializer {
 				for (GenericValue element : collectionValue.getValues()) {
 					elements.add(ValueSerializer.this.deserialize(element));
 				}
-				CollectionInfo<C> collectionInfo = new CollectionInfo<C>(collectionValue.getCollectionInfo(),
+				CollectionInfo collectionInfo = new CollectionInfo(collectionValue.getCollectionInfo(),
 						collectionValue.getValueMetaDataId(), collectionValue.getCount(), elements.build());
 				result.set(collectionSerializer.deserialize(collectionInfo));
 			}
