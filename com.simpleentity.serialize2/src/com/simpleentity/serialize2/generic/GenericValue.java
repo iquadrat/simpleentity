@@ -8,7 +8,7 @@ import com.simpleentity.serialize2.meta.BootStrap;
 import com.simpleentity.serialize2.meta.Primitive;
 
 @ValueObject
-public abstract class GenericValue {
+public abstract class GenericValue extends com.simpleentity.entity.value.ValueObject {
 
 	public interface ValueVisitor {
 		void visit(PrimitiveValue primitive);
@@ -195,10 +195,12 @@ public abstract class GenericValue {
 
 	public static class CollectionValue extends GenericValue {
 		private final ObjectInfo collectionInfo;
+		private final EntityId elementMetaDataId;
 		private final ImmutableList<GenericValue> values;
 
-		public CollectionValue(ObjectInfo collectionInfo, ImmutableList<GenericValue> values) {
+		public CollectionValue(ObjectInfo collectionInfo, EntityId elementMetaDataId, ImmutableList<GenericValue> values) {
 			this.collectionInfo = collectionInfo;
+			this.elementMetaDataId = elementMetaDataId;
 			this.values = values;
 		}
 
@@ -211,37 +213,21 @@ public abstract class GenericValue {
 			return collectionInfo;
 		}
 
+		public EntityId getValueMetaDataId() {
+			return elementMetaDataId;
+		}
+
 		public ImmutableList<GenericValue> getValues() {
 			return values;
 		}
 
-		public long count() {
+		public int getCount() {
 			return values.size();
 		}
 
 		@Override
 		public void accept(ValueVisitor visitor) {
 			visitor.visit(this);
-		}
-
-		@Override
-		public int hashCode() {
-			return collectionInfo.hashCode() + 31 * values.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj == null || (getClass() != obj.getClass())) {
-				return false;
-			}
-			CollectionValue other = (CollectionValue) obj;
-			return collectionInfo.equals(other.collectionInfo) && values.equals(other.values);
-		}
-
-		@Override
-		public String toString() {
-			return "CollectionValue [collectionInfo=" + collectionInfo
-					+ ", values=" + values + "]";
 		}
 	}
 

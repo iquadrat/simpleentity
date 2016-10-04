@@ -213,10 +213,8 @@ public class ObjectInfoSerializerTest {
 				.addEntry("3anys", new Type(collectionId, true, new Type(BootStrap.ID_ANY, true)))
 				.addEntry("99missing", new Type(collectionId, true, new Type(BootStrap.ID_ANY, true)))
 				.build(idFactory);
-		ObjectInfo.Builder intsInfo = ObjectInfo.newBuilder()
-				.setMetaDataId(BootStrap.ID_ARRAY)
-				.setEntryValue("componentType", GenericValue.stringValue("java.lang.Integer"))
-				.setEntryValue("dimension", GenericValue.varIntValue(1));
+		ObjectInfo arrayInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(BootStrap.ID_ARRAY).build();
 		ObjectInfo collectionInfo = ObjectInfo.newBuilder()
 				.setMetaDataId(collectionId)
 				.setEntryValue("cap", GenericValue.varIntValue(0x17))
@@ -225,14 +223,14 @@ public class ObjectInfoSerializerTest {
 				.setMetaDataId(TEST_METADATA_ID)
 				.setEntryValue(
 						"0Ints",
-						new CollectionValue(intsInfo.setEntryValue("length", GenericValue.varIntValue(4)).build(), ImmutableCollections.<GenericValue> asList(
-								GenericValue.intValue(1), GenericValue.intValue(2), GenericValue.intValue(3),
-								GenericValue.intValue(5))))
-				.setEntryValue("1IntsOrNot", new CollectionValue( intsInfo.setEntryValue("length", GenericValue.varIntValue(2)).build(), ImmutableCollections.<GenericValue> asList(
-						GenericValue.intValue(0x12345678), GenericValue.intValue(0x42))))
-				.setEntryValue("2Ids", new CollectionValue(collectionInfo, ImmutableCollections.<GenericValue>asList(
+						new CollectionValue(arrayInfo, BootStrap.ID_PRIMITIVE_INT, ImmutableCollections.<GenericValue> asList(
+								GenericValue.intValue(1), GenericValue.intValue(2), GenericValue.intValue(3), GenericValue.intValue(5))))
+				.setEntryValue("1IntsOrNot", new CollectionValue(arrayInfo, BootStrap.ID_PRIMITIVE_INT,
+						ImmutableCollections.<GenericValue> asList(
+								GenericValue.intValue(0x12345678), GenericValue.intValue(0x42))))
+				.setEntryValue("2Ids", new CollectionValue(collectionInfo, BootStrap.ID_ENTITY_ID, ImmutableCollections.<GenericValue>asList(
 						new GenericValue.EntityIdValue(e1), new GenericValue.EntityIdValue(e2), new GenericValue.EntityIdValue(e3))))
-				.setEntryValue("3anys", new CollectionValue(collectionInfo, ImmutableCollections.<GenericValue>asList(
+				.setEntryValue("3anys", new CollectionValue(collectionInfo, BootStrap.ID_ANY, ImmutableCollections.<GenericValue>asList(
 						GenericValue.intValue(0x1234), GenericValue.booleanValue(true), new GenericValue.EntityIdValue(e2))))
 				.build();
 		when(repository.getMetaData(collectionId)).thenReturn(collection);
@@ -240,12 +238,10 @@ public class ObjectInfoSerializerTest {
 		when(repository.getBinarySerializer(collectionId)).thenReturn(collectionSerializer);
 
 		serializeAndDeserialize(objectInfo, metaData,
-				"a0" + "916a6176612e6c616e672e496e7465676572" /* componentType */+
-				"81" /* dimension */+ "84" /* length */+ "8401000000020000000300000005000000" +
-				"a0" + "916a6176612e6c616e672e496e7465676572" /* componentType */+
-				"81" /* dimension */+ "82" /* length */+ "82"+ "8178563412" + "8142000000" +
-				"41aa" + "97" /* cap */ + "83" + "433343344335" +
-				"41aa" + "97" /* cap */ + "83" + "9434120000" + "9001" + "814334" +
+				"a094" /* int array */+ "84" + "01000000020000000300000005000000" +
+				"a094" /* int array */+ "82" + "8178563412" + "8142000000" +
+				"41aa" /* collection MetaData id */+ "81"/* ID_ENTITIY_ID */ + "83" + "97" /* cap */ +  "433343344335" +
+				"41aa" /* collection MetaData id */+ "83" /* ID_ANY */ + "83" + "97" /* cap */ + "9434120000" + "9001" + "814334" +
 				"80"
 				);
 	}

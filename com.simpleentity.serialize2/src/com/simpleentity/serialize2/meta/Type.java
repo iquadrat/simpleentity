@@ -32,6 +32,7 @@ public class Type extends ValueObject {
 		return metaDataId;
 	}
 
+	// TODO remove?
 	public Type getElementType() {
 		return elementType;
 	}

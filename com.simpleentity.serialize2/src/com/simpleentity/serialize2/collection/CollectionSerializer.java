@@ -1,20 +1,11 @@
 package com.simpleentity.serialize2.collection;
 
-import java.lang.reflect.Field;
 
-import org.povworld.collection.Collection;
+// TODO replace C by object?
+public interface CollectionSerializer<C> {
 
-import com.simpleentity.serialize2.Serializer;
-import com.simpleentity.serialize2.SerializerRepository;
-import com.simpleentity.serialize2.meta.Type;
+	public CollectionInfo<C> serialize(C collection);
 
-// TODO change: do not inherit, replace fill by C deserialize(Collection elements)
-public interface CollectionSerializer<C> extends Serializer<C> {
-
-	public void fill(C collection, Iterable<?> elements);
-
-	public Collection<?> asCollection(C collection);
-
-	public Type getElementType(Field field, SerializerRepository serializerRepository);
+	public C deserialize(CollectionInfo<C> collectionInfo);
 
 }

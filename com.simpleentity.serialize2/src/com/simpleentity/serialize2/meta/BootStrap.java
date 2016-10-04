@@ -47,13 +47,10 @@ public class BootStrap {
 				.setVersion(SIMPLE_ENTITY_VERSION)
 				.build(ID_ENTITY_ID);
 		ARRAY = MetaData.newBuilder()
-				.setClassName("java.lang.array")
+				.setClassName("java.lang.Array")
 				.setDomain(JAVA_DOMAIN)
 				.setMetaType(MetaType.COLLECTION)
 				.setVersion(SIMPLE_ENTITY_VERSION)
-				.addEntry("componentType", new Type(ID_PRIMITIVE_STRING, false))
-				.addEntry("dimension", new Type(ID_PRIMITIVE_VARINT, false))
-				.addEntry("length", new Type(ID_PRIMITIVE_VARINT, false))
 				.build(ID_ARRAY);
 		ANY = MetaData.newBuilder()
 				.setClassName("java.lang.Object")

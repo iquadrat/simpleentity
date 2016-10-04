@@ -97,17 +97,14 @@ class EntrySerializer {
 
 			@Override
 			public void visit(CollectionValue collection) {
-				// Write collection type id.
-				// EntityId typeId =
-				// collection.getCollectionInfo().getMetaTypeId();
-				// serializerRepository.getEntityIdSerializer().serialize(typeId,
-				// destination);
+				// Write element MetaDataId.
+				serializerRepository.getEntityIdSerializer().serialize(collection.getValueMetaDataId(), destination);
+				// Write element count.
+				destination.putVarInt(collection.getCount());
 				// Write custom collection implementation data.
 				BinarySerializer<ObjectInfo> serializer = serializerRepository.getBinarySerializer(collection
 						.getActualMetaDataId());
 				serializer.serialize(collection.getCollectionInfo(), destination);
-				// Write element count.
-				destination.putVarInt(collection.count());
 				// Write all elements.
 				for (GenericValue element : collection.getValues()) {
 					Type elementType = (declaredType == null) ? null : declaredType.getElementType();
@@ -175,12 +172,14 @@ class EntrySerializer {
 			return new ValueObjectValue(serializer.deserialize(source));
 		}
 		case COLLECTION: {
+			// Read element MetaDataId.
+			EntityId elementMetaDataId = serializerRepository.getEntityIdSerializer().deserialize(source);
+			// Read element count.
+			int count = MathUtil.longToInt(source.getVarInt());
 			// Read custom collection implementation data.
 			BinarySerializer<ObjectInfo> serializer = serializerRepository.getBinarySerializer(actualMetaData
 					.getEntityId());
 			ObjectInfo collectionInfo = serializer.deserialize(source);
-			// Read element count.
-			int count = MathUtil.longToInt(source.getVarInt());
 			// Read all elements.
 			ImmutableArrayList.Builder<GenericValue> builder = ImmutableArrayList.newBuilder(count);
 			for (int i = 0; i < count; ++i) {
@@ -189,7 +188,7 @@ class EntrySerializer {
 						.getMetaDataId());
 				builder.add(deserializeValue(source, elementType, metaData));
 			}
-			return new CollectionValue(collectionInfo, builder.build());
+			return new CollectionValue(collectionInfo, elementMetaDataId, builder.build());
 		}
 		default:
 			throw new IllegalStateException("Unknown MetaType " + actualMetaData.getMetaType());

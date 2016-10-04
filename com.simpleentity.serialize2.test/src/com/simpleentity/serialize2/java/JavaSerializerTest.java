@@ -3,9 +3,10 @@ package com.simpleentity.serialize2.java;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 
 import javax.annotation.CheckForNull;
 
@@ -26,12 +27,12 @@ import com.simpleentity.entity.EntityBuilder;
 import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.entity.value.ValueObject;
 import com.simpleentity.serialize2.Instantiator;
-import com.simpleentity.serialize2.IterableMatcher;
 import com.simpleentity.serialize2.MockIdFactory;
 import com.simpleentity.serialize2.ObjenesisInstantiator;
 import com.simpleentity.serialize2.SerializationContext;
 import com.simpleentity.serialize2.Serializer;
 import com.simpleentity.serialize2.SerializerRepository;
+import com.simpleentity.serialize2.collection.CollectionInfo;
 import com.simpleentity.serialize2.collection.CollectionSerializer;
 import com.simpleentity.serialize2.generic.GenericValue;
 import com.simpleentity.serialize2.generic.GenericValue.CollectionValue;
@@ -478,7 +479,7 @@ public class JavaSerializerTest {
 		MetaData entityMetaData = prepareEntityMetaData(EntityWithMultiFields.class);
 
 		EntityId entity1Id = new EntityId(1011);
-		List<Object> objectList = ImmutableCollections.asList(entity1Id, true, new Value(1, null));
+		List<Object> list = ImmutableCollections.asList(entity1Id, true, new Value(1, null));
 		ObjectInfo listInfo = ObjectInfo.newBuilder()
 				.setMetaDataId(arrayListMetaData.getEntityId())
 				.setEntryValue("custom", GenericValue.stringValue("more list data"))
@@ -504,36 +505,34 @@ public class JavaSerializerTest {
 				.setEntryValue("custom", GenericValue.stringValue("objects"))
 				.build();
 
-		Mockito.doReturn(listSerializer).when(serializerRepository).getCollectionSerializer(arrayListMetaData.getEntityId());
-		Mockito.doReturn(ImmutableArrayList.class).when(listSerializer).getType();
-		Mockito.when(listSerializer.serialize(objectList)).thenReturn(listInfo);
-		Mockito.doReturn(objectList).when(listSerializer).asCollection(objectList);
+		doReturn(listSerializer).when(serializerRepository).getCollectionSerializer(arrayListMetaData.getEntityId());
+		when(listSerializer.serialize(list)).thenReturn(
+				new CollectionInfo<>(listInfo, BootStrap.ID_ANY, list));
 
 		int[] ints = new int[]{1,2};
-		Mockito.doReturn(arraySerializer).when(serializerRepository).getCollectionSerializer(BootStrap.ID_ARRAY);
-		Mockito.when(serializerRepository.getMetaData(int[].class)).thenReturn(BootStrap.ARRAY);
-		Mockito.doReturn(Object.class).when(arraySerializer).getType();
-		Mockito.when(arraySerializer.serialize(ints)).thenReturn(intsInfo);
-		Mockito.doReturn(ImmutableCollections.asList(1,2)).when(arraySerializer).asCollection(ints);
+		doReturn(arraySerializer).when(serializerRepository).getCollectionSerializer(BootStrap.ID_ARRAY);
+		when(serializerRepository.getMetaData(int[].class)).thenReturn(BootStrap.ARRAY);
+		when(arraySerializer.serialize(ints)).thenReturn(
+				new CollectionInfo<>(intsInfo, BootStrap.ID_PRIMITIVE_INT, ImmutableCollections.asList(1,2)));
 
 		int[][] ints2d = new int[][]{{},{1}};
-		Mockito.when(serializerRepository.getMetaData(int[][].class)).thenReturn(BootStrap.ARRAY);
-		Mockito.when(arraySerializer.serialize(ints2d)).thenReturn(ints2dInfo);
-		Mockito.when(arraySerializer.serialize(ints2d[0])).thenReturn(ints2d0Info);
-		Mockito.when(arraySerializer.serialize(ints2d[1])).thenReturn(ints2d1Info);
-		Mockito.doReturn(ImmutableCollections.asList(ints2d[0], ints2d[1])).when(arraySerializer).asCollection(ints2d);
-		Mockito.doReturn(ImmutableCollections.asList()).when(arraySerializer).asCollection(ints2d[0]);
-		Mockito.doReturn(ImmutableCollections.asList(1)).when(arraySerializer).asCollection(ints2d[1]);
+		when(serializerRepository.getMetaData(int[][].class)).thenReturn(BootStrap.ARRAY);
+		when(arraySerializer.serialize(ints2d)).thenReturn(
+				new CollectionInfo<>(ints2dInfo, BootStrap.ID_ARRAY, ImmutableCollections.asList(ints2d[0], ints2d[1])));
+		when(arraySerializer.serialize(ints2d[0])).thenReturn(
+				new CollectionInfo<>(ints2d0Info, BootStrap.ID_PRIMITIVE_INT, ImmutableCollections.asList()));
+		when(arraySerializer.serialize(ints2d[1])).thenReturn(
+				new CollectionInfo<>(ints2d1Info, BootStrap.ID_PRIMITIVE_INT, ImmutableCollections.asList(1)));
 
 		Object[] objects = new Object[] { 4, 0, 4 };
 		Mockito.when(serializerRepository.getMetaData(Object[].class)).thenReturn(BootStrap.ARRAY);
-		Mockito.when(arraySerializer.serialize(objects)).thenReturn(objectsInfo);
-		Mockito.doReturn(ImmutableCollections.asList(4, 0, 4)).when(arraySerializer).asCollection(objects);
+		Mockito.when(arraySerializer.serialize(objects)).thenReturn(
+				new CollectionInfo<>(objectsInfo, BootStrap.ID_ANY, ImmutableCollections.asList(4, 0, 4)));
 
 		ObjectInfo objectInfo = ObjectInfo.newBuilder()
 				.setMetaDataId(entityMetaData.getEntityId())
 				.setEntryValue(Entity.ID_FIELD_NAME, new EntityIdValue(TEST_ENTITY_ID))
-				.setEntryValue("objects", new CollectionValue(listInfo,
+				.setEntryValue("objects", new CollectionValue(listInfo, BootStrap.ID_ANY,
 						ImmutableCollections.<GenericValue>asList(
 								new EntityIdValue(entity1Id),
 								new PrimitiveValue(Primitive.BOOLEAN, true),
@@ -542,16 +541,16 @@ public class JavaSerializerTest {
 											.setMetaDataId(valueMetaData.getEntityId())
 											.setEntryValue("number", new PrimitiveValue(Primitive.INT, 1))
 											.build()))))
-				.setEntryValue("ints", new CollectionValue(intsInfo,
+				.setEntryValue("ints", new CollectionValue(intsInfo, BootStrap.ID_PRIMITIVE_INT,
 						ImmutableCollections.<GenericValue>asList(
 								new PrimitiveValue(Primitive.INT, 1),
 								new PrimitiveValue(Primitive.INT, 2))))
-				.setEntryValue("ints2d", new CollectionValue(ints2dInfo,
+				.setEntryValue("ints2d", new CollectionValue(ints2dInfo, BootStrap.ID_ARRAY, // TODO this should be different
 						ImmutableCollections.<GenericValue>asList(
-								new CollectionValue(ints2d0Info, ImmutableCollections.<GenericValue>asList()),
-								new CollectionValue(ints2d1Info, ImmutableCollections.<GenericValue>asList(
+								new CollectionValue(ints2d0Info, BootStrap.ID_PRIMITIVE_INT, ImmutableCollections.<GenericValue>asList()),
+								new CollectionValue(ints2d1Info, BootStrap.ID_PRIMITIVE_INT, ImmutableCollections.<GenericValue>asList(
 								new PrimitiveValue(Primitive.INT, 1))))))
-				.setEntryValue("anything", new CollectionValue(objectsInfo,
+				.setEntryValue("anything", new CollectionValue(objectsInfo, BootStrap.ID_ANY,
 						ImmutableCollections.<GenericValue>asList(
 								new PrimitiveValue(Primitive.INT, 4),
 								new PrimitiveValue(Primitive.INT, 0),
@@ -559,28 +558,22 @@ public class JavaSerializerTest {
 				.build();
 
 		ObjectInfo actual = serialize(EntityWithMultiFields.class, new EntityWithMultiFields(TEST_ENTITY_ID,
-				objectList, ints, ints2d, objects));
+				list, ints, ints2d, objects));
 		assertEquals(objectInfo, actual);
 
-		Mockito.when(listSerializer.deserialize(listInfo)).thenReturn(objectList);
-		Mockito.when(arraySerializer.deserialize(intsInfo)).thenReturn(ints);
-		Mockito.when(arraySerializer.deserialize(ints2dInfo)).thenReturn(ints2d);
-		Mockito.when(arraySerializer.deserialize(ints2d0Info)).thenReturn(ints2d[0]);
-		Mockito.when(arraySerializer.deserialize(ints2d1Info)).thenReturn(ints2d[1]);
-		Mockito.when(arraySerializer.deserialize(objectsInfo)).thenReturn(objects);
+		Mockito.when(listSerializer.deserialize(new CollectionInfo<>(listInfo, BootStrap.ID_ANY, list))).thenReturn(list);
+		Mockito.when(arraySerializer.deserialize(new CollectionInfo<>(intsInfo, BootStrap.ID_PRIMITIVE_INT, ImmutableCollections.asList(1,2)))).thenReturn(ints);
+		Mockito.when(arraySerializer.deserialize(new CollectionInfo<>(ints2dInfo, BootStrap.ID_ARRAY, ImmutableCollections.asList(ints2d[0], ints2d[1])))).thenReturn(ints2d);
+		Mockito.when(arraySerializer.deserialize(new CollectionInfo<>(ints2d0Info, BootStrap.ID_PRIMITIVE_INT, ImmutableCollections.asList()))).thenReturn(ints2d[0]);
+		Mockito.when(arraySerializer.deserialize(new CollectionInfo<>(ints2d1Info, BootStrap.ID_PRIMITIVE_INT, ImmutableCollections.asList(1)))).thenReturn(ints2d[1]);
+		Mockito.when(arraySerializer.deserialize(new CollectionInfo<>(objectsInfo, BootStrap.ID_ANY, ImmutableCollections.asList(4, 0, 4)))).thenReturn(objects);
 
 		EntityWithMultiFields entity = deserialize(EntityWithMultiFields.class, objectInfo);
 		assertEquals(TEST_ENTITY_ID, entity.getEntityId());
-		assertEquals(objectList, entity.objects);
+		assertEquals(list, entity.objects);
 		assertArrayEquals(ints, entity.ints);
 		assertArrayEquals(ints2d, entity.ints2d);
 		assertEquals(objects, entity.anything);
-
-		Mockito.verify(listSerializer).fill(Mockito.eq(objectList), IterableMatcher.iteratesEq(objectList));
-		Mockito.verify(arraySerializer).fill(Mockito.eq(ints), IterableMatcher.iteratesEq(Arrays.asList(1, 2)));
-		Mockito.verify(arraySerializer).fill(Mockito.eq(ints2d),
-				IterableMatcher.iteratesEq(Arrays.asList(ints2d[0], ints2d[1])));
-		Mockito.verify(arraySerializer).fill(Mockito.eq(objects), IterableMatcher.iteratesEq(Arrays.asList(4, 0, 4)));
 	}
 
 	private <T> ObjectInfo serialize(Class<T> class_, T object) {

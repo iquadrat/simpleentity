@@ -1,24 +1,15 @@
 package com.simpleentity.serialize2.collection;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.povworld.collection.Collection;
-import org.povworld.collection.common.MathUtil;
-
-import com.simpleentity.annotation.CheckForNull;
+import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.serialize2.SerializationContext;
 import com.simpleentity.serialize2.SerializerException;
-import com.simpleentity.serialize2.SerializerRepository;
-import com.simpleentity.serialize2.generic.GenericValue;
-import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
 import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.meta.BootStrap;
-import com.simpleentity.serialize2.meta.Primitive;
-import com.simpleentity.serialize2.meta.Type;
-import com.simpleentity.util.TypeUtil;
+import com.simpleentity.serialize2.meta.MetaData;
 
 public class ArraySerializer implements CollectionSerializer<Object> {
 
@@ -29,73 +20,33 @@ public class ArraySerializer implements CollectionSerializer<Object> {
 	}
 
 	@Override
-	public ObjectInfo serialize(Object object) {
-		Class<?> arrayType = object.getClass();
+	public CollectionInfo<Object> serialize(Object array) {
+		Class<?> arrayType = array.getClass();
 		if (!arrayType.isArray()) {
 			throw new SerializerException("Requested to serialize non-array type: " + arrayType.getName());
 		}
-		int dimension = TypeUtil.getArrayDimension(arrayType);
-		Class<?> elementType = TypeUtil.getArrayElementType(arrayType);
+		EntityId elementMetaDataId = context.getSerializerRepository().getMetaDataId(arrayType.getComponentType());
 
-		return ObjectInfo.newBuilder().setMetaDataId(BootStrap.ID_ARRAY)
-				.setEntryValue("dimension", GenericValue.varIntValue(dimension))
-				.setEntryValue("componentType", GenericValue.stringValue(elementType.getName()))
-				.setEntryValue("length", GenericValue.varIntValue(Array.getLength(object))).build();
+		// TODO make constant
+		ObjectInfo arrayInfo = ObjectInfo.newBuilder().setMetaDataId(BootStrap.ID_ARRAY).build();
+		return new CollectionInfo<Object>(arrayInfo, elementMetaDataId, Array.getLength(array), new ArrayWrapper(array));
 	}
 
 	@Override
-	public Object deserialize(ObjectInfo objectInfo) {
-		PrimitiveValue value = objectInfo.getPrimitiveValue("componentType");
-		checkPrimitiveValue("componentType", value, Primitive.STRING);
-		Class<?> componentType;
-		try {
-			componentType = context.getClassLoader().loadClass((String) value.getValue());
-		} catch (ClassNotFoundException e) {
-			throw new SerializerException(e);
-		}
+	public Object deserialize(CollectionInfo<Object> collectionInfo) {
+		MetaData elementMetaData = context.getSerializerRepository().getMetaData(collectionInfo.getElementMetaDataId());
+		Class<?> componentType = elementMetaData.getClass();
 
-		PrimitiveValue dimension = objectInfo.getPrimitiveValue("dimension");
-		checkPrimitiveValue("dimension", value, Primitive.VARINT);
-
-		PrimitiveValue length = objectInfo.getPrimitiveValue("length");
-		checkPrimitiveValue("length", value, Primitive.VARINT);
-		int[] lengths = new int[MathUtil.longToInt((long) dimension.getValue())];
-		lengths[0] = MathUtil.longToInt((long) length.getValue());
-		return Array.newInstance(componentType, lengths);
-	}
-
-	private void checkPrimitiveValue(String entry, @CheckForNull PrimitiveValue value, Primitive type) {
-		if (value == null) {
-			throw new SerializerException("Missing required entry '" + entry + "'!");
-		}
-		if (value.getType() != type) {
-			throw new SerializerException("PrimitiveValue for '" + entry + "' has wrong type: Expected " + type
-					+ " but was " + value.getType());
-		}
-	}
-
-	@Override
-	public Class<Object> getType() {
-		return Object.class;
-	}
-
-	@Override
-	public void fill(Object array, Iterable<?> elements) {
-		checkIsArrayInstance(array);
+		Object array = Array.newInstance(componentType, collectionInfo.getElementCount());
 		int i = 0;
-		for (Object element : elements) {
-			Array.set(array, i++, element);
+		for (Object object : collectionInfo.getElements()) {
+			Array.set(array, i, object);
+			i++;
 		}
+		return array;
 	}
 
-	@Override
-	public Collection<?> asCollection(Object array) {
-		checkIsArrayInstance(array);
-		return new ArrayWrapper(array);
-	}
-
-	private static class ArrayWrapper implements Collection<Object> {
-
+	private static class ArrayWrapper implements Iterable<Object> {
 		private final Object array;
 
 		ArrayWrapper(Object array) {
@@ -106,30 +57,6 @@ public class ArraySerializer implements CollectionSerializer<Object> {
 		public Iterator<Object> iterator() {
 			return new ArrayIterator(array);
 		}
-
-		@Override
-		public int size() {
-			return Array.getLength(array);
-		}
-
-		@Override
-		@CheckForNull
-		public Object getFirstOrNull() {
-			return isEmpty() ? null : Array.get(array, 0);
-		}
-
-		@Override
-		public boolean isEmpty() {
-			return size() == 0;
-		}
-
-		@Override
-		public Object getFirst() throws NoSuchElementException {
-			if (isEmpty())
-				throw new NoSuchElementException();
-			return Array.get(array, 0);
-		}
-
 	}
 
 	private static class ArrayIterator implements Iterator<Object> {
@@ -163,17 +90,4 @@ public class ArraySerializer implements CollectionSerializer<Object> {
 		}
 
 	}
-
-	@Override
-	public Type getElementType(Field field, SerializerRepository serializerRepository) {
-		// TODO check that it is an array
-		return new Type(serializerRepository.getMetaDataId(field.getType().getComponentType()), false);
-	}
-
-	private void checkIsArrayInstance(Object object) {
-		if (!object.getClass().isArray()) {
-			throw new SerializerException("Requested to serialize non-array object: " + object);
-		}
-	}
-
 }
