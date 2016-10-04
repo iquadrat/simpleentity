@@ -17,9 +17,4 @@ public class EntityIdSerializer implements BinarySerializer<EntityId> {
 		return new EntityId(source.getVarInt());
 	}
 
-	@Override
-	public Class<EntityId> getType() {
-		return EntityId.class;
-	}
-
 }

@@ -18,11 +18,6 @@ public class ObjectInfoSerializer implements BinarySerializer<ObjectInfo> {
 	private final MetaData metaData;
 	private final ImmutableList<EntrySerializer> entrySerializers;
 
-	@Override
-	public Class<ObjectInfo> getType() {
-		return ObjectInfo.class;
-	}
-
 	public ObjectInfoSerializer(SerializerRepository serializerRepository, MetaData metaData) {
 		this.metaData = metaData;
 		this.entrySerializers = createFieldSerializers(serializerRepository, metaData);

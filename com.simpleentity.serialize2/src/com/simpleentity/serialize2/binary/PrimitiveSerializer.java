@@ -8,18 +8,7 @@ import com.simpleentity.util.bytes.ByteWriter;
 
 public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 
-	private final Class<T> type;
-
-	private PrimitiveSerializer(Class<T> type) {
-		this.type = type;
-	}
-
-	@Override
-	public Class<T> getType() {
-		return type;
-	}
-
-	static final BinarySerializer<Boolean> BOOLEAN = new PrimitiveSerializer<Boolean>(Boolean.class) {
+	static final BinarySerializer<Boolean> BOOLEAN = new PrimitiveSerializer<Boolean>() {
 		@Override
 		public void serialize(Boolean value, ByteWriter destination) {
 			destination.putBoolean(value);
@@ -31,7 +20,7 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 		}
 	};
 
-	static final BinarySerializer<Byte> BYTE = new PrimitiveSerializer<Byte>(Byte.class) {
+	static final BinarySerializer<Byte> BYTE = new PrimitiveSerializer<Byte>() {
 		@Override
 		public void serialize(Byte value, ByteWriter destination) {
 			destination.putByte(value);
@@ -42,7 +31,7 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 			return source.getByte();
 		}
 	};
-	static final BinarySerializer<Character> CHAR = new PrimitiveSerializer<Character>(Character.class) {
+	static final BinarySerializer<Character> CHAR = new PrimitiveSerializer<Character>() {
 		@Override
 		public void serialize(Character value, ByteWriter destination) {
 			destination.putChar(value);
@@ -53,7 +42,7 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 			return source.getChar();
 		}
 	};
-	static final BinarySerializer<Double> DOUBLE = new PrimitiveSerializer<Double>(Double.class) {
+	static final BinarySerializer<Double> DOUBLE = new PrimitiveSerializer<Double>() {
 		@Override
 		public void serialize(Double value, ByteWriter destination) {
 			destination.putDouble(value);
@@ -64,7 +53,7 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 			return source.getDouble();
 		}
 	};
-	static final BinarySerializer<Float> FLOAT = new PrimitiveSerializer<Float>(Float.class) {
+	static final BinarySerializer<Float> FLOAT = new PrimitiveSerializer<Float>() {
 
 		@Override
 		public void serialize(Float value, ByteWriter destination) {
@@ -77,7 +66,7 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 		}
 
 	};
-	static final BinarySerializer<Integer> INT = new PrimitiveSerializer<Integer>(Integer.class) {
+	static final BinarySerializer<Integer> INT = new PrimitiveSerializer<Integer>() {
 
 		@Override
 		public void serialize(Integer value, ByteWriter destination) {
@@ -89,7 +78,7 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 			return source.getInt();
 		}
 	};
-	static final BinarySerializer<Long> LONG = new PrimitiveSerializer<Long>(Long.class) {
+	static final BinarySerializer<Long> LONG = new PrimitiveSerializer<Long>() {
 
 		@Override
 		public void serialize(Long value, ByteWriter destination) {
@@ -101,7 +90,7 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 			return source.getLong();
 		}
 	};
-	static final BinarySerializer<Long> VARINT = new PrimitiveSerializer<Long>(Long.class) {
+	static final BinarySerializer<Long> VARINT = new PrimitiveSerializer<Long>() {
 		@Override
 		public void serialize(Long value, ByteWriter destination) {
 			long v = value;
@@ -117,7 +106,7 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 		}
 
 	};
-	static final BinarySerializer<Short> SHORT = new PrimitiveSerializer<Short>(Short.class) {
+	static final BinarySerializer<Short> SHORT = new PrimitiveSerializer<Short>() {
 
 		@Override
 		public void serialize(Short value, ByteWriter destination) {
@@ -129,7 +118,7 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 			return source.getShort();
 		}
 	};
-	static final BinarySerializer<String> STRING = new PrimitiveSerializer<String>(String.class) {
+	static final BinarySerializer<String> STRING = new PrimitiveSerializer<String>() {
 
 		@Override
 		public void serialize(String value, ByteWriter destination) {
