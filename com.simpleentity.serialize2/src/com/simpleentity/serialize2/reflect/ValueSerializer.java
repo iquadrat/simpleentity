@@ -2,35 +2,42 @@ package com.simpleentity.serialize2.reflect;
 
 import java.util.Arrays;
 
+import org.povworld.collection.common.PreConditions;
 import org.povworld.collection.immutable.ImmutableArrayList;
 
 import com.simpleentity.entity.id.EntityId;
+import com.simpleentity.serialize2.SerializationContext;
 import com.simpleentity.serialize2.Serializer;
 import com.simpleentity.serialize2.SerializerException;
-import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.collection.CollectionInfo;
 import com.simpleentity.serialize2.collection.CollectionSerializer;
 import com.simpleentity.serialize2.generic.GenericValue;
 import com.simpleentity.serialize2.generic.GenericValue.CollectionValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
+import com.simpleentity.serialize2.generic.GenericValue.EnumValue;
 import com.simpleentity.serialize2.generic.GenericValue.NullValue;
 import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueObjectValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueVisitor;
+import com.simpleentity.serialize2.generic.ObjectInfo;
+import com.simpleentity.serialize2.meta.BootStrap;
 import com.simpleentity.serialize2.meta.MetaData;
 import com.simpleentity.serialize2.meta.Primitive;
 import com.simpleentity.util.Reference;
 
+// TODO merge with ReflectiveSerializer?
 class ValueSerializer {
 
-	private final SerializerRepository serializerRepository;
+	private final SerializationContext context;
+	private final EntityId declaredMetaDataId;
 
-	ValueSerializer(SerializerRepository serializerRepository) {
-		this.serializerRepository = serializerRepository;
+	ValueSerializer(SerializationContext context, EntityId declaredMetaDataId) {
+		this.context = context;
+		this.declaredMetaDataId = PreConditions.paramNotNull(declaredMetaDataId);
 	}
 
 	public GenericValue serialize(Object value) {
-		MetaData metaData = serializerRepository.getMetaData(value.getClass());
+		MetaData metaData = context.getMetaDataRepository().getMetaData(value.getClass());
 		if (metaData == null) {
 			throw new SerializerException("Failed to get MetaData for "+value);
 		}
@@ -38,12 +45,16 @@ class ValueSerializer {
 		switch (metaData.getMetaType()) {
 		case ENTITY:
 			return new EntityIdValue((EntityId) value);
-		case PRIMITIVE:
-			return new PrimitiveValue(Primitive.byEntityId(metaData.getEntityId()), value);
+		case PRIMITIVE: {
+			EntityId entityId = BootStrap.isPrimitive(declaredMetaDataId) ? declaredMetaDataId : metaData.getEntityId();
+			return new PrimitiveValue(Primitive.byEntityId(entityId), value);
+		}
+		case ENUM:
+			return new EnumValue(metaData.getEntityId(), ((Enum<?>)value).ordinal());
 		case VALUE_OBJECT:
-			return serializeValueObject(metaData, serializerRepository.getSerializer(metaData.getEntityId()), value);
+			return serializeValueObject(metaData, context.getSerializerRepository().getSerializer(metaData.getEntityId()), value);
 		case COLLECTION:
-			return serializeCollection(metaData, serializerRepository.getCollectionSerializer(metaData.getEntityId()),
+			return serializeCollection(metaData, context.getSerializerRepository().getCollectionSerializer(metaData.getEntityId()),
 					value);
 		default:
 			throw new SerializerException("Unknown MetaType " + metaData.getMetaType());
@@ -85,14 +96,25 @@ class ValueSerializer {
 			}
 
 			@Override
+			public void visit(EnumValue enumValue) {
+				// TODO make dedicated enum serializer?
+				Serializer<?> serializer = context.getSerializerRepository().getSerializer(enumValue.getActualMetaDataId());
+				result.set(serializer.deserialize(
+						ObjectInfo.newBuilder()
+							.setMetaDataId(enumValue.getActualMetaDataId())
+							.setEntryValue(BootStrap.ENUM_ORDINAL, GenericValue.varIntValue(enumValue.getOrdinal()))
+							.build()));
+			}
+
+			@Override
 			public void visit(ValueObjectValue valueObject) {
-				Serializer<?> serializer = serializerRepository.getSerializer(valueObject.getActualMetaDataId());
+				Serializer<?> serializer = context.getSerializerRepository().getSerializer(valueObject.getActualMetaDataId());
 				result.set(serializer.deserialize(valueObject.getValue()));
 			}
 
 			@Override
 			public void visit(CollectionValue collectionValue) {
-				deserialize(serializerRepository.getCollectionSerializer(collectionValue.getActualMetaDataId()),
+				deserialize(context.getSerializerRepository().getCollectionSerializer(collectionValue.getActualMetaDataId()),
 						collectionValue);
 			}
 

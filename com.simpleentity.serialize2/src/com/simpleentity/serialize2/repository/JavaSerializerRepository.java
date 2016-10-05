@@ -18,60 +18,35 @@ import com.simpleentity.serialize2.binary.BinarySerializerRepository;
 import com.simpleentity.serialize2.binary.EntityIdSerializer;
 import com.simpleentity.serialize2.binary.ObjectInfoSerializer;
 import com.simpleentity.serialize2.binary.PrimitiveSerializer;
-import com.simpleentity.serialize2.collection.ArraySerializer;
 import com.simpleentity.serialize2.collection.CollectionSerializer;
 import com.simpleentity.serialize2.generic.ObjectInfo;
-import com.simpleentity.serialize2.meta.BootStrap;
 import com.simpleentity.serialize2.meta.MetaData;
-import com.simpleentity.serialize2.meta.MetaDataFactory;
-import com.simpleentity.serialize2.meta.MetaDataUtil;
+import com.simpleentity.serialize2.meta.MetaDataRepository;
 import com.simpleentity.serialize2.meta.Primitive;
 import com.simpleentity.serialize2.meta.Type;
 import com.simpleentity.serialize2.reflect.ReflectiveSerializer;
 
 @ThreadSafe
-public class JavaSerializerRepository implements BinarySerializerRepository, SerializerRepository {
+public class JavaSerializerRepository implements BinarySerializerRepository, SerializerRepository, MetaDataRepository {
 
 	private final Object lock = new Object();
 	private final HashMap<EntityId, Serializer<?>> serializers = new HashMap<>();
-	private final HashMap<EntityId, CollectionSerializer<?>> collectionSerializers = new HashMap<>();
 	private final BinarySerializer<EntityId> entityIdSerializer = new EntityIdSerializer();
 
-	private final MetaDataFactory metaDataFactory;
 	private final EntityIdFactory idFactory;
 	private final ClassLoader classLoader;
 
 	private final SerializationContext context;
 	private final MetaDataRepository metaDataRepository;
+	private final CollectionSerializerRepository collectionSerializerRepository;
 
-	public JavaSerializerRepository(MetaDataFactory metaDataFactory, EntityIdFactory idFactory, ClassLoader classLoader, Instantiator instantiator) {
-		this.metaDataFactory = metaDataFactory;
+	public JavaSerializerRepository(CollectionSerializerRepository collectionSerializerRepository, MetaDataRepository metaDataRepository, EntityIdFactory idFactory, ClassLoader classLoader, Instantiator instantiator) {
+		this.collectionSerializerRepository = collectionSerializerRepository;
 		this.idFactory = idFactory;
 		this.classLoader = classLoader;
-		this.context = new SerializationContext(classLoader, this, instantiator);
-		this.metaDataRepository = new MetaDataRepository(metaDataFactory, idFactory, this);
-		registerBootstrapSerializers();
-	}
-
-	private void registerBootstrapSerializers() {
-		ArraySerializer arraySerializer = new ArraySerializer(this, classLoader);
-		collectionSerializers.put(BootStrap.ID_PRIMITIVE_ARRAY, arraySerializer);
-		collectionSerializers.put(BootStrap.ID_OBJECT_ARRAY, arraySerializer);
-		collectionSerializers.put(BootStrap.ID_MULTI_DIMENSIONAL_ARRAY, arraySerializer);
-	}
-
-	@Override
-	public Type getDeclaredType(Field field) {
-		synchronized (lock) {
-			Class<?> type = field.getType();
-			boolean optional = MetaDataUtil.isOptional(field);
-			EntityId metaDataId = getMetaDataId(type);
-			CollectionSerializer<?> collectionSerializer = collectionSerializers.get(metaDataId);
-			if (collectionSerializer == null) {
-				return new Type(metaDataId, optional);
-			}
-			return new Type(metaDataId, optional, collectionSerializer.getElementType(field));
-		}
+		this.context = new SerializationContext(classLoader, this, this, instantiator);
+		this.metaDataRepository = metaDataRepository;
+		collectionSerializerRepository.registerBootstrapSerializers(metaDataRepository, classLoader);
 	}
 
 	@Override
@@ -92,6 +67,13 @@ public class JavaSerializerRepository implements BinarySerializerRepository, Ser
 	public MetaData getMetaData(Class<?> class_) {
 		synchronized (lock) {
 			return metaDataRepository.getMetaData(class_);
+		}
+	}
+
+	@Override
+	public Type getDeclaredType(Field field) {
+		synchronized (lock) {
+			return metaDataRepository.getDeclaredType(field);
 		}
 	}
 
@@ -123,7 +105,7 @@ public class JavaSerializerRepository implements BinarySerializerRepository, Ser
 	@Override
 	public CollectionSerializer<?> getCollectionSerializer(EntityId metaDataId) {
 		synchronized (lock) {
-			CollectionSerializer<?> serializer = collectionSerializers.get(metaDataId);
+			CollectionSerializer<?> serializer = collectionSerializerRepository.getCollectionSerializer(metaDataId);
 			if (serializer != null) {
 				return serializer;
 			}

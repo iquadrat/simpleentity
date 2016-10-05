@@ -1,4 +1,4 @@
-package com.simpleentity.serialize2.collection;
+package com.simpleentity.serialize2.collection.java;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -9,6 +9,7 @@ import org.povworld.collection.common.ObjectUtil;
 
 import com.simpleentity.serialize2.SerializerException;
 import com.simpleentity.serialize2.SerializerRepository;
+import com.simpleentity.serialize2.collection.CollectionSerializer;
 
 public abstract class AbstractJavaCollectionSerializer<C extends Collection<Object>> implements CollectionSerializer<C> {
 

@@ -10,6 +10,7 @@ import com.simpleentity.serialize2.SerializerException;
 import com.simpleentity.serialize2.generic.GenericValue;
 import com.simpleentity.serialize2.generic.GenericValue.CollectionValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
+import com.simpleentity.serialize2.generic.GenericValue.EnumValue;
 import com.simpleentity.serialize2.generic.GenericValue.NullValue;
 import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueObjectValue;
@@ -80,6 +81,11 @@ class EntrySerializer {
 				BinarySerializer<Object> serializer = serializerRepository.getPrimitiveSerializer(
 						primitive.getActualMetaDataId());
 				serializer.serialize(primitive.getValue(), destination);
+			}
+
+			@Override
+			public void visit(EnumValue enumValue) {
+				destination.putVarInt(enumValue.getOrdinal());
 			}
 
 			@Override
@@ -172,6 +178,10 @@ class EntrySerializer {
 			Primitive primitive = Primitive.byEntityId(actualMetaData.getEntityId());
 			BinarySerializer<?> serializer = serializerRepository.getPrimitiveSerializer(actualMetaData.getEntityId());
 			return new PrimitiveValue(primitive, serializer.deserialize(source));
+		}
+		case ENUM: {
+			int ordinal = MathUtil.longToInt(source.getVarInt());
+			return new EnumValue(actualMetaData.getEntityId(), ordinal);
 		}
 		case VALUE_OBJECT: {
 			BinarySerializer<ObjectInfo> serializer = serializerRepository.getBinarySerializer(actualMetaData

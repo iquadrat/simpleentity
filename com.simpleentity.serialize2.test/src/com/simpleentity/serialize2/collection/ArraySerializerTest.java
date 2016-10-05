@@ -17,13 +17,13 @@ import org.povworld.collection.immutable.ImmutableCollections;
 
 import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.serialize2.MockIdFactory;
-import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.generic.GenericValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
 import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.meta.BootStrap;
 import com.simpleentity.serialize2.meta.MetaData;
 import com.simpleentity.serialize2.meta.MetaData.Builder;
+import com.simpleentity.serialize2.meta.MetaDataRepository;
 import com.simpleentity.serialize2.meta.MetaDataUtil;
 import com.simpleentity.serialize2.meta.MetaType;
 import com.simpleentity.serialize2.meta.Primitive;
@@ -39,7 +39,7 @@ public class ArraySerializerTest {
 	private final MockIdFactory idFactory = new MockIdFactory();
 
  	@Mock
- 	private SerializerRepository repository;
+ 	private MetaDataRepository repository;
 	private ArraySerializer serializer;
 
 	@Before

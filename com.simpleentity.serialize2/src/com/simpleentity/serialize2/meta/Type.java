@@ -7,7 +7,7 @@ import org.povworld.collection.common.PreConditions;
 import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.entity.value.ValueObject;
 
-public class Type extends ValueObject {
+public final class Type extends ValueObject {
 
 	private final EntityId metaDataId;
 	private final boolean optional;

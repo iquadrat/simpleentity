@@ -11,11 +11,12 @@ import com.simpleentity.serialize2.meta.Primitive;
 public abstract class GenericValue extends com.simpleentity.entity.value.ValueObject {
 
 	public interface ValueVisitor {
+		void visit(NullValue nullValue);
 		void visit(PrimitiveValue primitive);
+		void visit(EnumValue enumValue);
 		void visit(ValueObjectValue valueObject);
 		void visit(EntityIdValue entityReference);
 		void visit(CollectionValue collection);
-		void visit(NullValue nullValue);
 	}
 
 	// TODO probably add full MetaData instead just its EntityId
@@ -131,6 +132,34 @@ public abstract class GenericValue extends com.simpleentity.entity.value.ValueOb
 
 	public static PrimitiveValue stringValue(String value) {
 		return new PrimitiveValue(Primitive.STRING, value);
+	}
+
+	public static class EnumValue extends GenericValue {
+		private final EntityId metaDataId;
+		private final int ordinal;
+
+		public EnumValue(EntityId metaDataId, int ordinal) {
+			this.metaDataId = metaDataId;
+			this.ordinal = ordinal;
+		}
+
+		public int getOrdinal() {
+			return ordinal;
+		}
+
+		@Override
+		public EntityId getActualMetaDataId() {
+			return metaDataId;
+		}
+
+		@Override
+		public void accept(ValueVisitor visitor) {
+			visitor.visit(this);
+		}
+	}
+
+	public static <E extends Enum<E>> GenericValue enumValue(EntityId metaDataId, E value) {
+		return new EnumValue(metaDataId, value.ordinal());
 	}
 
 	public static class ValueObjectValue extends GenericValue {

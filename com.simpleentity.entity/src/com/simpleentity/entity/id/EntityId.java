@@ -9,7 +9,7 @@ import com.simpleentity.annotation.ValueObject;
 
 @Immutable
 @ValueObject
-public class EntityId {
+public final class EntityId {
 
 	private static final int HASH_CONSTANT = 0xa9ff883e;
 

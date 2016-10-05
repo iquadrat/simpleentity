@@ -1,5 +1,6 @@
 package com.simpleentity.serialize2.repository;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import net.jcip.annotations.NotThreadSafe;
@@ -7,16 +8,20 @@ import net.jcip.annotations.NotThreadSafe;
 import com.simpleentity.annotation.CheckForNull;
 import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.entity.id.EntityIdFactory;
-import com.simpleentity.serialize2.SerializerRepository;
+import com.simpleentity.serialize2.collection.CollectionSerializer;
 import com.simpleentity.serialize2.meta.BootStrap;
+import com.simpleentity.serialize2.meta.Entry;
 import com.simpleentity.serialize2.meta.MetaData;
 import com.simpleentity.serialize2.meta.MetaDataFactory;
+import com.simpleentity.serialize2.meta.MetaDataRepository;
 import com.simpleentity.serialize2.meta.MetaDataUtil;
+import com.simpleentity.serialize2.meta.MetaType;
 import com.simpleentity.serialize2.meta.Primitive;
+import com.simpleentity.serialize2.meta.Type;
 
 // TODO should this be persistent?
 @NotThreadSafe
-public class MetaDataRepository {
+public class JavaMetaDataRepository implements MetaDataRepository {
 
 	private final HashMap<EntityId, MetaData> id2MetaData = new HashMap<>();
 	private final HashMap<Class<?>, EntityId> class2id = new HashMap<>();
@@ -25,20 +30,24 @@ public class MetaDataRepository {
 	private final MetaDataFactory metaDataFactory;
 	@CheckForNull
 	private final EntityIdFactory idFactory;
-	private final SerializerRepository serializerRepository;
+	private final CollectionSerializerRepository collectionSerializerRepository;
 
-	public MetaDataRepository(MetaDataFactory metaDataFactory, EntityIdFactory idFactory,
-			SerializerRepository serializerRepository) {
+	public JavaMetaDataRepository(MetaDataFactory metaDataFactory, EntityIdFactory idFactory,
+			CollectionSerializerRepository collectionSerializerRepository) {
 		this.metaDataFactory = metaDataFactory;
 		this.idFactory = idFactory;
-		this.serializerRepository = serializerRepository;
+		this.collectionSerializerRepository = collectionSerializerRepository;
 		registerBootstrapMetaData();
 	}
 
 	private void registerBootstrapMetaData() {
 		add(EntityId.class, BootStrap.ENTITY_ID);
 		add(Object.class, BootStrap.ANY);
-		for(Primitive primitive: Primitive.values()) {
+		add(MetaType.class, BootStrap.META_TYPE);
+		add(Type.class, BootStrap.TYPE);
+		add(Entry.class, BootStrap.ENTRY);
+		add(MetaData.class, BootStrap.META_DATA);
+		for (Primitive primitive : Primitive.values()) {
 			if (primitive == Primitive.VARINT) {
 				// TODO we need to handle varints somehow though
 				continue;
@@ -57,6 +66,7 @@ public class MetaDataRepository {
 		id2MetaData.put(metaData.getEntityId(), metaData);
 	}
 
+	@Override
 	public MetaData getMetaData(EntityId metaDataId) {
 		MetaData metaData = id2MetaData.get(metaDataId);
 		if (metaData != null) {
@@ -65,6 +75,7 @@ public class MetaDataRepository {
 		throw missing(MetaData.class, metaDataId);
 	}
 
+	@Override
 	public EntityId getMetaDataId(Class<?> class_) {
 		if (class_.isArray()) {
 			return MetaDataUtil.getArrayMetaDataId(class_);
@@ -76,6 +87,7 @@ public class MetaDataRepository {
 		return createMetaData(class_).getEntityId();
 	}
 
+	@Override
 	public MetaData getMetaData(Class<?> class_) {
 		return getMetaData(getMetaDataId(class_));
 	}
@@ -86,13 +98,23 @@ public class MetaDataRepository {
 		}
 		EntityId id = idFactory.newEntityId();
 		class2id.put(class_, id);
-		MetaData metaData = metaDataFactory.create(class_, id, serializerRepository);
+		MetaData metaData = metaDataFactory.create(class_, id, this);
 		id2MetaData.put(metaData.getEntityId(), metaData);
 		return metaData;
 	}
 
 	private IllegalArgumentException missing(Class<?> type, Object id) {
 		return new IllegalArgumentException("No " + type.getSimpleName() + " for id '" + id + "' found!");
+	}
+
+	@Override
+	public Type getDeclaredType(Field field) {
+		Class<?> type = field.getType();
+		boolean optional = MetaDataUtil.isOptional(field);
+		EntityId metaDataId = getMetaDataId(type);
+		CollectionSerializer<?> collectionSerializer = collectionSerializerRepository.getCollectionSerializer(metaDataId);
+		Type elementType = (collectionSerializer == null) ? null : collectionSerializer.getElementType(field);
+		return new Type(metaDataId, optional, elementType);
 	}
 
 }

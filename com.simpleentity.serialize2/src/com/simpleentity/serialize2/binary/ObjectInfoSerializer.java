@@ -1,11 +1,11 @@
 package com.simpleentity.serialize2.binary;
 
-import org.povworld.collection.EntryIterator;
 import org.povworld.collection.immutable.ImmutableArrayList;
 import org.povworld.collection.immutable.ImmutableList;
 
 import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.generic.ObjectInfo.Builder;
+import com.simpleentity.serialize2.meta.Entry;
 import com.simpleentity.serialize2.meta.MetaData;
 import com.simpleentity.serialize2.meta.Type;
 import com.simpleentity.util.bytes.ByteReader;
@@ -24,9 +24,8 @@ public class ObjectInfoSerializer implements BinarySerializer<ObjectInfo> {
 	private static ImmutableList<EntrySerializer> createFieldSerializers(
 			BinarySerializerRepository serializerRepository, MetaData metaData) {
 		ImmutableArrayList.Builder<EntrySerializer> result = ImmutableArrayList.newBuilder();
-		EntryIterator<String, Type> entries = metaData.getEntries();
-		while(entries.next()) {
-			result.add(createFieldSerializer(serializerRepository, entries.getCurrentKey(), entries.getCurrentValue()));
+		for(Entry entry: metaData.getEntries()) {
+			result.add(createFieldSerializer(serializerRepository, entry.getId(), entry.getType()));
 		}
 		return result.build();
 	}

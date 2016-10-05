@@ -10,12 +10,12 @@ import org.povworld.collection.common.PreConditions;
 
 import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.serialize2.SerializerException;
-import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.generic.GenericValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
 import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.meta.BootStrap;
 import com.simpleentity.serialize2.meta.MetaData;
+import com.simpleentity.serialize2.meta.MetaDataRepository;
 import com.simpleentity.serialize2.meta.Primitive;
 import com.simpleentity.serialize2.meta.Type;
 import com.simpleentity.util.TypeUtil;
@@ -26,10 +26,10 @@ public class ArraySerializer implements CollectionSerializer<Object> {
 	private static final String FIELD_LEAF_META_DATA = "leafMetaData";
 	private static final String FIELD_PRIMITIVE = "primitive";
 
-	private final SerializerRepository repository;
+	private final MetaDataRepository repository;
 	private final ClassLoader classLoader;
 
-	public ArraySerializer(SerializerRepository respository, ClassLoader classLoader) {
+	public ArraySerializer(MetaDataRepository respository, ClassLoader classLoader) {
 		this.repository = respository;
 		this.classLoader = classLoader;
 	}

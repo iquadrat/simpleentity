@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.Vector;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.povworld.collection.Map;
 import org.povworld.collection.mutable.HashMap;
@@ -21,11 +20,6 @@ import org.povworld.collection.mutable.HashSet;
 
 import com.simpleentity.annotation.CheckForNull;
 import com.simpleentity.annotation.ValueObject;
-import com.simpleentity.entity.id.AtomicIdFactory;
-import com.simpleentity.entity.id.EntityId;
-import com.simpleentity.entity.id.EntityIdFactory;
-import com.simpleentity.serialize2.Serializer;
-import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.integration.testclasses.ArrayRefs;
 import com.simpleentity.serialize2.integration.testclasses.EnumClass;
 import com.simpleentity.serialize2.integration.testclasses.GenericReference;
@@ -35,58 +29,8 @@ import com.simpleentity.serialize2.integration.testclasses.OuterClass;
 import com.simpleentity.serialize2.integration.testclasses.OuterClass2;
 import com.simpleentity.serialize2.integration.testclasses.TestEnum;
 import com.simpleentity.serialize2.integration.testclasses.Value;
-import com.simpleentity.serialize2.meta.BootStrap;
-import com.simpleentity.serialize2.meta.MetaDataFactory;
-import com.simpleentity.serialize2.reflect.ObjenesisInstantiator;
-import com.simpleentity.serialize2.reflect.ReflectiveMetaDataFactory;
-import com.simpleentity.serialize2.repository.JavaSerializerRepository;
-import com.simpleentity.util.bytes.ByteChunk;
-import com.simpleentity.util.bytes.ByteReader;
-import com.simpleentity.util.bytes.ByteWriter;
 
-public class UnusualObjectsSerializationTest {
-
-	private static final boolean PRINT_BYTES = true;
-
-	private EntityIdFactory idFactory;
-	private MetaDataFactory metaDataFactory;
-	private JavaSerializerRepository serializerRepository;
-
-	@Before
-	public void setUp() {
-		idFactory = new AtomicIdFactory(BootStrap.ID_RANGE_END + 1);
-		metaDataFactory = new ReflectiveMetaDataFactory();
-		serializerRepository = new JavaSerializerRepository(metaDataFactory, idFactory, getClass().getClassLoader(),
-				new ObjenesisInstantiator());
-	}
-
-	private <T> T serializeAndDeserialize(T object) {
-		ByteChunk bytes = serialize(object);
-		if (PRINT_BYTES) {
-			System.out.println(bytes);
-		}
-		return deserialize(bytes);
-	}
-
-	@SuppressWarnings("unchecked")
-	private <T> ByteChunk serialize(T entity) {
-		EntityId metaDataId = serializerRepository.getMetaDataId(entity.getClass());
-		Serializer<T> serializer = (Serializer<T>) serializerRepository.getSerializer(metaDataId);
-		ObjectInfo objectInfo = serializer.serialize(entity);
-		ByteWriter destination = new ByteWriter();
-		destination.putVarInt(metaDataId.getId());
-		serializerRepository.getBinarySerializer(metaDataId).serialize(objectInfo, destination);
-		return destination.build();
-	}
-
-	@SuppressWarnings("unchecked")
-	private <T> T deserialize(ByteChunk bytes) {
-		ByteReader source = new ByteReader(bytes);
-		EntityId metaDataId = new EntityId(source.getVarInt());
-		ObjectInfo objectInfo = serializerRepository.getBinarySerializer(metaDataId).deserialize(source);
-		Serializer<T> serializer = (Serializer<T>) serializerRepository.getSerializer(metaDataId);
-		return serializer.deserialize(objectInfo);
-	}
+public class UnusualObjectsSerializationTest extends AbstractSerializationTest {
 
 	static class Primitives {
 		public int a = 7;

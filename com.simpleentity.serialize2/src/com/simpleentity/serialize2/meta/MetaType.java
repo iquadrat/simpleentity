@@ -3,6 +3,7 @@ package com.simpleentity.serialize2.meta;
 public enum MetaType {
 
 	PRIMITIVE(false),
+	ENUM(false),
 //	VALUE(false), // TODO consider adding non-polymorphic value
 	VALUE_OBJECT(true),
 	ENTITY(true),

@@ -20,9 +20,11 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.povworld.collection.List;
+import org.povworld.collection.common.PreConditions;
 import org.povworld.collection.immutable.ImmutableArrayList;
 import org.povworld.collection.immutable.ImmutableCollections;
 
+import com.simpleentity.annotation.Positive;
 import com.simpleentity.entity.Entity;
 import com.simpleentity.entity.EntityBuilder;
 import com.simpleentity.entity.id.EntityId;
@@ -43,6 +45,7 @@ import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.meta.BootStrap;
 import com.simpleentity.serialize2.meta.MetaData;
 import com.simpleentity.serialize2.meta.MetaData.Builder;
+import com.simpleentity.serialize2.meta.MetaDataRepository;
 import com.simpleentity.serialize2.meta.MetaDataUtil;
 import com.simpleentity.serialize2.meta.MetaType;
 import com.simpleentity.serialize2.meta.Primitive;
@@ -56,6 +59,8 @@ public class ReflectiveSerializerTest {
 	private static final long TEST_VERSION = 4;
 	private static final EntityId TEST_ENTITY_ID = new EntityId(1000L);
 
+	// TODO replace by non-mock?
+	@Mock private MetaDataRepository metaDataRepository;
 	@Mock private SerializationContext context;
 	@Mock private SerializerRepository serializerRepository;
 	@Mock private CollectionSerializer<Object> arraySerializer;
@@ -64,40 +69,45 @@ public class ReflectiveSerializerTest {
 
 	@Before
 	public void setUp() {
+		when(context.getMetaDataRepository()).thenReturn(metaDataRepository);
 		when(context.getSerializerRepository()).thenReturn(serializerRepository);
 		when(context.getInstantiator()).thenReturn(instantiator);
-		when(serializerRepository.getDeclaredType(Mockito.any(Field.class))).then(new Answer<Type>() {
+		when(metaDataRepository.getDeclaredType(Mockito.any(Field.class))).then(new Answer<Type>() {
 			@Override
 			public Type answer(InvocationOnMock invocation) throws Throwable {
 				Field field = (Field)invocation.getArguments()[0];
-				return getType(field.getType());
+				return getType(field.getType(), MetaDataUtil.isOptional(field), MetaDataUtil.isPositive(field));
 			}
 
-			Type getType(Class<?> class_) {
+			Type getType(Class<?> class_, boolean optional, boolean positive) {
+				// TODO use some common utility class
 				if (class_.isArray()) {
 					if (class_.getComponentType().isPrimitive()) {
-						return new Type(BootStrap.ID_PRIMITIVE_ARRAY, false, getType(class_.getComponentType()));
+						return new Type(BootStrap.ID_PRIMITIVE_ARRAY, optional, getType(class_.getComponentType(), false, false));
 					} else {
-						return new Type(BootStrap.ID_OBJECT_ARRAY, false, getType(class_.getComponentType()));
+						return new Type(BootStrap.ID_OBJECT_ARRAY, optional, getType(class_.getComponentType(), false, false));
 					}
 				}
-				EntityId metaDataId = serializerRepository.getMetaDataId(class_);
+				EntityId metaDataId = metaDataRepository.getMetaDataId(class_);
+				if (BootStrap.isPrimitive(metaDataId) && positive) {
+					return new Type(BootStrap.ID_PRIMITIVE_VARINT, optional);
+				}
 				if (metaDataId == null) {
 					throw new RuntimeException("Unexpected field type: "+class_.getName());
 				}
-				return new Type(metaDataId, false);
+				return new Type(metaDataId, optional);
 			}
 
 		});
 
-		when(serializerRepository.getMetaDataId(EntityId.class)).thenReturn(BootStrap.ID_ENTITY_ID);
-		when(serializerRepository.getMetaData(EntityId.class)).thenReturn(BootStrap.ENTITY_ID);
+		when(metaDataRepository.getMetaDataId(EntityId.class)).thenReturn(BootStrap.ID_ENTITY_ID);
+		when(metaDataRepository.getMetaData(EntityId.class)).thenReturn(BootStrap.ENTITY_ID);
 		for(Primitive primitive: Primitive.values()) {
 			if (primitive == Primitive.VARINT) continue;
-			when(serializerRepository.getMetaDataId(primitive.getType())).thenReturn(primitive.getMetaDataId());
-			when(serializerRepository.getMetaDataId(primitive.getBoxedType())).thenReturn(primitive.getMetaDataId());
-			when(serializerRepository.getMetaData(primitive.getType())).thenReturn(primitive.getMetaData());
-			when(serializerRepository.getMetaData(primitive.getBoxedType())).thenReturn(primitive.getMetaData());
+			when(metaDataRepository.getMetaDataId(primitive.getType())).thenReturn(primitive.getMetaDataId());
+			when(metaDataRepository.getMetaDataId(primitive.getBoxedType())).thenReturn(primitive.getMetaDataId());
+			when(metaDataRepository.getMetaData(primitive.getType())).thenReturn(primitive.getMetaData());
+			when(metaDataRepository.getMetaData(primitive.getBoxedType())).thenReturn(primitive.getMetaData());
 		}
 		prepareMetaData(Object.class, MetaType.UNKNOWN);
 	}
@@ -136,6 +146,7 @@ public class ReflectiveSerializerTest {
 		private final short s;
 		private final int i;
 		private final long l;
+		private final @Positive long v;
 		private final float f;
 		private final double d;
 
@@ -145,6 +156,7 @@ public class ReflectiveSerializerTest {
 		private final Short S;
 		private final Integer I;
 		private final Long L;
+		private final @Positive Long V;
 		private final Float F;
 		private final Double D;
 
@@ -153,7 +165,7 @@ public class ReflectiveSerializerTest {
 		private final @CheckForNull Boolean oB;
 
 		EntityPrimitives(EntityId id, boolean b, boolean B, char c, char C, byte y, byte Y, short s, short S, int i,
-				int I, long l, long L, float f, float F, double d, double D, String string, Boolean oB) {
+				int I, long l, long L, long v, Long V, float f, float F, double d, double D, String string, Boolean oB) {
 			super(id);
 			this.b = b;
 			this.B = B;
@@ -167,6 +179,8 @@ public class ReflectiveSerializerTest {
 			this.I = I;
 			this.l = l;
 			this.L = L;
+			this.v = PreConditions.paramPositive(v);
+			this.V = PreConditions.paramPositive(V);
 			this.f = f;
 			this.F = F;
 			this.d = d;
@@ -199,6 +213,8 @@ public class ReflectiveSerializerTest {
 			.setEntryValue("I", new PrimitiveValue(Primitive.INT, 60000))
 			.setEntryValue("l", new PrimitiveValue(Primitive.LONG, 700000000L))
 			.setEntryValue("L", new PrimitiveValue(Primitive.LONG, 800000000L))
+			.setEntryValue("v", new PrimitiveValue(Primitive.VARINT, 11L))
+			.setEntryValue("V", new PrimitiveValue(Primitive.VARINT, 1111L))
 			.setEntryValue("f", new PrimitiveValue(Primitive.FLOAT, 9.9f))
 			.setEntryValue("F", new PrimitiveValue(Primitive.FLOAT, 10.1f))
 			.setEntryValue("d", new PrimitiveValue(Primitive.DOUBLE, 11.11))
@@ -216,6 +232,8 @@ public class ReflectiveSerializerTest {
 						50000, 60000,
 						700000000L,
 						800000000L,
+						11L,
+						1111L,
 						9.9f, 10.1f, 11.11, 12.12, "foo", Boolean.TRUE));
 		assertEquals(objectInfo, actual);
 
@@ -233,6 +251,8 @@ public class ReflectiveSerializerTest {
 		assertEquals(Integer.valueOf(60000), entity.I);
 		assertEquals(700000000L, entity.l);
 		assertEquals(Long.valueOf(800000000L), entity.L);
+		assertEquals(11L, entity.v);
+		assertEquals(Long.valueOf(1111L), entity.V);
 		assertEquals(9.9f, entity.f, 0);
 		assertEquals(10.1f, entity.F, 0);
 		assertEquals(11.11, entity.d, 0);
@@ -500,13 +520,13 @@ public class ReflectiveSerializerTest {
 
 		int[] ints = new int[]{1,2};
 		doReturn(arraySerializer).when(serializerRepository).getCollectionSerializer(BootStrap.ID_PRIMITIVE_ARRAY);
-		when(serializerRepository.getMetaData(int[].class)).thenReturn(BootStrap.PRIMITIVE_ARRAY);
+		when(metaDataRepository.getMetaData(int[].class)).thenReturn(BootStrap.PRIMITIVE_ARRAY);
 		when(arraySerializer.serialize(ints)).thenReturn(
 				new CollectionInfo(intsInfo, BootStrap.ID_PRIMITIVE_INT, ImmutableCollections.asList(1,2)));
 
 		doReturn(arraySerializer).when(serializerRepository).getCollectionSerializer(BootStrap.ID_MULTI_DIMENSIONAL_ARRAY);
 		int[][] ints2d = new int[][]{{},{1}};
-		when(serializerRepository.getMetaData(int[][].class)).thenReturn(BootStrap.MULTI_DIMENSIONAL_ARRAY);
+		when(metaDataRepository.getMetaData(int[][].class)).thenReturn(BootStrap.MULTI_DIMENSIONAL_ARRAY);
 		when(arraySerializer.serialize(ints2d)).thenReturn(
 				new CollectionInfo(ints2dInfo, BootStrap.ID_MULTI_DIMENSIONAL_ARRAY, ImmutableCollections.asList(ints2d[0], ints2d[1])));
 		when(arraySerializer.serialize(ints2d[0])).thenReturn(
@@ -516,7 +536,7 @@ public class ReflectiveSerializerTest {
 
 		Object[] objects = new Object[] { 4, 0, 4 };
 		doReturn(arraySerializer).when(serializerRepository).getCollectionSerializer(BootStrap.ID_OBJECT_ARRAY);
-		Mockito.when(serializerRepository.getMetaData(Object[].class)).thenReturn(BootStrap.OBJECT_ARRAY);
+		Mockito.when(metaDataRepository.getMetaData(Object[].class)).thenReturn(BootStrap.OBJECT_ARRAY);
 		Mockito.when(arraySerializer.serialize(objects)).thenReturn(
 				new CollectionInfo(objectsInfo, BootStrap.ID_ANY, ImmutableCollections.asList(4, 0, 4)));
 
@@ -589,9 +609,6 @@ public class ReflectiveSerializerTest {
 		ObjectInfo objectsInfo = ObjectInfo.newBuilder()
 				.setMetaDataId(BootStrap.ID_OBJECT_ARRAY)
 				.build();
-//		ObjectInfo valueInfo = ObjectInfo.newBuilder()
-//				.setMetaDataId(BootStrap.ID_OBJECT_ARRAY)
-//				.build();
 		ObjectInfo objectInfo = ObjectInfo.newBuilder()
 				.setMetaDataId(entityMetaData.getEntityId())
 				.setEntryValue(Entity.ID_FIELD_NAME, new EntityIdValue(TEST_ENTITY_ID))
@@ -600,7 +617,7 @@ public class ReflectiveSerializerTest {
 				.build();
 
 		Object[] objects = new Value[] { null };
-		when(serializerRepository.getMetaData(Value[].class)).thenReturn(BootStrap.OBJECT_ARRAY);
+		when(metaDataRepository.getMetaData(Value[].class)).thenReturn(BootStrap.OBJECT_ARRAY);
 		doReturn(arraySerializer).when(serializerRepository).getCollectionSerializer(BootStrap.ID_OBJECT_ARRAY);
 		when(arraySerializer.serialize(objects)).thenReturn(new CollectionInfo(
 				objectsInfo, valueMetaData.getEntityId(), 1, Arrays.asList((Object)null)));
@@ -616,14 +633,69 @@ public class ReflectiveSerializerTest {
 		assertArrayEquals(entity.array, objects);
 	}
 
+	enum Enum {
+		ONE, TWO, THREE, FOUR;
+	}
+
+	static class EnumValueObject extends ValueObject {
+		final Enum e;
+		final @CheckForNull Enum eOrNot;
+		final Object something;
+		final Enum[] enums;
+		public EnumValueObject(Enum e, Enum eOrNot, Object something, Enum[] enums) {
+			this.e = e;
+			this.eOrNot = eOrNot;
+			this.something = something;
+			this.enums = enums;
+		}
+	}
+
+
+	@Test
+	public void serializeEnumField() {
+		MetaData enumMetaData = prepareEnumMetaData(Enum.class);
+		MetaData entityMetaData = prepareEntityMetaData(EnumValueObject.class);
+		EntityId enumMetaDataId = enumMetaData.getEntityId();
+
+		Enum[] enums = new Enum[] { Enum.TWO, null, Enum.FOUR };
+		ObjectInfo enumsInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(BootStrap.ID_OBJECT_ARRAY)
+				.build();
+		ObjectInfo objectInfo = ObjectInfo.newBuilder()
+				.setMetaDataId(entityMetaData.getEntityId())
+				.setEntryValue("e", GenericValue.enumValue(enumMetaDataId, Enum.ONE))
+				.setEntryValue("eOrNot", GenericValue.enumValue(enumMetaDataId, Enum.TWO))
+				.setEntryValue("something", GenericValue.enumValue(enumMetaDataId, Enum.THREE))
+				.setEntryValue("enums", new CollectionValue(enumsInfo, enumMetaDataId,
+						ImmutableCollections.<GenericValue>asList(
+								GenericValue.enumValue(enumMetaDataId, Enum.TWO),
+								GenericValue.nullValue(),
+								GenericValue.enumValue(enumMetaDataId, Enum.FOUR))))
+				.build();
+
+		CollectionInfo arrayCollectionInfo = new CollectionInfo(enumsInfo, enumMetaDataId, 3, Arrays.asList(enums));
+		when(arraySerializer.serialize(enums)).thenReturn(arrayCollectionInfo);
+		when(metaDataRepository.getMetaData(Enum[].class)).thenReturn(BootStrap.OBJECT_ARRAY);
+		doReturn(arraySerializer).when(serializerRepository).getCollectionSerializer(BootStrap.ID_OBJECT_ARRAY);
+
+		EnumValueObject value = new EnumValueObject(Enum.ONE, Enum.TWO, Enum.THREE, enums);
+		ObjectInfo actual = serialize(EnumValueObject.class, value);
+		assertEquals(objectInfo, actual);
+
+		when(arraySerializer.deserialize(arrayCollectionInfo)).thenReturn(enums);
+
+		EnumValueObject actualValue = deserialize(EnumValueObject.class, actual);
+		assertEquals(value, actualValue);
+	}
+
 	private <T> ObjectInfo serialize(Class<T> class_, T object) {
-		MetaData metaData = serializerRepository.getMetaData(class_);
+		MetaData metaData = metaDataRepository.getMetaData(class_);
 		Serializer<T> serializer = new ReflectiveSerializer<T>(class_, metaData, context);
 		return serializer.serialize(object);
 	}
 
 	private <T> T deserialize(Class<T> class_, ObjectInfo objectInfo) {
-		MetaData metaData = serializerRepository.getMetaData(class_);
+		MetaData metaData = metaDataRepository.getMetaData(class_);
 		Serializer<T> serializer = new ReflectiveSerializer<>(class_, metaData, context);
 		return serializer.deserialize(objectInfo);
 	}
@@ -632,15 +704,22 @@ public class ReflectiveSerializerTest {
 		return prepareMetaData(class_, MetaType.ENTITY);
 	}
 
+	private <T> MetaData prepareEnumMetaData(Class<T> enumType) {
+		MetaData result = prepareMetaData(enumType, MetaType.ENUM);
+		doReturn(new ReflectiveSerializer<T>(enumType, result, context))
+			   .when(serializerRepository).getSerializer(result.getEntityId());
+		return result;
+	}
+
 	private <T> MetaData prepareValueObjectMetaData(Class<T> class_) {
 		MetaData result = prepareMetaData(class_, MetaType.VALUE_OBJECT);
-		Mockito.doReturn(new ReflectiveSerializer<T>(class_, result, context))
+		doReturn(new ReflectiveSerializer<T>(class_, result, context))
 			   .when(serializerRepository).getSerializer(result.getEntityId());
 		return result;
 	}
 
 	private MetaData prepareMetaData(Class<?> class_, MetaType metaType) {
-		Mockito.when(serializerRepository.getMetaDataId(class_)).thenReturn(new EntityId(idFactory.nextId.get()));
+		when(metaDataRepository.getMetaDataId(class_)).thenReturn(new EntityId(idFactory.nextId.get()));
 		String domain = TEST_DOMAIN;
 		if (!class_.getName().startsWith(domain)) {
 			int top = class_.getName().indexOf('.');
@@ -654,9 +733,9 @@ public class ReflectiveSerializerTest {
 			.setMetaType(metaType)
 			.build(idFactory)
 			.toBuilder();
-		MetaDataUtil.addFieldsToMetaDataEntries(class_, serializerRepository, builder);
+		MetaDataUtil.addFieldsToMetaDataEntries(class_, metaDataRepository, builder);
 		MetaData result = builder.build(idFactory);
-		Mockito.when(serializerRepository.getMetaData(class_)).thenReturn(result);
+		Mockito.when(metaDataRepository.getMetaData(class_)).thenReturn(result);
 		return result;
 	}
 }
