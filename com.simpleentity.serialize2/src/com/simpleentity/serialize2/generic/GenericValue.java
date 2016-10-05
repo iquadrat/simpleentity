@@ -15,6 +15,7 @@ public abstract class GenericValue extends com.simpleentity.entity.value.ValueOb
 		void visit(ValueObjectValue valueObject);
 		void visit(EntityIdValue entityReference);
 		void visit(CollectionValue collection);
+		void visit(NullValue nullValue);
 	}
 
 	// TODO probably add full MetaData instead just its EntityId
@@ -22,6 +23,27 @@ public abstract class GenericValue extends com.simpleentity.entity.value.ValueOb
 	public abstract EntityId getActualMetaDataId();
 
 	public abstract void accept(ValueVisitor visitor);
+
+	public static class NullValue extends GenericValue {
+
+		private NullValue() {}
+
+		@Override
+		public EntityId getActualMetaDataId() {
+			return BootStrap.ID_NULL_REFERENCE;
+		}
+
+		@Override
+		public void accept(ValueVisitor visitor) {
+			visitor.visit(this);
+		}
+	}
+
+	private static final NullValue NULL_VALUE = new NullValue();
+
+	public static NullValue nullValue() {
+		return NULL_VALUE;
+	}
 
 	// TODO change to one class per primitive?
 	public static class PrimitiveValue extends GenericValue {

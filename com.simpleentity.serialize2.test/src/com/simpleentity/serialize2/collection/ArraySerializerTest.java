@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import org.junit.Before;
@@ -26,6 +27,7 @@ import com.simpleentity.serialize2.meta.MetaData.Builder;
 import com.simpleentity.serialize2.meta.MetaDataUtil;
 import com.simpleentity.serialize2.meta.MetaType;
 import com.simpleentity.serialize2.meta.Primitive;
+import com.simpleentity.serialize2.meta.Type;
 
 /** Unit tests for {@link ArraySerializer}. */
 @RunWith(MockitoJUnitRunner.class)
@@ -173,6 +175,37 @@ public class ArraySerializerTest {
 		Mockito.when(repository.getMetaData(class_)).thenReturn(result);
 		Mockito.when(repository.getMetaData(result.getEntityId())).thenReturn(result);
 		return result;
+	}
+
+	int[] ints;
+	Integer[] integers;
+	Value[] values;
+
+	int[][] ints2d;
+	Value[][][] values3d;
+
+	private Field getField(String name) throws Exception {
+		return getClass().getDeclaredField(name);
+	}
+
+	@Test
+	public void getElementType() throws Exception {
+		MetaData value = prepareMetaData(Value.class, MetaType.VALUE_OBJECT);
+
+		Type intType = new Type(BootStrap.ID_PRIMITIVE_INT, false);
+		Type intOptType = new Type(BootStrap.ID_PRIMITIVE_INT, true);
+		Type valueOptType = new Type(value.getEntityId(), true);
+
+		assertEquals(intType, serializer.getElementType(getField("ints")));
+		assertEquals(intOptType, serializer.getElementType(getField("integers")));
+		assertEquals(valueOptType, serializer.getElementType(getField("values")));
+
+		assertEquals(new Type(BootStrap.ID_PRIMITIVE_ARRAY, true, intType),
+				serializer.getElementType(getField("ints2d")));
+
+		assertEquals(new Type(BootStrap.ID_MULTI_DIMENSIONAL_ARRAY, true,
+								new Type(BootStrap.ID_OBJECT_ARRAY, true, valueOptType)),
+				serializer.getElementType(getField("values3d")));
 	}
 
 }

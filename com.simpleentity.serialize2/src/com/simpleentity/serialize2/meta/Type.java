@@ -32,13 +32,30 @@ public class Type extends ValueObject {
 		return metaDataId;
 	}
 
-	// TODO remove?
 	public Type getElementType() {
 		return elementType;
 	}
 
 	public boolean isCollectionType() {
 		return elementType != null;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().getSimpleName());
+		sb.append('[');
+		if (optional) {
+			sb.append("(optional)");
+		}
+		sb.append(metaDataId.getId());
+		if (isCollectionType()) {
+			sb.append('[');
+			sb.append(getElementType());
+			sb.append(']');
+		}
+		sb.append(']');
+		return sb.toString();
 	}
 
 }

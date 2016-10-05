@@ -10,6 +10,7 @@ import com.simpleentity.serialize2.SerializerException;
 import com.simpleentity.serialize2.generic.GenericValue;
 import com.simpleentity.serialize2.generic.GenericValue.CollectionValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
+import com.simpleentity.serialize2.generic.GenericValue.NullValue;
 import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueObjectValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueVisitor;
@@ -106,10 +107,18 @@ class EntrySerializer {
 				// Write all elements.
 				for (GenericValue element : collection.getValues()) {
 					Type elementType = (declaredType == null) ? null : declaredType.getElementType();
-					MetaData metaData = (declaredType == null) ? null : serializerRepository.getMetaData(elementType
+					MetaData metaData = (elementType == null) ? null : serializerRepository.getMetaData(elementType
 							.getMetaDataId());
+					if (element == GenericValue.nullValue()) {
+						element = null;
+					}
 					serialize(elementType, metaData, element, destination);
 				}
+			}
+
+			@Override
+			public void visit(NullValue nullValue) {
+				throw new IllegalArgumentException("Cannot deserialize NullValue!");
 			}
 		});
 	}
@@ -131,12 +140,12 @@ class EntrySerializer {
 		boolean optional = (declaredType == null || declaredType.isOptional());
 		MetaData actualMetaData = null;
 		if (declaredMetaData == null || declaredMetaData.getMetaType().isPolymorphic()) {
-			if (declaredMetaData.getMetaType() == MetaType.ENTITY) {
+			if ((declaredMetaData != null) && (declaredMetaData.getMetaType() == MetaType.ENTITY)) {
 				actualMetaData = BootStrap.ENTITY_ID;
 			} else {
 				// Polymorphic type: Read actual type or 'null'-type.
 				EntityId actualTypeId = serializerRepository.getEntityIdSerializer().deserialize(source);
-				if (actualTypeId != BootStrap.ID_NULL_REFERENCE) {
+				if (!BootStrap.ID_NULL_REFERENCE.equals(actualTypeId)) {
 					actualMetaData = serializerRepository.getMetaData(actualTypeId);
 				}
 			}
@@ -182,9 +191,10 @@ class EntrySerializer {
 			ImmutableArrayList.Builder<GenericValue> builder = ImmutableArrayList.newBuilder(count);
 			for (int i = 0; i < count; ++i) {
 				Type elementType = (declaredType == null) ? null : declaredType.getElementType();
-				MetaData metaData = (declaredType == null) ? null : serializerRepository.getMetaData(elementType
+				MetaData metaData = (elementType == null) ? null : serializerRepository.getMetaData(elementType
 						.getMetaDataId());
-				builder.add(deserializeValue(source, elementType, metaData));
+				GenericValue value = deserializeValue(source, elementType, metaData);
+				builder.add((value == null) ? GenericValue.nullValue() : value);
 			}
 			return new CollectionValue(collectionInfo, elementMetaDataId, builder.build());
 		}

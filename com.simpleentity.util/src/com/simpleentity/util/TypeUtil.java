@@ -4,6 +4,7 @@
  */
 package com.simpleentity.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -16,6 +17,16 @@ import java.util.Set;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 public class TypeUtil {
+
+	public static boolean hasAnnotation(Class<?> class_, Class<? extends Annotation> annotation) {
+		for(Class<?> supertype: getAllSuperTypes(class_)) {
+			if (supertype.getAnnotation(annotation) != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * @return all super classes and interfaces of the given class including the
 	 *         class itself

@@ -1,5 +1,7 @@
 package com.simpleentity.serialize2.reflect;
 
+import java.util.Arrays;
+
 import org.povworld.collection.immutable.ImmutableArrayList;
 
 import com.simpleentity.entity.id.EntityId;
@@ -11,6 +13,7 @@ import com.simpleentity.serialize2.collection.CollectionSerializer;
 import com.simpleentity.serialize2.generic.GenericValue;
 import com.simpleentity.serialize2.generic.GenericValue.CollectionValue;
 import com.simpleentity.serialize2.generic.GenericValue.EntityIdValue;
+import com.simpleentity.serialize2.generic.GenericValue.NullValue;
 import com.simpleentity.serialize2.generic.GenericValue.PrimitiveValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueObjectValue;
 import com.simpleentity.serialize2.generic.GenericValue.ValueVisitor;
@@ -29,7 +32,7 @@ class ValueSerializer {
 	public GenericValue serialize(Object value) {
 		MetaData metaData = serializerRepository.getMetaData(value.getClass());
 		if (metaData == null) {
-			throw new SerializerException("Failed to get serializer for "+value);
+			throw new SerializerException("Failed to get MetaData for "+value);
 		}
 		// TODO check expected type matches actual
 		switch (metaData.getMetaType()) {
@@ -61,7 +64,8 @@ class ValueSerializer {
 		}
 		ImmutableArrayList.Builder<GenericValue> elements = ImmutableArrayList.newBuilder(collectionInfo.getElementCount());
 		for (Object element : collectionInfo.getElements()) {
-			elements.add(serialize(element));
+			GenericValue elementValue = (element == null) ? GenericValue.nullValue() : serialize(element);
+			elements.add(elementValue);
 		}
 		return new CollectionValue(collectionInfo.getCollectionInfo(), collectionInfo.getElementMetaDataId(), elements.build());
 	}
@@ -94,13 +98,22 @@ class ValueSerializer {
 
 			private <C> void deserialize(CollectionSerializer<C> collectionSerializer,
 					final CollectionValue collectionValue) {
-				ImmutableArrayList.Builder<Object> elements = ImmutableArrayList.newBuilder(collectionValue.getCount());
+				Object[] elements = new Object[collectionValue.getCount()];
+				int i=0;
 				for (GenericValue element : collectionValue.getValues()) {
-					elements.add(ValueSerializer.this.deserialize(element));
+					if (element != GenericValue.nullValue()) {
+						elements[i] = ValueSerializer.this.deserialize(element);
+					}
+					i++;
 				}
 				CollectionInfo collectionInfo = new CollectionInfo(collectionValue.getCollectionInfo(),
-						collectionValue.getValueMetaDataId(), collectionValue.getCount(), elements.build());
+						collectionValue.getValueMetaDataId(), collectionValue.getCount(), Arrays.asList(elements));
 				result.set(collectionSerializer.deserialize(collectionInfo));
+			}
+
+			@Override
+			public void visit(NullValue nullValue) {
+				throw new IllegalArgumentException("Cannot deserialize NullValue!");
 			}
 		});
 		return result.get();

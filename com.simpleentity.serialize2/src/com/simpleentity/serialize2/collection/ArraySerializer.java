@@ -1,10 +1,12 @@
 package com.simpleentity.serialize2.collection;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.povworld.collection.common.MathUtil;
+import org.povworld.collection.common.PreConditions;
 
 import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.serialize2.SerializerException;
@@ -15,6 +17,7 @@ import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.meta.BootStrap;
 import com.simpleentity.serialize2.meta.MetaData;
 import com.simpleentity.serialize2.meta.Primitive;
+import com.simpleentity.serialize2.meta.Type;
 import com.simpleentity.util.TypeUtil;
 
 public class ArraySerializer implements CollectionSerializer<Object> {
@@ -154,4 +157,24 @@ public class ArraySerializer implements CollectionSerializer<Object> {
 		}
 
 	}
+
+	@Override
+	public Type getElementType(Field field) {
+		PreConditions.paramCheck(field, "Is not an array type!", field.getType().isArray());
+		return getType(field.getType().getComponentType());
+	}
+
+	private Type getType(Class<?> type) {
+		if (type.isArray()) {
+			Type elementType = getType(type.getComponentType());
+			if (elementType.isCollectionType()) {
+				return new Type(BootStrap.ID_MULTI_DIMENSIONAL_ARRAY, true, elementType);
+			}
+			boolean primitive = type.getComponentType().isPrimitive();
+			return new Type(primitive ? BootStrap.ID_PRIMITIVE_ARRAY : BootStrap.ID_OBJECT_ARRAY, true, elementType);
+		}
+		boolean optional = !type.isPrimitive();
+		return new Type(repository.getMetaDataId(type), optional);
+	}
+
 }

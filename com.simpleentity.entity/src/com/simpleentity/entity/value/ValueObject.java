@@ -71,7 +71,7 @@ public abstract class ValueObject {
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
-		sb.append(" ]");
+		sb.append("]");
 		return sb.toString();
 	}
 

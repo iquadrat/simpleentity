@@ -8,5 +8,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Mockito"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.povworld.collection"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.simpleentity.util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.simpleentity.annotation"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,8 +1,11 @@
 package com.simpleentity.serialize2.meta;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
-import com.simpleentity.entity.id.EntityIdFactory;
+import org.povworld.collection.common.PreConditions;
+
+import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.serialize2.SerializerRepository;
 import com.simpleentity.serialize2.meta.MetaData.Builder;
 import com.simpleentity.util.TypeUtil;
@@ -11,16 +14,20 @@ import com.simpleentity.util.TypeUtil;
 public class MetaDataUtil {
 
 	public static MetaData getMetaDataByReflection(Class<?> class_, String domain, long version, MetaType metaType,
-			EntityIdFactory idFactory, SerializerRepository serializerRepository) {
+			EntityId id, SerializerRepository serializerRepository) {
 		// Build a first version of MetaData already to reserve the id. This is
 		// important in case the fields reference the type that is just being
-		// created.
-		MetaData nakedMetaData = MetaData.newBuilder().setClassName(class_.getName()).setDomain(domain)
-				.setVersion(version).setMetaType(metaType).build(idFactory);
+		// created. TODO this should be obsolete now
+		MetaData nakedMetaData = MetaData.newBuilder()
+				.setClassName(class_.getName())
+				.setDomain(domain)
+				.setVersion(version)
+				.setMetaType(metaType)
+				.build(id);
 		// TODO elementTypeId is never set
 		Builder builder = nakedMetaData.toBuilder();
 		addFieldsToMetaDataEntries(class_, serializerRepository, builder);
-		return builder.build(idFactory);
+		return builder.build(id);
 	}
 
 	public static void addFieldsToMetaDataEntries(Class<?> class_, SerializerRepository serializerRepository,
@@ -35,39 +42,26 @@ public class MetaDataUtil {
 		return field.getName();
 	}
 
-//
-//	public static Type getDeclaredType(Field field, SerializerRepository serializerRepository) {
-//		serializerRepository.getMetaData(class_)
-//
-//		return getDeclaredType(field.getGenericType(), isOptional(field), serializerRepository);
-//	}
-//
-//
-//	private static Type getDeclaredType(java.lang.reflect.Type type, boolean optional, SerializerRepository serializerRepository) {
-//		Class<?> class_ = ObjectUtil.castOrNull(type, Class.class);
-//		if (class_ != null) {
-//			return new Type(serializerRepository.getMetaDataId(class_), optional);
-//		}
-//
-//
-//		ParameterizedType parameterizedType = ObjectUtil.castOrNull(type, ParameterizedType.class);
-//		parameterizedType.getActualTypeArguments();
-//		class_ = (Class<?>)parameterizedType.getRawType();
-//		MetaData metaData = serializerRepository.getMetaData(class_);
-//		if (metaData.getMetaType() == MetaType.COLLECTION) {
-//			CollectionSerializer<C>
-//		} else {
-//			return new Type(serializerRepository.getMetaDataId(class_), optional);
-//		}
-//	}
-//
-//	public static boolean isOptional(Field field) {
-//		for(Annotation annotation: field.getAnnotations()) {
-//			if (annotation.annotationType().getSimpleName().equals("CheckForNull")) {
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
+	public static boolean isOptional(Field field) {
+		for(Annotation annotation: field.getAnnotations()) {
+			if (annotation.annotationType().getSimpleName().equals("CheckForNull")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static EntityId getArrayMetaDataId(Class<?> arrayType) {
+		PreConditions.paramCheck(arrayType, "Not an array type!", arrayType.isArray());
+		Class<?> componentType = arrayType.getComponentType();
+		if (componentType.isArray()) {
+			return BootStrap.ID_MULTI_DIMENSIONAL_ARRAY;
+		}
+		if (componentType.isPrimitive()) {
+			return BootStrap.ID_PRIMITIVE_ARRAY;
+		} else {
+			return BootStrap.ID_OBJECT_ARRAY;
+		}
+	}
 
 }

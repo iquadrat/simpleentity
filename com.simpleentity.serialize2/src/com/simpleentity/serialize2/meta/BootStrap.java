@@ -33,6 +33,8 @@ public class BootStrap {
 	public static final EntityId ID_PRIMITIVE_STRING = new EntityId(ID_PRIMITIVE_FIRST + 9);
 	private static final long ID_PRIMITIVE_LAST = ID_PRIMITIVE_STRING.getId();
 
+	public static final long ID_RANGE_END = 63;
+
 	public static boolean isPrimitive(EntityId entityId) {
 		return (entityId.getId() >= ID_PRIMITIVE_FIRST) && (entityId.getId() <= ID_PRIMITIVE_LAST);
 	}
@@ -46,6 +48,8 @@ public class BootStrap {
 	public static final String MULTI_DIMENSIONAL_ARRAY_PRIMITIVE = "primitive";
 	public static final String MULTI_DIMENSIONAL_ARRAY_LEAF_META_DATA = "leafMetaData";
 	public static final MetaData MULTI_DIMENSIONAL_ARRAY;
+
+
 
 	static {
 		ENTITY_ID = MetaData.newBuilder()
