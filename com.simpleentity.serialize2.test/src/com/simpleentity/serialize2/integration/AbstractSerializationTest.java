@@ -37,7 +37,7 @@ public class AbstractSerializationTest {
 		CollectionSerializerRepository collectionSerializerRepository = new CollectionSerializerRepository();
 		JavaMetaDataRepository metaDataRepository = new JavaMetaDataRepository(metaDataFactory, idFactory, collectionSerializerRepository);
 		return new JavaSerializerRepository(collectionSerializerRepository, metaDataRepository,
-				idFactory, getClass().getClassLoader(), new ObjenesisInstantiator());
+				getClass().getClassLoader(), new ObjenesisInstantiator());
 	}
 
 	protected <T> T serializeAndDeserialize(T object) {

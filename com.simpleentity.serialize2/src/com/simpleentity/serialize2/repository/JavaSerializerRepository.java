@@ -7,7 +7,6 @@ import net.jcip.annotations.ThreadSafe;
 import org.povworld.collection.mutable.HashMap;
 
 import com.simpleentity.entity.id.EntityId;
-import com.simpleentity.entity.id.EntityIdFactory;
 import com.simpleentity.serialize2.Instantiator;
 import com.simpleentity.serialize2.SerializationContext;
 import com.simpleentity.serialize2.Serializer;
@@ -33,16 +32,14 @@ public class JavaSerializerRepository implements BinarySerializerRepository, Ser
 	private final HashMap<EntityId, Serializer<?>> serializers = new HashMap<>();
 	private final BinarySerializer<EntityId> entityIdSerializer = new EntityIdSerializer();
 
-	private final EntityIdFactory idFactory;
 	private final ClassLoader classLoader;
 
 	private final SerializationContext context;
 	private final MetaDataRepository metaDataRepository;
 	private final CollectionSerializerRepository collectionSerializerRepository;
 
-	public JavaSerializerRepository(CollectionSerializerRepository collectionSerializerRepository, MetaDataRepository metaDataRepository, EntityIdFactory idFactory, ClassLoader classLoader, Instantiator instantiator) {
+	public JavaSerializerRepository(CollectionSerializerRepository collectionSerializerRepository, MetaDataRepository metaDataRepository, ClassLoader classLoader, Instantiator instantiator) {
 		this.collectionSerializerRepository = collectionSerializerRepository;
-		this.idFactory = idFactory;
 		this.classLoader = classLoader;
 		this.context = new SerializationContext(classLoader, this, this, instantiator);
 		this.metaDataRepository = metaDataRepository;
