@@ -6,7 +6,6 @@ import org.povworld.collection.common.ObjectUtil;
 
 import com.simpleentity.entity.id.EntityId;
 
-// TODO remove T
 @Immutable
 public abstract class Entity<T extends Entity<T>> {
 
