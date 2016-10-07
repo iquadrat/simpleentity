@@ -8,12 +8,12 @@ public class EntityIdSerializer implements BinarySerializer<EntityId> {
 
 	@Override
 	public void serialize(EntityId entityId, ByteWriter destination) {
-		destination.putVarInt(entityId.getId());
+		destination.putPositiveVarInt(entityId.getId());
 	}
 
 	@Override
 	public EntityId deserialize(ByteReader source) {
-		return new EntityId(source.getVarInt());
+		return new EntityId(source.getPositiveVarInt());
 	}
 
 }

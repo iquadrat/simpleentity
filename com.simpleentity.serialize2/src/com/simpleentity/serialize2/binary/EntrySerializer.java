@@ -52,7 +52,7 @@ class EntrySerializer {
 			if (polymorphic) {
 				serializerRepository.getEntityIdSerializer().serialize(BootStrap.ID_NULL_REFERENCE, destination);
 			} else {
-				destination.putVarInt(0); // TODO optimize
+				destination.putPositiveVarInt(0); // TODO optimize
 			}
 			return;
 		}
@@ -67,7 +67,7 @@ class EntrySerializer {
 				// As we do not serialize the type if the declared type is not
 				// polymorphic we need to serialize whether it is present or
 				// not.
-				destination.putVarInt(1); // TODO optimize
+				destination.putPositiveVarInt(1); // TODO optimize
 			}
 		}
 
@@ -85,7 +85,7 @@ class EntrySerializer {
 
 			@Override
 			public void visit(EnumValue enumValue) {
-				destination.putVarInt(enumValue.getOrdinal());
+				destination.putPositiveVarInt(enumValue.getOrdinal());
 			}
 
 			@Override
@@ -105,7 +105,7 @@ class EntrySerializer {
 				// Write element MetaDataId.
 				serializerRepository.getEntityIdSerializer().serialize(collection.getValueMetaDataId(), destination);
 				// Write element count.
-				destination.putVarInt(collection.getCount());
+				destination.putPositiveVarInt(collection.getCount());
 				// Write custom collection implementation data.
 				BinarySerializer<ObjectInfo> serializer = serializerRepository.getBinarySerializer(collection
 						.getActualMetaDataId());
@@ -157,7 +157,7 @@ class EntrySerializer {
 			}
 		} else {
 			// Non-polymorphic type: Do not read actual type.
-			if (!optional || source.getVarInt() != 0) {
+			if (!optional || source.getPositiveVarInt() != 0) {
 				actualMetaData = declaredMetaData;
 			}
 		}
@@ -180,7 +180,7 @@ class EntrySerializer {
 			return new PrimitiveValue(primitive, serializer.deserialize(source));
 		}
 		case ENUM: {
-			int ordinal = MathUtil.longToInt(source.getVarInt());
+			int ordinal = MathUtil.longToInt(source.getPositiveVarInt());
 			return new EnumValue(actualMetaData.getEntityId(), ordinal);
 		}
 		case VALUE_OBJECT: {
@@ -192,7 +192,7 @@ class EntrySerializer {
 			// Read element MetaDataId.
 			EntityId elementMetaDataId = serializerRepository.getEntityIdSerializer().deserialize(source);
 			// Read element count.
-			int count = MathUtil.longToInt(source.getVarInt());
+			int count = MathUtil.longToInt(source.getPositiveVarInt());
 			// Read custom collection implementation data.
 			BinarySerializer<ObjectInfo> serializer = serializerRepository.getBinarySerializer(actualMetaData
 					.getEntityId());

@@ -96,12 +96,12 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 			if (v < 0) {
 				throw new SerializerException("Cannot serialize negative var int: "+v);
 			}
-			destination.putVarInt(v);
+			destination.putPositiveVarInt(v);
 		}
 
 		@Override
 		public Long deserialize(ByteReader source) {
-			return source.getVarInt();
+			return source.getPositiveVarInt();
 		}
 
 	};

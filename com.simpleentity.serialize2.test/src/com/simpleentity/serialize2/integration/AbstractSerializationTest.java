@@ -55,7 +55,7 @@ public class AbstractSerializationTest {
 		ObjectInfo objectInfo = serializer.serialize(entity);
 		System.out.println(objectInfo);
 		ByteWriter destination = new ByteWriter();
-		destination.putVarInt(metaDataId.getId());
+		destination.putPositiveVarInt(metaDataId.getId());
 		serializerRepository.getBinarySerializer(metaDataId).serialize(objectInfo, destination);
 		return destination.build();
 	}
@@ -63,7 +63,7 @@ public class AbstractSerializationTest {
 	@SuppressWarnings("unchecked")
 	protected <T> T deserialize(ByteChunk bytes) {
 		ByteReader source = new ByteReader(bytes);
-		EntityId metaDataId = new EntityId(source.getVarInt());
+		EntityId metaDataId = new EntityId(source.getPositiveVarInt());
 		ObjectInfo objectInfo = serializerRepository.getBinarySerializer(metaDataId).deserialize(source);
 		System.out.println(objectInfo);
 		Serializer<T> serializer = (Serializer<T>) serializerRepository.getSerializer(metaDataId);

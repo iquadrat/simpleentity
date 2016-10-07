@@ -3,6 +3,7 @@ package com.simpleentity.util.bytes;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.simpleentity.annotation.Positive;
 import com.simpleentity.util.StringUtil;
 
 public class ByteWriter {
@@ -142,22 +143,39 @@ public class ByteWriter {
 		return this;
 	}
 
-	public ByteWriter putVarInt(long n) {
+	public ByteWriter putPositiveVarInt(@Positive long n) {
 		// TODO consider changing to be closer to LITTLE_ENDIAN format.
 		if (n < 0) {
 			throw new IllegalArgumentException("Argument must be positive but was: " + n);
 		}
+		encodeVarInt(n);
+		return this;
+	}
+
+	private void encodeVarInt(long n) {
 		int bytes = (63 - Long.numberOfLeadingZeros(n)) / 7;
 		// Write first data byte.
 		int mask = 1 << (7 - (bytes & 0x07));
-		if (bytes == 8) {
+		if (bytes >= 8) {
 			putByte(0);
-			bytes = 7;
+			bytes--;
 		}
-		putByte((byte) (mask | (n >> (bytes * 8))));
+		if (bytes >= 8) {
+			putByte(0x40);
+		} else {
+			putByte((byte) (mask | (n >>> (bytes * 8))));
+		}
 		// Write remaining data bytes.
 		for (int i = bytes - 1; i >= 0; i--) {
 			putByte((byte) (n >> (i * 8)));
+		}
+	}
+
+	public ByteWriter putSignedVarInt(long n) {
+		if (n >= 0) {
+			encodeVarInt(n << 1);
+		} else {
+			encodeVarInt((-(n+1) << 1)+1);
 		}
 		return this;
 	}
@@ -182,7 +200,7 @@ public class ByteWriter {
 
 	public ByteWriter putStringUtf8(String string) {
 		byte[] encoded = string.getBytes(StringUtil.UTF8);
-		putVarInt(encoded.length);
+		putPositiveVarInt(encoded.length);
 		put(encoded);
 		return this;
 	}
