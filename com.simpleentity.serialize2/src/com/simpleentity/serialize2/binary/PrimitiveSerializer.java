@@ -89,10 +89,10 @@ public abstract class PrimitiveSerializer<T> implements BinarySerializer<T> {
 			return source.getLong();
 		}
 	};
-	static final BinarySerializer<Long> VARINT = new PrimitiveSerializer<Long>() {
+	static final BinarySerializer<Number> VARINT = new PrimitiveSerializer<Number>() {
 		@Override
-		public void serialize(Long value, ByteWriter destination) {
-			long v = value;
+		public void serialize(Number value, ByteWriter destination) {
+			long v = value.longValue();
 			if (v < 0) {
 				throw new SerializerException("Cannot serialize negative var int: "+v);
 			}

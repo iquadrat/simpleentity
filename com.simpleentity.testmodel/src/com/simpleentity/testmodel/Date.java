@@ -8,8 +8,8 @@ import com.simpleentity.entity.value.ValueObject;
 public class Date extends ValueObject {
 
 	private final int year;
-	private final @Positive byte month;
-	private final @Positive byte day;
+	private final @Positive short month;
+	private final @Positive short day;
 
 	public Date(int year, @Positive int month, @Positive int day) {
 		this.year = year;

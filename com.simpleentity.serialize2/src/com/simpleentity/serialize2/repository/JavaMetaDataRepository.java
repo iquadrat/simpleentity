@@ -112,7 +112,12 @@ public class JavaMetaDataRepository implements MetaDataRepository {
 		Class<?> type = field.getType();
 		boolean optional = MetaDataUtil.isOptional(field);
 		EntityId metaDataId = getMetaDataId(type);
-		CollectionSerializer<?> collectionSerializer = collectionSerializerRepository.getCollectionSerializer(metaDataId);
+		if (BootStrap.isPrimitive(metaDataId) && MetaDataUtil.isPositive(field)) {
+			// TODO this is an ugly hack
+			metaDataId = BootStrap.ID_PRIMITIVE_VARINT;
+		}
+		CollectionSerializer<?> collectionSerializer = collectionSerializerRepository
+				.getCollectionSerializer(metaDataId);
 		Type elementType = (collectionSerializer == null) ? null : collectionSerializer.getElementType(field);
 		return new Type(metaDataId, optional, elementType);
 	}

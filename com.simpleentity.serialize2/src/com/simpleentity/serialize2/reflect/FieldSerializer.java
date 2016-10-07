@@ -4,9 +4,15 @@ import java.lang.reflect.Field;
 
 import javax.annotation.CheckForNull;
 
+import org.povworld.collection.UnOrderedSet;
+import org.povworld.collection.common.ObjectUtil;
+import org.povworld.collection.immutable.ImmutableCollections;
+
 import com.simpleentity.serialize2.SerializerException;
 import com.simpleentity.serialize2.generic.GenericValue;
 import com.simpleentity.serialize2.generic.ObjectInfo;
+import com.simpleentity.serialize2.meta.Primitive;
+import com.sun.xml.internal.ws.encoding.soap.SerializationException;
 
 // TODO merge with ValueSerializer?
 class FieldSerializer<T> {
@@ -47,9 +53,39 @@ class FieldSerializer<T> {
 
 	private void setRaw(T entity, Object value) {
 		try {
-			field.set(entity, value);
+			field.set(entity, convert(value, field.getType()));
 		} catch (IllegalAccessException | IllegalArgumentException e) {
 			throw new SerializerException(e);
 		}
+	}
+
+	private static final UnOrderedSet<Class<?>> integerClasses = ImmutableCollections.<Class<?>> asUnOrderedSet(
+			Short.class, Integer.class, Long.class);
+
+	private Object convert(Object value, Class<?> type) {
+		if (type.isPrimitive()) {
+			type = Primitive.byType(type).getBoxedType();
+		}
+
+		if (type.isInstance(value) || type.isPrimitive()) {
+			return value;
+		}
+		if (Number.class.isAssignableFrom(type) && integerClasses.contains(value.getClass())) {
+			Number number = ObjectUtil.castOrNull(value, Number.class);
+				long longValue = number.longValue();
+				if (Short.class.equals(type) && longValue <= Short.MAX_VALUE && longValue >= Short.MIN_VALUE) {
+					return Short.valueOf(number.shortValue());
+				}
+				if (Integer.class.equals(type) && longValue <= Integer.MAX_VALUE && longValue >= Integer.MIN_VALUE) {
+					return Integer.valueOf(number.intValue());
+				}
+				if (Long.class.equals(type)) {
+					return Long.valueOf(longValue);
+				}
+		}
+		if (Double.class == type && (value instanceof Float)) {
+			return Double.valueOf((float)value);
+		}
+		throw new SerializationException("Type missmatch! Cannot assign '"+value+"' which is of type "+value.getClass().getName()+" to field of type "+type);
 	}
 }

@@ -60,6 +60,7 @@ public class ReflectiveSerializerTest {
 	private static final EntityId TEST_ENTITY_ID = new EntityId(1000L);
 
 	// TODO replace by non-mock?
+	@Mock private MetaDataRepository fieldTypeDetector;
 	@Mock private MetaDataRepository metaDataRepository;
 	@Mock private SerializationContext context;
 	@Mock private SerializerRepository serializerRepository;

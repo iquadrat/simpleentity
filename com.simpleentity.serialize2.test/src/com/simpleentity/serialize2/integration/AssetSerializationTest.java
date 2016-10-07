@@ -3,12 +3,12 @@ package com.simpleentity.serialize2.integration;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.simpleentity.serialize2.integration.testclasses.Album;
-import com.simpleentity.serialize2.integration.testclasses.Artist;
-import com.simpleentity.serialize2.integration.testclasses.Date;
-import com.simpleentity.serialize2.integration.testclasses.Duration;
-import com.simpleentity.serialize2.integration.testclasses.Sex;
-import com.simpleentity.serialize2.integration.testclasses.Song;
+import com.simpleentity.testmodel.Album;
+import com.simpleentity.testmodel.Artist;
+import com.simpleentity.testmodel.Date;
+import com.simpleentity.testmodel.Duration;
+import com.simpleentity.testmodel.Sex;
+import com.simpleentity.testmodel.Song;
 
 public class AssetSerializationTest extends AbstractSerializationTest {
 

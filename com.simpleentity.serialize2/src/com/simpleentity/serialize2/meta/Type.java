@@ -13,6 +13,14 @@ public final class Type extends ValueObject {
 	private final boolean optional;
 	private final @CheckForNull Type elementType;
 
+	public static Type required(EntityId metaDataId) {
+		return new Type(metaDataId, false);
+	}
+
+	public static Type optional(EntityId metaDataId) {
+		return new Type(metaDataId, true);
+	}
+
 	public Type(EntityId metaDataId, boolean optional) {
 		this(metaDataId, optional, null);
 	}

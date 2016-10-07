@@ -3,8 +3,10 @@ package com.simpleentity.serialize2.meta;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
+import org.povworld.collection.CollectionUtil;
 import org.povworld.collection.common.PreConditions;
 
+import com.simpleentity.annotation.CheckForNull;
 import com.simpleentity.annotation.ValueObject;
 import com.simpleentity.entity.Entity;
 import com.simpleentity.entity.id.EntityId;
@@ -15,20 +17,22 @@ import com.simpleentity.util.TypeUtil;
 public class MetaDataUtil {
 
 	public static MetaData getMetaDataByReflection(Class<?> type, String domain, long version, EntityId id,
-			MetaDataRepository repository) {
+			MetaDataRepository metaDataRepository) {
+		MetaType metaType = tryGetMetaType(type);
+		if (metaType == null) {
+			// TODO fail if strict type model is enabled
+			metaType = MetaType.VALUE_OBJECT;
+		}
 
-		MetaType metaType = getMetaType(type);
-
-		// Build a first version of MetaData already to reserve the id. This is
-		// important in case the fields reference the type that is just being
-		// created. TODO this should be obsolete now
-		MetaData nakedMetaData = MetaData.newBuilder().setClassName(type.getName()).setDomain(domain)
-				.setVersion(version).setMetaType(metaType).build(id);
-		Builder builder = nakedMetaData.toBuilder();
+		Builder builder = MetaData.newBuilder()
+				.setDomain(domain)
+				.setVersion(version)
+				.setMetaType(metaType)
+				.setClassName(type.getName());
 		switch (metaType) {
 		case ENTITY:
 		case VALUE_OBJECT:
-			addFieldsToMetaDataEntries(type, repository, builder);
+			addFieldsToMetaDataEntries(type, metaDataRepository, builder);
 			break;
 		case ENUM:
 			addEnumFieldsToMetaDataEntries(type, builder);
@@ -44,7 +48,8 @@ public class MetaDataUtil {
 		return builder.build(id);
 	}
 
-	public static MetaType getMetaType(Class<?> type) {
+	@CheckForNull
+	public static MetaType tryGetMetaType(Class<?> type) {
 		if (TypeUtil.hasAnnotation(type, ValueObject.class)) {
 			return MetaType.VALUE_OBJECT;
 		}
@@ -54,8 +59,11 @@ public class MetaDataUtil {
 		if (type.isEnum()) {
 			return MetaType.ENUM;
 		}
-		// TODO fail if strict type checking is enabled
-		return MetaType.VALUE_OBJECT;
+		if (type.isPrimitive()) {
+			return MetaType.PRIMITIVE;
+		}
+		// Cannot decide on the MetaType just from class.
+		return null;
 	}
 
 	public static void addEnumFieldsToMetaDataEntries(Class<?> enumType, Builder builder) {
@@ -108,5 +116,13 @@ public class MetaDataUtil {
 		}
 	}
 
+	public static boolean deepEquals(MetaData metaData1, MetaData metaData2) {
+		return metaData1.equals(metaData2)
+			&& metaData1.getClassName().equals(metaData2.getClassName())
+			&& metaData1.getDomain().equals(metaData2.getDomain())
+			&& CollectionUtil.iteratesEqualSequence(metaData1.getEntries(), metaData2.getEntries())
+			&& (metaData1.getMetaType() == metaData2.getMetaType())
+			&& (metaData1.getVersion() == metaData2.getVersion());
+	}
 
 }

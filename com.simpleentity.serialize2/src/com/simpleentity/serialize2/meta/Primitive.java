@@ -13,7 +13,7 @@ public enum Primitive {
 	SHORT(BootStrap.ID_PRIMITIVE_SHORT, short.class, Short.class),
 	INT(BootStrap.ID_PRIMITIVE_INT, int.class, Integer.class),
 	LONG(BootStrap.ID_PRIMITIVE_LONG, long.class, Long.class),
-	VARINT(BootStrap.ID_PRIMITIVE_VARINT, long.class, Long.class),
+	VARINT(BootStrap.ID_PRIMITIVE_VARINT, Number.class, Number.class),
 	FLOAT(BootStrap.ID_PRIMITIVE_FLOAT, float.class, Float.class),
 	DOUBLE(BootStrap.ID_PRIMITIVE_DOUBLE, double.class, Double.class),
 	STRING(BootStrap.ID_PRIMITIVE_STRING, String.class, String.class);
@@ -55,6 +55,7 @@ public enum Primitive {
 
 	// TODO Create PerfectHashMap.
 	private static final Map<EntityId, Primitive> entityId2Primitive;
+	private static final Map<Class<?>, Primitive> type2Primitive;
 	static {
 		HashMap<EntityId, Primitive> byEntityId = new HashMap<>(values().length);
 		HashMap<Class<?>, Primitive> byType = new HashMap<>(values().length);
@@ -63,12 +64,21 @@ public enum Primitive {
 			byType.put(primitive.getType(), primitive);
 		}
 		entityId2Primitive = byEntityId;
+		type2Primitive = byType;
 	}
 
 	public static Primitive byEntityId(EntityId id) {
 		Primitive result = entityId2Primitive.get(id);
 		if (result == null) {
 			throw new IllegalArgumentException("EntityId " + id + " does not correspond to any primitive!");
+		}
+		return result;
+	}
+
+	public static Primitive byType(Class<?> primitiveClass) {
+		Primitive result = type2Primitive.get(primitiveClass);
+		if (result == null) {
+			throw new IllegalArgumentException("Type " + primitiveClass + " does not correspond to any primitive!");
 		}
 		return result;
 	}

@@ -1,13 +1,12 @@
 package com.simpleentity.serialize2.integration;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.serialize2.meta.BootStrap;
 import com.simpleentity.serialize2.meta.MetaData;
+import com.simpleentity.serialize2.meta.MetaDataTestUtil;
 import com.simpleentity.serialize2.meta.MetaType;
 import com.simpleentity.serialize2.meta.Type;
 import com.simpleentity.util.bytes.ByteChunk;
@@ -101,16 +100,7 @@ public class MetaDataSerializationTest extends AbstractSerializationTest {
 
 	private void serializeAndDeserialize(MetaData metaData) {
 		MetaData actual = super.serializeAndDeserialize(metaData);
-		assertDeepEquals(metaData, actual);
-	}
-
-	public void assertDeepEquals(MetaData metaData1, MetaData metaData2) {
-		assertEquals(metaData1, metaData2);
-		assertEquals(metaData1.getClassName(), metaData2.getClassName());
-		assertEquals(metaData1.getDomain(), metaData2.getDomain());
-		assertEquals(metaData1.getEntries(), metaData2.getEntries());
-		assertEquals(metaData1.getMetaType(), metaData2.getMetaType());
-		assertEquals(metaData1.getVersion(), metaData2.getVersion());
+		MetaDataTestUtil.assertDeepEquals(metaData, actual);
 	}
 
 }

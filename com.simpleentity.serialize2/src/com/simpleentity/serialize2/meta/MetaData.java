@@ -18,6 +18,7 @@ import com.simpleentity.annotation.Positive;
 import com.simpleentity.entity.Entity;
 import com.simpleentity.entity.EntityBuilder;
 import com.simpleentity.entity.id.EntityId;
+import com.simpleentity.util.StringUtil;
 
 // TODO use polymorphism instead of MetaDataType?
 public class MetaData extends Entity<MetaData> {
@@ -78,6 +79,16 @@ public class MetaData extends Entity<MetaData> {
 
 	public Iterable<Entry> getEntries() {
 		return Arrays.asList(entries);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().getSimpleName());
+		sb.append("[domain="+getDomain()+", version="+getVersion()+", metaType="+getMetaType()+", class="+getClassName()+", entries={");
+		sb.append(StringUtil.join(getEntries(), ", "));
+		sb.append("}]");
+		return sb.toString();
 	}
 
 	@Override
@@ -146,7 +157,6 @@ public class MetaData extends Entity<MetaData> {
 		protected MetaData build(EntityId id) {
 			return new MetaData(id, this);
 		}
-
 	}
 
 }
