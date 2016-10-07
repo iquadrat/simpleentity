@@ -1,6 +1,7 @@
 package com.simpleentity.util;
 
 import java.nio.charset.Charset;
+import java.util.Iterator;
 
 
 
@@ -72,6 +73,18 @@ public class StringUtil {
 			return (char) ('0' + halfByte);
 		}
 		return (char) ('a' + (halfByte - 10));
+	}
+
+	public static String join(Iterable<?> objects, String separator) {
+		Iterator<?> iterator = objects.iterator();
+		StringBuilder sb = new StringBuilder();
+		while(iterator.hasNext()) {
+			sb.append(iterator.next());
+			if (iterator.hasNext()) {
+				sb.append(separator);
+			}
+		}
+		return sb.toString();
 	}
 
 }
