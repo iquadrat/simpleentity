@@ -6,6 +6,8 @@ import com.simpleentity.entity.id.AtomicIdFactory;
 import com.simpleentity.entity.id.EntityId;
 import com.simpleentity.entity.id.EntityIdFactory;
 import com.simpleentity.serialize2.Serializer;
+import com.simpleentity.serialize2.collection.common.ArrayListSerializer;
+import com.simpleentity.serialize2.collection.common.ImmutableArrayListSerializer;
 import com.simpleentity.serialize2.generic.ObjectInfo;
 import com.simpleentity.serialize2.meta.BootStrap;
 import com.simpleentity.serialize2.meta.MetaDataFactory;
@@ -36,6 +38,13 @@ public class AbstractSerializationTest {
 	protected JavaSerializerRepository createSerializerRepository() {
 		CollectionSerializerRepository collectionSerializerRepository = new CollectionSerializerRepository();
 		JavaMetaDataRepository metaDataRepository = new JavaMetaDataRepository(metaDataFactory, idFactory, collectionSerializerRepository);
+
+		EntityId metaDataId = idFactory.newEntityId();
+		metaDataRepository.registerCollectionSerializer(new ArrayListSerializer(metaDataId, metaDataRepository));
+
+		metaDataId = idFactory.newEntityId();
+		metaDataRepository.registerCollectionSerializer(new ImmutableArrayListSerializer(metaDataId, metaDataRepository));
+
 		return new JavaSerializerRepository(collectionSerializerRepository, metaDataRepository,
 				getClass().getClassLoader(), new ObjenesisInstantiator());
 	}

@@ -18,8 +18,8 @@ public class CollectionSerializerRepository {
 	public CollectionSerializerRepository() {
 	}
 
-	public void registerCollectionSerializer(EntityId metaDataId, CollectionSerializer<?> serializer) {
-		collectionSerializers.put(metaDataId, serializer);
+	public void registerCollectionSerializer(CollectionSerializer<?> serializer) {
+		collectionSerializers.put(serializer.getMetaData().getEntityId(), serializer);
 	}
 
 	@CheckForNull
@@ -28,10 +28,9 @@ public class CollectionSerializerRepository {
 	}
 
 	public void registerBootstrapSerializers(MetaDataRepository metaDataRepository, ClassLoader classLoader) {
-		ArraySerializer arraySerializer = new ArraySerializer(metaDataRepository, classLoader);
-		collectionSerializers.put(BootStrap.ID_PRIMITIVE_ARRAY, arraySerializer);
-		collectionSerializers.put(BootStrap.ID_OBJECT_ARRAY, arraySerializer);
-		collectionSerializers.put(BootStrap.ID_MULTI_DIMENSIONAL_ARRAY, arraySerializer);
+		registerCollectionSerializer(new ArraySerializer(BootStrap.PRIMITIVE_ARRAY, metaDataRepository, classLoader));
+		registerCollectionSerializer(new ArraySerializer(BootStrap.OBJECT_ARRAY, metaDataRepository, classLoader));
+		registerCollectionSerializer(new ArraySerializer(BootStrap.MULTI_DIMENSIONAL_ARRAY, metaDataRepository, classLoader));
 	}
 
 }

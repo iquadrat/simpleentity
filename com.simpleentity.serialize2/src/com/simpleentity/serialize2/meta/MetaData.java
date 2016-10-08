@@ -154,7 +154,7 @@ public class MetaData extends Entity<MetaData> {
 		}
 
 		@Override
-		protected MetaData build(EntityId id) {
+		public MetaData build(EntityId id) {
 			return new MetaData(id, this);
 		}
 	}

@@ -26,12 +26,19 @@ public class ArraySerializer implements CollectionSerializer<Object> {
 	private static final String FIELD_LEAF_META_DATA = "leafMetaData";
 	private static final String FIELD_PRIMITIVE = "primitive";
 
+	private final MetaData metaData;
 	private final MetaDataRepository repository;
 	private final ClassLoader classLoader;
 
-	public ArraySerializer(MetaDataRepository respository, ClassLoader classLoader) {
+	public ArraySerializer(MetaData metaData, MetaDataRepository respository, ClassLoader classLoader) {
+		this.metaData = metaData;
 		this.repository = respository;
 		this.classLoader = classLoader;
+	}
+
+	@Override
+	public MetaData getMetaData() {
+		return metaData;
 	}
 
 	@Override

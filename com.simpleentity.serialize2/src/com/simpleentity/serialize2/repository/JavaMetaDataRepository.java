@@ -1,9 +1,10 @@
 package com.simpleentity.serialize2.repository;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 
 import net.jcip.annotations.NotThreadSafe;
+
+import org.povworld.collection.mutable.HashMap;
 
 import com.simpleentity.annotation.CheckForNull;
 import com.simpleentity.entity.id.EntityId;
@@ -24,7 +25,7 @@ import com.simpleentity.serialize2.meta.Type;
 public class JavaMetaDataRepository implements MetaDataRepository {
 
 	private final HashMap<EntityId, MetaData> id2MetaData = new HashMap<>();
-	private final HashMap<Class<?>, EntityId> class2id = new HashMap<>();
+	private final HashMap<String, EntityId> class2id = new HashMap<>();
 
 	@CheckForNull
 	private final MetaDataFactory metaDataFactory;
@@ -62,7 +63,7 @@ public class JavaMetaDataRepository implements MetaDataRepository {
 	}
 
 	public void add(Class<?> type, MetaData metaData) {
-		class2id.put(type, metaData.getEntityId());
+		class2id.put(type.getName(), metaData.getEntityId());
 		id2MetaData.put(metaData.getEntityId(), metaData);
 	}
 
@@ -80,7 +81,7 @@ public class JavaMetaDataRepository implements MetaDataRepository {
 		if (class_.isArray()) {
 			return MetaDataUtil.getArrayMetaDataId(class_);
 		}
-		EntityId metaDataId = class2id.get(class_);
+		EntityId metaDataId = class2id.get(class_.getName());
 		if (metaDataId != null) {
 			return metaDataId;
 		}
@@ -97,7 +98,7 @@ public class JavaMetaDataRepository implements MetaDataRepository {
 			throw missing(MetaData.class, class_.getName());
 		}
 		EntityId id = idFactory.newEntityId();
-		class2id.put(class_, id);
+		class2id.put(class_.getName(), id);
 		MetaData metaData = metaDataFactory.create(class_, id, this);
 		id2MetaData.put(metaData.getEntityId(), metaData);
 		return metaData;
@@ -118,8 +119,18 @@ public class JavaMetaDataRepository implements MetaDataRepository {
 		}
 		CollectionSerializer<?> collectionSerializer = collectionSerializerRepository
 				.getCollectionSerializer(metaDataId);
-		Type elementType = (collectionSerializer == null) ? null : collectionSerializer.getElementType(field);
+		Type elementType =
+				(collectionSerializer == null) ? null :
+					collectionSerializer.getElementType(field);
 		return new Type(metaDataId, optional, elementType);
+	}
+
+	public void registerCollectionSerializer(CollectionSerializer<?> collectionSerializer) {
+		collectionSerializerRepository.registerCollectionSerializer(collectionSerializer);
+		MetaData metaData = collectionSerializer.getMetaData();
+		id2MetaData.put(metaData.getEntityId(), metaData);
+		class2id.put(metaData.getClassName(), metaData.getEntityId());
+
 	}
 
 }

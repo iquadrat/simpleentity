@@ -52,7 +52,8 @@ public class ArraySerializerTest {
 			when(repository.getMetaData(primitive.getBoxedType())).thenReturn(primitive.getMetaData());
 			when(repository.getMetaData(primitive.getMetaDataId())).thenReturn(primitive.getMetaData());
 		}
-		serializer = new ArraySerializer(repository, getClass().getClassLoader());
+		// TODO should different serializers with matching MetaData
+		serializer = new ArraySerializer(BootStrap.PRIMITIVE_ARRAY, repository, getClass().getClassLoader());
 	}
 
 	@Test
